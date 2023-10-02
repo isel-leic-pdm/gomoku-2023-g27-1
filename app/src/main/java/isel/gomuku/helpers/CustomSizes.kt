@@ -1,7 +1,4 @@
-package isel.gomuku.gui
-
-
-
+package isel.gomuku.helpers
 /**
  * Padding value between each main menu button
  */
