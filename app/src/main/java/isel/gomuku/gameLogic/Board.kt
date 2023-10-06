@@ -35,10 +35,11 @@ class BoardRun(val moves: List<Move> = emptyList(), val lastPlayer: Player = Pla
 
     private fun checkWinner(m: Move, pos: Position): Boolean {
         val plMoves = moves.filter { it.player == m.player }
-        return checkWinCondition(countPieces(plMoves, pos, Pair(0, 1)) + countPieces(plMoves, pos, Pair(0, -1)) + 1)
-                ||checkWinCondition(countPieces(plMoves, pos, Pair(1, 0)) + countPieces(plMoves, pos, Pair(-1, 0)) + 1)
-                ||checkWinCondition(countPieces(plMoves, pos, Pair(1, 1)) + countPieces(plMoves, pos, Pair(-1, -1)) + 1)
-                ||checkWinCondition(countPieces(plMoves, pos, Pair(-1, 1)) + countPieces(plMoves, pos, Pair(1, -1)) + 1)
+        val addLastPlay = 1
+        return checkWinCondition(countPieces(plMoves, pos, Pair(0, 1)) + countPieces(plMoves, pos, Pair(0, -1)) + addLastPlay)
+                ||checkWinCondition(countPieces(plMoves, pos, Pair(1, 0)) + countPieces(plMoves, pos, Pair(-1, 0)) + addLastPlay)
+                ||checkWinCondition(countPieces(plMoves, pos, Pair(1, 1)) + countPieces(plMoves, pos, Pair(-1, -1)) + addLastPlay)
+                ||checkWinCondition(countPieces(plMoves, pos, Pair(-1, 1)) + countPieces(plMoves, pos, Pair(1, -1)) + addLastPlay)
     }
 
     private fun checkWinCondition(int: Int): Boolean =
