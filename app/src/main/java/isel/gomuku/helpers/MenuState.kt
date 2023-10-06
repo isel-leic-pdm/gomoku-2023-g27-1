@@ -1,4 +1,4 @@
-package isel.gomuku.logic
+package isel.gomuku.helpers
 
 enum class MenuState {
     MAIN_MENU,AUTHORS,PLAY

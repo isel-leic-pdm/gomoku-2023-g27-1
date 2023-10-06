@@ -9,13 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 import isel.gomuku.helpers.MENU_BUTTON_TEXT_SIZE
-import isel.gomuku.logic.MenuState
+import isel.gomuku.helpers.MenuState
 
 @Composable
 fun MainMenu(modifier: Modifier, onClick: (MenuState) -> Unit) {
     Column(verticalArrangement = Arrangement.Center) {
 
-        Button(onClick = { /*TODO*/ },modifier = modifier) {
+        Button(onClick = { onClick(MenuState.PLAY) },modifier = modifier) {
             Text(text = "Play", fontSize = MENU_BUTTON_TEXT_SIZE.sp)
         }
         Button(onClick = { onClick(MenuState.AUTHORS) },modifier = modifier ) {

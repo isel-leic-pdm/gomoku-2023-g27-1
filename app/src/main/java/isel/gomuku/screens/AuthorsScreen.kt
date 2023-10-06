@@ -10,20 +10,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import isel.gomuku.helpers.AUTHORSTEXTSIZE
-import isel.gomuku.logic.MenuState
+import isel.gomuku.helpers.AUTHORS_TEXT_SIZE
+import isel.gomuku.helpers.MenuState
 
 @Composable
 fun Biography(onClick: (MenuState) -> Unit) {
     Column {
-        Button(onClick = { onClick(MenuState.MAINMENU) }) {
+        Button(onClick = { onClick(MenuState.MAIN_MENU) }) {
             Text(text = "Main Menu")
         }
         Row(modifier = Modifier.fillMaxWidth(), Arrangement.SpaceEvenly) {
             Column(modifier = Modifier.fillMaxHeight(), Arrangement.SpaceEvenly) {
-                Text(text = "48323 Simão Cabral", fontSize = AUTHORSTEXTSIZE.sp)
-                Text(text = "49454 Eduardo Tavares", fontSize = AUTHORSTEXTSIZE.sp)
-                Text(text = "XXXXX Marçorio Fortes", fontSize = AUTHORSTEXTSIZE.sp)
+                Text(text = "48323 Simão Cabral", fontSize = AUTHORS_TEXT_SIZE.sp)
+                Text(text = "49454 Eduardo Tavares", fontSize = AUTHORS_TEXT_SIZE.sp)
+                Text(text = "XXXXX Marçorio Fortes", fontSize = AUTHORS_TEXT_SIZE.sp)
             }
         }
     }
