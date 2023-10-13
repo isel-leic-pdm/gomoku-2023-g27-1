@@ -1,6 +1,7 @@
 package isel.gomuku
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -21,28 +22,26 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import isel.gomuku.gameLogic.Board
+import isel.gomuku.gameLogic.BoardRun
+import isel.gomuku.gameLogic.BoardWinner
+import isel.gomuku.gameLogic.Player
+import isel.gomuku.gameLogic.Position
 import isel.gomuku.helpers.MENU_BUTTON_WIDTH
 import isel.gomuku.helpers.MENU_PADDING
 import isel.gomuku.helpers.MenuState
-import isel.gomuku.model.GoPiece
 import isel.gomuku.screens.Biography
 import isel.gomuku.screens.MainMenu
 import isel.gomuku.ui.theme.GomukuTheme
-import kotlin.reflect.KProperty
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,11 +60,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun startBoard(): MutableMap<Position,Player?>{
+    val board = mutableMapOf<Position, Player?>()
+    repeat(100){
+        board.put(it.toPosition(),null)
+    }
+    return board
+}
 @Composable
 fun App(modifier: Modifier = Modifier) {
     var menu by remember { mutableStateOf(MenuState.MAIN_MENU) }
-    var test = remember {
-        mutableStateMapOf<Int,GoPiece>()
+    var board by remember {
+        mutableStateOf<Board>(BoardRun(startBoard(),Player.WHITE))
     }
     when (menu) {
         MenuState.MAIN_MENU -> MainMenu(
@@ -80,14 +86,21 @@ fun App(modifier: Modifier = Modifier) {
             menu = it
         }
 
-        MenuState.PLAY -> GameBoard({test[it] = GoPiece.Black},test) {
+        MenuState.PLAY -> GameBoard(board is BoardWinner,{
+            board =
+             board.play(it,board.lastPlayer.turn())
+             }, board.moves) {
             menu = it
         }
     }
 }
+fun Int.toPosition(): Position{
+    return Position(this/10,rem(10))
+
+}
 
 @Composable
-fun GameBoard(makePlay: (Int) -> Unit,test : SnapshotStateMap<Int, GoPiece>, menuClick: (MenuState) -> Unit) {
+fun GameBoard(canMakePlay: Boolean,makePlay: (Position) -> Unit, moves :MutableMap<Position, Player?>, menuClick: (MenuState) -> Unit) {
     Column {
         Button(onClick = { menuClick(MenuState.MAIN_MENU) }) {
             Text(text = "MainMenu")
@@ -102,18 +115,19 @@ fun GameBoard(makePlay: (Int) -> Unit,test : SnapshotStateMap<Int, GoPiece>, men
                 repeat(10) { column ->
                     Column() {
                         repeat(10) { row ->
-                            val cellNumber: Int = "$column$row".toInt()
+                            val pos = Position.invoke(row,column)
                             Box(modifier = Modifier
                                 .padding(0.5.dp)
                                 .border(1.dp, color = Color.Black)
                                 .wrapContentSize(Alignment.Center)
-                                .clickable {
-                                    makePlay(cellNumber)
+                                .clickable(enabled = !canMakePlay){
+                                    makePlay(pos)
                                 }) {
-                                val color = if (test.get(cellNumber) != null) {
-                                    Color.Red
-                                } else {
-                                    Color.White
+                                val player = moves[pos]
+                                val color = when(player){
+                                    Player.BLACK -> Color.Black
+                                    Player.WHITE -> Color.Red
+                                    else -> Color.White
                                 }
                                 Box(
                                     modifier = Modifier
