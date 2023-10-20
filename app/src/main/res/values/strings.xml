@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Gomuku</string>
+    <string name="title_activity_about">Main to Author Connection</string>
+    <string name="top_bar_go_back">finish (and go back to main?)</string>
+    <string name="top_bar_navigate">going (from main) to (?)</string>
 </resources>

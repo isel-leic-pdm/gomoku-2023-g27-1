@@ -39,6 +39,7 @@ import isel.gomuku.gameLogic.Position
 import isel.gomuku.helpers.MENU_BUTTON_WIDTH
 import isel.gomuku.helpers.MENU_PADDING
 import isel.gomuku.helpers.MenuState
+import isel.gomuku.screens.AuthorsScreen
 import isel.gomuku.screens.Biography
 import isel.gomuku.screens.MainMenu
 import isel.gomuku.ui.theme.GomukuTheme
@@ -53,54 +54,43 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    App()
+                    var board by remember {
+                        mutableStateOf<Board>(BoardRun(startBoard(), Player.WHITE))
+                    }
+                    MainMenu(
+                        Modifier
+                            .padding(MENU_PADDING.dp)
+                            .width(MENU_BUTTON_WIDTH.dp)
+                    ) { AuthorsScreen.navigate(this) }
+
                 }
             }
         }
     }
 }
 
-fun startBoard(): MutableMap<Position,Player?>{
+
+fun startBoard(): MutableMap<Position, Player?> {
     val board = mutableMapOf<Position, Player?>()
-    repeat(100){
-        board.put(it.toPosition(),null)
+    repeat(100) {
+        board.put(it.toPosition(), null)
     }
     return board
 }
-@Composable
-fun App(modifier: Modifier = Modifier) {
-    var menu by remember { mutableStateOf(MenuState.MAIN_MENU) }
-    var board by remember {
-        mutableStateOf<Board>(BoardRun(startBoard(),Player.WHITE))
-    }
-    when (menu) {
-        MenuState.MAIN_MENU -> MainMenu(
-            Modifier
-                .padding(MENU_PADDING.dp)
-                .width(MENU_BUTTON_WIDTH.dp)
-        ) {
-            menu = it
-        }
 
-        MenuState.AUTHORS -> Biography {
-            menu = it
-        }
 
-        MenuState.PLAY -> GameBoard(board is BoardWinner,{
-            board =
-             board.play(it,board.lastPlayer.turn())
-             }, board.moves) {
-            menu = it
-        }
-    }
-}
-fun Int.toPosition(): Position{
-    return Position(this/10,rem(10))
+fun Int.toPosition(): Position {
+    return Position(this / 10, rem(10))
 
 }
 
 @Composable
-fun GameBoard(canMakePlay: Boolean,makePlay: (Position) -> Unit, moves :MutableMap<Position, Player?>, menuClick: (MenuState) -> Unit) {
+fun GameBoard(
+    canMakePlay: Boolean,
+    makePlay: (Position) -> Unit,
+    moves: MutableMap<Position, Player?>,
+    menuClick: (MenuState) -> Unit
+) {
     Column {
         Button(onClick = { menuClick(MenuState.MAIN_MENU) }) {
             Text(text = "MainMenu")
@@ -115,16 +105,16 @@ fun GameBoard(canMakePlay: Boolean,makePlay: (Position) -> Unit, moves :MutableM
                 repeat(10) { column ->
                     Column() {
                         repeat(10) { row ->
-                            val pos = Position.invoke(row,column)
+                            val pos = Position.invoke(row, column)
                             Box(modifier = Modifier
                                 .padding(0.5.dp)
                                 .border(1.dp, color = Color.Black)
                                 .wrapContentSize(Alignment.Center)
-                                .clickable(enabled = !canMakePlay){
+                                .clickable(enabled = !canMakePlay) {
                                     makePlay(pos)
                                 }) {
                                 val player = moves[pos]
-                                val color = when(player){
+                                val color = when (player) {
                                     Player.BLACK -> Color.Black
                                     Player.WHITE -> Color.Red
                                     else -> Color.White
