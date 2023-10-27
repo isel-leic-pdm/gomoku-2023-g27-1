@@ -40,8 +40,11 @@ import isel.gomuku.gameLogic.Position
 import isel.gomuku.helpers.MENU_BUTTON_WIDTH
 import isel.gomuku.helpers.MENU_PADDING
 import isel.gomuku.helpers.MenuState
+import isel.gomuku.screens.AuthorsScreen
 import isel.gomuku.screens.Biography
 import isel.gomuku.screens.MainMenu
+import isel.gomuku.screens.PlayActivity
+import isel.gomuku.screens.PlayScreen
 import isel.gomuku.ui.theme.GomukuTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,88 +57,19 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    App()
+                    MainMenu(
+                        Modifier
+                            .padding(MENU_PADDING.dp)
+                            .width(MENU_BUTTON_WIDTH.dp),
+                        playHandle = { PlayActivity.navigate(this)},
+                        authorsHandler = { AuthorsScreen.navigate(this) }
+                    )
+
                 }
             }
         }
     }
 }
-@Composable
-fun App(modifier: Modifier = Modifier) {
-    var menu by remember { mutableStateOf(MenuState.MAIN_MENU) }
-    var board by remember {
-        mutableStateOf<Board>(BoardRun(startBoard(100),Player.WHITE))
-    }
-    when (menu) {
-        MenuState.MAIN_MENU -> MainMenu(
-            Modifier
-                .padding(MENU_PADDING.dp)
-                .width(MENU_BUTTON_WIDTH.dp)
-        ) {
-            menu = it
-        }
-
-        MenuState.AUTHORS -> Biography {
-            menu = it
-        }
-
-        MenuState.PLAY -> GameBoard(board is BoardWinner,{
-            board =
-             board.play(it,board.lastPlayer.turn())
-             }, board.moves) {
-            menu = it
-        }
-    }
-}
-
-@Composable
-fun GameBoard(canMakePlay: Boolean,makePlay: (Position) -> Unit, moves :MutableMap<Position, Player?>, menuClick: (MenuState) -> Unit) {
-    Column {
-        Button(onClick = { menuClick(MenuState.MAIN_MENU) }) {
-            Text(text = "MainMenu")
-        }
-        val backGroundColor = Color(red = 246, green = 206, blue = 5)
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(modifier = Modifier.background( backGroundColor)){
-                Row(modifier = Modifier.padding(5.dp)) {
-                    repeat(10) { column ->
-                        Column() {
-                            repeat(10) { row ->
-                                val pos = Position.invoke(row,column)
-                                Box(modifier = Modifier
-                                    .padding(0.5.dp)
-                                    .border(1.dp, color = Color.Black)
-                                    .wrapContentSize(Alignment.Center)
-                                    .clickable(enabled = !canMakePlay) {
-                                        makePlay(pos)
-                                    }) {
-                                    val player = moves[pos]
-                                    val color = when(player){
-                                        Player.BLACK -> Color.Black
-                                        Player.WHITE -> Color.Red
-                                        else -> backGroundColor
-                                    }
-                                    Box(
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .clip(CircleShape)
-                                            .background(color)
-                                    )
-                                }
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 
 @Preview(showBackground = true)
 @Composable

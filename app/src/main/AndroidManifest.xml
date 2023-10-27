@@ -13,6 +13,16 @@
         android:theme="@style/Theme.Gomuku"
         tools:targetApi="31">
         <activity
+            android:name=".screens.AuthorsScreen"
+            android:exported="false"
+            android:label="@string/title_activity_about"
+            android:theme="@style/Theme.Gomuku" />
+        <activity
+            android:name=".screens.PlayActivity"
+            android:exported="false"
+            android:label="@string/title_activity_play"
+            android:theme="@style/Theme.Gomuku" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
@@ -22,6 +32,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
     </application>
 
