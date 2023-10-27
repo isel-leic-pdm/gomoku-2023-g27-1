@@ -2,6 +2,7 @@ package isel.gomuku
 
 import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
+import isel.gomuku.gameLogic.toPosition
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -20,11 +21,11 @@ class ExampleUnitTest {
     @Test
     fun create_board_grid(){
             val board = mutableMapOf<Position, Player>()
-            repeat(100) {
+            repeat(361) {
                 board.put(it.toPosition(), Player.BLACK)
             }
-            repeat(10){col ->
-                repeat(10){
+            repeat(19){col ->
+                repeat(19){
                     val pos = Position.invoke(it,col)
                     require( board.get(pos) != null)
                 }

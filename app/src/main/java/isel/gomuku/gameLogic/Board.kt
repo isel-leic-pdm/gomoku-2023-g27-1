@@ -52,4 +52,13 @@ class BoardRun(override val moves: MutableMap<Position, Player?>, override val l
         val position = moves.find { move -> move == checkPos } ?: return counter
         return countPieces(moves, position, direction, counter + 1)
     }
+    companion object{
+        fun startBoard(gridPositions : Int): MutableMap<Position,Player?>{
+            val board = mutableMapOf<Position, Player?>()
+            repeat(gridPositions){
+                board.put(it.toPosition(),null)
+            }
+            return board
+        }
+    }
 }

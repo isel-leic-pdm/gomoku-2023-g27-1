@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import isel.gomuku.gameLogic.Board
 import isel.gomuku.gameLogic.BoardRun
+import isel.gomuku.gameLogic.BoardRun.Companion.startBoard
 import isel.gomuku.gameLogic.BoardWinner
 import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
@@ -59,19 +60,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-fun startBoard(): MutableMap<Position,Player?>{
-    val board = mutableMapOf<Position, Player?>()
-    repeat(100){
-        board.put(it.toPosition(),null)
-    }
-    return board
-}
 @Composable
 fun App(modifier: Modifier = Modifier) {
     var menu by remember { mutableStateOf(MenuState.MAIN_MENU) }
     var board by remember {
-        mutableStateOf<Board>(BoardRun(startBoard(),Player.WHITE))
+        mutableStateOf<Board>(BoardRun(startBoard(100),Player.WHITE))
     }
     when (menu) {
         MenuState.MAIN_MENU -> MainMenu(
@@ -94,10 +87,6 @@ fun App(modifier: Modifier = Modifier) {
         }
     }
 }
-fun Int.toPosition(): Position{
-    return Position(this/10,rem(10))
-
-}
 
 @Composable
 fun GameBoard(canMakePlay: Boolean,makePlay: (Position) -> Unit, moves :MutableMap<Position, Player?>, menuClick: (MenuState) -> Unit) {
@@ -105,39 +94,41 @@ fun GameBoard(canMakePlay: Boolean,makePlay: (Position) -> Unit, moves :MutableM
         Button(onClick = { menuClick(MenuState.MAIN_MENU) }) {
             Text(text = "MainMenu")
         }
+        val backGroundColor = Color(red = 246, green = 206, blue = 5)
         Box(
             modifier = Modifier
-                .background(color = Color.White)
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Row(modifier = Modifier.padding(5.dp)) {
-                repeat(10) { column ->
-                    Column() {
-                        repeat(10) { row ->
-                            val pos = Position.invoke(row,column)
-                            Box(modifier = Modifier
-                                .padding(0.5.dp)
-                                .border(1.dp, color = Color.Black)
-                                .wrapContentSize(Alignment.Center)
-                                .clickable(enabled = !canMakePlay){
-                                    makePlay(pos)
-                                }) {
-                                val player = moves[pos]
-                                val color = when(player){
-                                    Player.BLACK -> Color.Black
-                                    Player.WHITE -> Color.Red
-                                    else -> Color.White
+            Box(modifier = Modifier.background( backGroundColor)){
+                Row(modifier = Modifier.padding(5.dp)) {
+                    repeat(10) { column ->
+                        Column() {
+                            repeat(10) { row ->
+                                val pos = Position.invoke(row,column)
+                                Box(modifier = Modifier
+                                    .padding(0.5.dp)
+                                    .border(1.dp, color = Color.Black)
+                                    .wrapContentSize(Alignment.Center)
+                                    .clickable(enabled = !canMakePlay) {
+                                        makePlay(pos)
+                                    }) {
+                                    val player = moves[pos]
+                                    val color = when(player){
+                                        Player.BLACK -> Color.Black
+                                        Player.WHITE -> Color.Red
+                                        else -> backGroundColor
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .clip(CircleShape)
+                                            .background(color)
+                                    )
                                 }
-                                Box(
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                )
                             }
-                        }
 
+                        }
                     }
                 }
             }

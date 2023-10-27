@@ -26,3 +26,7 @@ data class Position private constructor(val lin: Int, val col: Int) {
     }
 
 }
+fun Int.toPosition(): Position{
+    return Position.invoke(this/10,rem(10))
+
+}
