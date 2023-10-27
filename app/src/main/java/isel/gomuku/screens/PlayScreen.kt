@@ -1,6 +1,5 @@
 package isel.gomuku.screens
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,15 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,10 +32,6 @@ import isel.gomuku.gameLogic.BoardDraw
 import isel.gomuku.gameLogic.BoardWinner
 import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
-import isel.gomuku.screens.component.NavigationHandlers
-import isel.gomuku.screens.component.TopBar
-import isel.gomuku.services.Container
-import isel.gomuku.services.GomokuService
 import isel.gomuku.ui.theme.GomukuTheme
 
 
@@ -54,9 +44,9 @@ class PlayActivity : ComponentActivity() {
         }
     }
 
-    private val service: GomokuService = GomokuService()
+   //private val service: GomokuService = GomokuService()
     //by lazy{ (this.application as Container).gomokuService }
-    private val board: PlayScreenViewModel by viewModels(){PlayScreenViewModel.Factory}
+    private val gameScreen: PlayScreenViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,21 +56,24 @@ class PlayActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
+                    gameScreen.board?.let {board ->
 
-                    PlayScreen(
-                        board.boardSize, makePlay = { board.play(it, service) },
-                        moves = board.board.moves
-                    ) { if (board.board !is BoardWinner && board.board !is BoardDraw)
-                            board.quit(service)
-                        this.finish() }
+                        PlayScreen(
+                            gameScreen.boardSize, makePlay = { gameScreen.play(it) },
+                            moves = board.moves
+                        ) { if (board !is BoardWinner && board !is BoardDraw)
+                            gameScreen.quit()
+                            this.finish() }
+                    }
+                    }
 
-                    ErrorMessage(board.error) { board.error = null }
-                    LoadingScreen(board.waiting)
+                    ErrorMessage(gameScreen.error) { gameScreen.error = null }
+                    LoadingScreen(gameScreen.waiting)
                 }
             }
         }
     }
-}
+
 
 @Composable
 fun PlayScreen(
@@ -90,37 +83,41 @@ fun PlayScreen(
     quit: () -> Unit
 ) {
     Column {
-        Button(onClick = {quit}) {
+        Button(onClick = {quit()}) {
             Text("Quit")
         }
+        val backGroundColor = Color(red = 246, green = 206, blue = 5)
         Box(
             modifier = Modifier
-                .background(color = Color.White)
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Row(modifier = Modifier.padding(5.dp)) {
-                repeat(boardSize) { column ->
-                    Column() {
-                        repeat(boardSize) { row ->
-                            val pos = Position.invoke(row, column)
-                            Box(modifier = Modifier
-                                .padding(0.5.dp)
-                                .border(1.dp, color = Color.Black)
-                                .wrapContentSize(Alignment.Center)
-                                .clickable() { makePlay(pos) }
-                                .background(Color.Green)) {
-                                val color = when (moves[pos]) {
-                                    Player.BLACK -> Color.Black
-                                    Player.WHITE -> Color.Red
-                                    else -> Color.White
+            if (moves != null){
+                Box(modifier = Modifier.background( backGroundColor)) {
+                    Row(modifier = Modifier.padding(5.dp)) {
+                        repeat(boardSize) { column ->
+                            Column() {
+                                repeat(boardSize) { row ->
+                                    val pos = Position.invoke(row, column)
+                                    Box(modifier = Modifier
+                                        .padding(0.5.dp)
+                                        .border(1.dp, color = Color.Black)
+                                        .wrapContentSize(Alignment.Center)
+                                        .clickable { makePlay(pos) }
+                                    ) {
+                                        val color = when (moves[pos]) {
+                                            Player.BLACK -> Color.Black
+                                            Player.WHITE -> Color.Red
+                                            else -> backGroundColor
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .size(30.dp)
+                                                .clip(CircleShape)
+                                                .background(color)
+                                        )
+                                    }
                                 }
-                                Box(
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                )
                             }
                         }
                     }
@@ -146,7 +143,8 @@ private fun LoadingScreen(isLoading: Boolean) {
     }
 }
 
-fun startBoard(boardSize: Int): MutableMap<Position, Player?> {
+fun startBoard(boardSize: Int): MutableMap<Position, Player?>{
+
     val board = mutableMapOf<Position, Player?>()
     repeat(boardSize * boardSize) {
         board[it.toPosition(boardSize)] = null

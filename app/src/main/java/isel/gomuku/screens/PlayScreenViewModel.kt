@@ -15,25 +15,13 @@ import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
 import isel.gomuku.services.GomokuService
 
-class PlayScreenViewModel(val grid : Int, val service: GomokuService) : ViewModel() {
-    companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                // Create a SavedStateHandle for this ViewModel from extras
-                val savedStateHandle: SavedStateHandle = extras.createSavedStateHandle()
+class PlayScreenViewModel() : ViewModel() {
 
-                return PlayScreenViewModel(
-                    savedStateHandle["grid"],
-                    GomokuService()
-                ) as T
-            }
-        }
+     val service by lazy {
+        GomokuService()
     }
-
-
-    val boardSize: Int = 15
-    var board: Board by mutableStateOf(BoardRun(startBoard(boardSize), Player.BLACK))
+    val boardSize = service.gridSize //TODO(SORT HOW TO GET VALUE)
+    var board: Board? by mutableStateOf(null)
     var waiting by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
 
@@ -48,11 +36,11 @@ class PlayScreenViewModel(val grid : Int, val service: GomokuService) : ViewMode
         waiting = false
     }
 
-    fun play(pos: Position, gomokuService: GomokuService) {
-        request { board = board.play(pos, board.lastPlayer.turn()) }
+    fun play(pos: Position) {
+        //request { board = board?.play(pos, board.lastPlayer.turn()) }
     }
 
-    fun quit(gomokuService: GomokuService) {
+    fun quit() {
         request { }
     }
 
