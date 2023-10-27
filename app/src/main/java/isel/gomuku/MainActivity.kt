@@ -42,6 +42,8 @@ import isel.gomuku.helpers.MenuState
 import isel.gomuku.screens.AuthorsScreen
 import isel.gomuku.screens.Biography
 import isel.gomuku.screens.MainMenu
+import isel.gomuku.screens.PlayActivity
+import isel.gomuku.screens.PlayScreen
 import isel.gomuku.ui.theme.GomukuTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,87 +56,19 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var board by remember {
-                        mutableStateOf<Board>(BoardRun(startBoard(), Player.WHITE))
-                    }
                     MainMenu(
                         Modifier
                             .padding(MENU_PADDING.dp)
-                            .width(MENU_BUTTON_WIDTH.dp)
-                    ) { AuthorsScreen.navigate(this) }
+                            .width(MENU_BUTTON_WIDTH.dp),
+                        playHandle = { PlayActivity.navigate(this)},
+                        authorsHandler = { AuthorsScreen.navigate(this) }
+                    )
 
                 }
             }
         }
     }
 }
-
-
-fun startBoard(): MutableMap<Position, Player?> {
-    val board = mutableMapOf<Position, Player?>()
-    repeat(100) {
-        board.put(it.toPosition(), null)
-    }
-    return board
-}
-
-
-fun Int.toPosition(): Position {
-    return Position(this / 10, rem(10))
-
-}
-
-@Composable
-fun GameBoard(
-    canMakePlay: Boolean,
-    makePlay: (Position) -> Unit,
-    moves: MutableMap<Position, Player?>,
-    menuClick: (MenuState) -> Unit
-) {
-    Column {
-        Button(onClick = { menuClick(MenuState.MAIN_MENU) }) {
-            Text(text = "MainMenu")
-        }
-        Box(
-            modifier = Modifier
-                .background(color = Color.White)
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Row(modifier = Modifier.padding(5.dp)) {
-                repeat(10) { column ->
-                    Column() {
-                        repeat(10) { row ->
-                            val pos = Position.invoke(row, column)
-                            Box(modifier = Modifier
-                                .padding(0.5.dp)
-                                .border(1.dp, color = Color.Black)
-                                .wrapContentSize(Alignment.Center)
-                                .clickable(enabled = !canMakePlay) {
-                                    makePlay(pos)
-                                }) {
-                                val player = moves[pos]
-                                val color = when (player) {
-                                    Player.BLACK -> Color.Black
-                                    Player.WHITE -> Color.Red
-                                    else -> Color.White
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                )
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-}
-
 
 @Preview(showBackground = true)
 @Composable
