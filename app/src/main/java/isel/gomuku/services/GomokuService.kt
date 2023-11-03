@@ -1,5 +1,7 @@
 package isel.gomuku.services
 
+import isel.gomuku.gameLogic.OpenGame
+
 class GomokuService() {
     val gridSize = 15
     fun play(){
@@ -7,6 +9,10 @@ class GomokuService() {
     }
 
     fun quit(){
+        TODO()
+    }
+
+    fun startGame(): OpenGame {
         TODO()
     }
 }

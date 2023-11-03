@@ -1,29 +1,37 @@
 package isel.gomuku.gameLogic
 
+import isel.gomuku.screens.Game
+import kotlin.math.sqrt
+
 const val BOARD_SIZE = 15
 const val MAX_MOVES = BOARD_SIZE * BOARD_SIZE
 const val VICTORY_LINE = 5
 
-interface Board {
-    val moves : MutableMap<Position,Player?>
-    val lastPlayer: Player
-    fun play(pos: Position, player: Player): Board
+abstract class Board{
+    abstract val moves : MutableMap<Position,Player?>
+    abstract val lastPlayer: Player
+    val size get() = sqrt( moves.size.toDouble()).toInt()
+    abstract fun play(pos: Position, player: Player): Board
 }
 
-class BoardDraw(override val moves: MutableMap<Position, Player?>, override val lastPlayer: Player ) : Board {
+class OpenGame (val board: Board?,val player: Player): Game(){
+
+}
+
+class BoardDraw(override val moves: MutableMap<Position, Player?>, override val lastPlayer: Player ) : Board() {
 
     override fun play(pos: Position, player: Player): Board {
         throw IllegalStateException("This game has already finished with a draw.")
     }
 }
 
-class BoardWinner(override val moves: MutableMap<Position, Player?>, override val lastPlayer: Player) : Board {
+class BoardWinner(override val moves: MutableMap<Position, Player?>, override val lastPlayer: Player) : Board() {
     override fun play(pos: Position, player: Player): Board {
         throw IllegalStateException("The player $lastPlayer won this game.")
     }
 }
 
-class BoardRun(override val moves: MutableMap<Position, Player?>, override val lastPlayer: Player) : Board {
+class BoardRun(override val moves: MutableMap<Position, Player?>, override val lastPlayer: Player) : Board() {
     override fun play(pos: Position, player: Player): Board {
         require(lastPlayer != player) { "Player $player cannot play twice!" }
         moves.set(pos,player)

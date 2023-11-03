@@ -3,25 +3,30 @@ package isel.gomuku.screens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.CreationExtras
-import isel.gomuku.gameLogic.Board
-import isel.gomuku.gameLogic.BoardRun
-import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
 import isel.gomuku.services.GomokuService
 
+open class Game
+
+data class GameOptions(
+    val gridSize: Int? = null,
+    val variant: GameVariants? = null,
+    val openingRule: OpeningRules? = null
+) : Game(){
+    val readyToStartGame = gridSize != null && variant != null && openingRule != null
+}
+
+class a
+
+
 class PlayScreenViewModel() : ViewModel() {
 
-     val service by lazy {
+    val service by lazy {
         GomokuService()
     }
-    val boardSize = service.gridSize //TODO(SORT HOW TO GET VALUE)
-    var board: Board? by mutableStateOf(null)
+
+    var game: Game by mutableStateOf(GameOptions())
     var waiting by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
 
@@ -35,7 +40,32 @@ class PlayScreenViewModel() : ViewModel() {
         }
         waiting = false
     }
+    private fun buildingGame(changeBoard : (GameOptions) -> Unit){
+        val checkBoard = game
+        if (checkBoard !is GameOptions) throw TODO()
+        changeBoard(checkBoard)
+    }
+    fun changeGridSize(grid: GridSize) {
+        buildingGame {
+            game = it.copy(gridSize = grid.size)
+        }
+    }
 
+    fun changeOpeningRule(rule: OpeningRules) {
+        buildingGame {
+            game = it.copy(openingRule = rule)
+        }
+    }
+
+    fun changeGameVariant(variants: GameVariants){
+        buildingGame {
+            game = it.copy(variant = variants)
+        }
+    }
+
+    fun startGame(){
+        game = service.startGame()
+    }
     fun play(pos: Position) {
         //request { board = board?.play(pos, board.lastPlayer.turn()) }
     }
