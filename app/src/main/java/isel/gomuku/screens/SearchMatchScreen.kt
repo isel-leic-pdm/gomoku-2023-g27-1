@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import isel.gomuku.R
-import java.nio.file.WatchEvent
 
 enum class GridSize(val size : Int){
     SIZE_15(15),SIZE_19(19)
@@ -31,7 +29,8 @@ fun SearchMatch(
     buildGameOptions: GameOptions,
     changeGridSize : (GridSize) -> Unit,
     changeOpeningRule : (OpeningRules) -> Unit,
-    changeGameVariant : (GameVariants) -> Unit
+    changeGameVariant : (GameVariants) -> Unit,
+    startGame : () -> Unit
     ) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -65,7 +64,7 @@ fun SearchMatch(
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
-        Button(onClick = { /*TODO*/ }, enabled = buildGameOptions.readyToStartGame) {
+        Button(onClick = { startGame() }, enabled = buildGameOptions.readyToStartGame) {
             Text(text = stringResource(id = R.string.start_game))
         }
     }

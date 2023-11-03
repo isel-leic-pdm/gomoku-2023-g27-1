@@ -69,7 +69,8 @@ class PlayActivity : ComponentActivity() {
                                     game,
                                     gameScreen::changeGridSize,
                                     gameScreen::changeOpeningRule,
-                                    gameScreen::changeGameVariant
+                                    gameScreen::changeGameVariant,
+                                    gameScreen::startGame
                                 )
 
                                 is OpenGame -> if (game.board != null) {

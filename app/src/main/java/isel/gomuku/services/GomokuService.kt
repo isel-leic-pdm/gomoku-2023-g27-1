@@ -2,8 +2,11 @@ package isel.gomuku.services
 
 import isel.gomuku.gameLogic.OpenGame
 
+
+interface Services{
+}
+class UserServices : Services
 class GomokuService() {
-    val gridSize = 15
     fun play(){
         TODO()
     }
