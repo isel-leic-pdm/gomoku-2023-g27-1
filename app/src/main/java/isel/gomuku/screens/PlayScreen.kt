@@ -31,10 +31,11 @@ import isel.gomuku.R
 import isel.gomuku.gameLogic.OpenGame
 import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
+import isel.gomuku.screens.component.HttpComponentActivity
 import isel.gomuku.ui.theme.GomukuTheme
 
 
-class PlayActivity : ComponentActivity() {
+class PlayActivity : HttpComponentActivity<PlayScreenViewModel>() {
 
     companion object {
         fun navigate(source: ComponentActivity) {
@@ -42,10 +43,7 @@ class PlayActivity : ComponentActivity() {
             source.startActivity(intent)
         }
     }
-
-    //private val service: GomokuService = GomokuService()
-    //by lazy{ (this.application as Container).gomokuService }
-    private val gameScreen: PlayScreenViewModel by viewModels()
+    override val viewModel: PlayScreenViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -63,19 +61,19 @@ class PlayActivity : ComponentActivity() {
                             contentAlignment = Alignment.Center
                         ) {
                             //Center user input
-                            val game = gameScreen.game
+                            val game = viewModel.game
                             when (game) {
                                 is GameOptions -> SearchMatch(
                                     game,
-                                    gameScreen::changeGridSize,
-                                    gameScreen::changeOpeningRule,
-                                    gameScreen::changeGameVariant,
-                                    gameScreen::startGame
+                                    viewModel::changeGridSize,
+                                    viewModel::changeOpeningRule,
+                                    viewModel::changeGameVariant,
+                                    viewModel::startGame
                                 )
 
                                 is OpenGame -> if (game.board != null) {
                                     PlayScreen(
-                                        game.board.size, makePlay = { gameScreen.play(it) },
+                                        game.board.size, makePlay = { viewModel.play(it) },
                                         moves = game.board.moves
                                     )
                                 }else{
@@ -86,10 +84,6 @@ class PlayActivity : ComponentActivity() {
                         }
                     }
                 }
-
-
-                ErrorMessage(gameScreen.error) { gameScreen.error = null }
-                LoadingScreen(gameScreen.waiting)
             }
         }
     }
@@ -139,22 +133,6 @@ fun PlayScreen(
     }
 }
 
-
-@Composable
-private fun LoadingScreen(isLoading: Boolean) {
-    if (!isLoading) return
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White.copy(alpha = 0.8f))
-    ) {
-        Text(
-            text = stringResource(id = R.string.Loading),
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
-
 fun startBoard(boardSize: Int): MutableMap<Position, Player?> {
 
     val board = mutableMapOf<Position, Player?>()
@@ -167,23 +145,4 @@ fun startBoard(boardSize: Int): MutableMap<Position, Player?> {
 fun Int.toPosition(boardSize: Int): Position {
     return Position(this / boardSize, rem(boardSize))
 
-}
-
-@Composable
-private fun ErrorMessage(error: String?, onClick: () -> Unit) {
-    if (error == null) return
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red.copy(alpha = 0.5f))
-    ) {
-        Text(text = error, modifier = Modifier.align(Alignment.Center))
-        Button(
-            onClick = onClick, modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(12.dp)
-        ) {
-            Text(text = stringResource(id = R.string.Dismiss))
-        }
-    }
 }
