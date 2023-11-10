@@ -63,8 +63,7 @@ class PlayActivity : ComponentActivity() {
                             contentAlignment = Alignment.Center
                         ) {
                             //Center user input
-                            val game = gameScreen.game
-                            when (game) {
+                            when (val game = gameScreen.game) {
                                 is GameOptions -> SearchMatch(
                                     game,
                                     gameScreen::changeGridSize,
