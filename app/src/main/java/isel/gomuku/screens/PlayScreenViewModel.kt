@@ -4,8 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import isel.gomuku.gameLogic.Position
+import isel.gomuku.screens.component.HttpViewModel
 import isel.gomuku.services.GomokuService
+import kotlinx.coroutines.launch
 
 open class Game
 
@@ -20,26 +23,14 @@ data class GameOptions(
 class a
 
 
-class PlayScreenViewModel() : ViewModel() {
+class PlayScreenViewModel() : HttpViewModel() {
 
     val service by lazy {
         GomokuService()
     }
 
     var game: Game by mutableStateOf(GameOptions())
-    var waiting by mutableStateOf(false)
-    var error by mutableStateOf<String?>(null)
 
-    private fun request(httpRequest: () -> Unit) {
-        waiting = true
-        try {
-            //adicionar pedido http
-            httpRequest()
-        } catch (e: Exception) {
-            error = e.message
-        }
-        waiting = false
-    }
     private fun buildingGame(changeBoard : (GameOptions) -> Unit){
         val checkBoard = game
         if (checkBoard !is GameOptions) throw TODO()
@@ -64,7 +55,8 @@ class PlayScreenViewModel() : ViewModel() {
     }
 
     fun startGame(){
-        game = service.startGame()
+        request { game = service.startGame() }
+
     }
     fun play(pos: Position) {
         //request { board = board?.play(pos, board.lastPlayer.turn()) }

@@ -7,15 +7,15 @@ interface Services{
 }
 class UserServices : Services
 class GomokuService() {
-    fun play(){
+    suspend fun play(){
         TODO()
     }
 
-    fun quit(){
+    suspend fun quit(){
         TODO()
     }
 
-    fun startGame(): OpenGame {
+    suspend fun startGame(): OpenGame {
         TODO()
     }
 }
