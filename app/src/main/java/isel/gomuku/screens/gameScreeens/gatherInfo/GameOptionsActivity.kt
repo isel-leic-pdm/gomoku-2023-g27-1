@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
+import isel.gomuku.screens.gameScreeens.remoteGame.RemoteGameActivity
 import isel.gomuku.ui.theme.GomukuTheme
 
 class GameOptionsActivity : ComponentActivity() {
@@ -54,6 +55,7 @@ class GameOptionsActivity : ComponentActivity() {
                             gatherInfoViewModel.game.startGame()
                             LocalGameActivity.navigate(this)
                         }
+                        RemoteGameActivity.navigate(this, gatherInfoViewModel.game)
                     }
                 }
             }
