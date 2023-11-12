@@ -1,0 +1,79 @@
+package isel.gomuku.screens.gameScreeens.remoteGame
+
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Build
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import isel.gomuku.screens.component.NavigationHandlers
+import isel.gomuku.screens.component.TopBar
+import isel.gomuku.screens.gameScreeens.GameOptions
+import isel.gomuku.screens.gameScreeens.components.DrawBoard
+import isel.gomuku.screens.remoteRequests.HttpComponentActivity
+import isel.gomuku.ui.theme.GomukuTheme
+
+class RemoteGameActivity : HttpComponentActivity<RemoteGameViewModel>() {
+
+    companion object {
+        private const val extra = "TO_CHANGE"
+        fun navigate(source: ComponentActivity, options: GameOptions) {
+            val intent = Intent(source, RemoteGameActivity::class.java)
+            intent.putExtra(extra, options)
+            source.startActivity(intent)
+        }
+    }
+
+    private val gameOptions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        this.intent.getParcelableExtra("", GameOptions::class.java)
+    else
+        this.intent.getParcelableExtra<GameOptions?>(extra)
+
+    override val viewModel: RemoteGameViewModel by viewModels()
+
+    init {
+        require(gameOptions != null)
+        viewModel.startGame(
+            gameOptions.gridSize!!,
+            gameOptions.variant!!,
+            gameOptions.openingRule!!
+        )
+    }
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        Log.d("Test", "Testing extras in navigate")
+
+        viewModel.moves = viewModel.initBoard(gameOptions!!.gridSize!!)
+        setContent {
+            GomukuTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                ) {
+                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {}
+                }
+                DrawBoard(
+                    boardSize = gameOptions.gridSize!!,
+                    makePlay = { viewModel.play(it) },
+                    moves = viewModel.moves
+                )
+                Button(onClick = { this.finish() }) {
+                    Text("Quit")
+                }
+            }
+        }
+    }
+}
