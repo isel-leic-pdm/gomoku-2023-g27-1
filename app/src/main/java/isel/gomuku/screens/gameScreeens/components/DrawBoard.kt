@@ -27,31 +27,29 @@ fun DrawBoard(
 ) {
 
     val backGroundColor = Color(red = 246, green = 206, blue = 5)
-    if (moves != null) {
-        Box(modifier = Modifier.background(backGroundColor)) {
-            Row(modifier = Modifier.padding(5.dp)) {
-                repeat(boardSize) { column ->
-                    Column() {
-                        repeat(boardSize) { row ->
-                            val pos = Position.invoke(row, column)
-                            Box(modifier = Modifier
-                                .padding(0.5.dp)
-                                .border(1.dp, color = Color.Black)
-                                .wrapContentSize(Alignment.Center)
-                                .clickable { makePlay(pos) }
-                            ) {
-                                val color = when (moves[pos]) {
-                                    Player.BLACK -> Color.Black
-                                    Player.WHITE -> Color.Red
-                                    else -> backGroundColor
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                )
+    Box(modifier = Modifier.background(backGroundColor)) {
+        Row(modifier = Modifier.padding(5.dp)) {
+            repeat(boardSize) { column ->
+                Column() {
+                    repeat(boardSize) { row ->
+                        val pos = Position.invoke(row, column)
+                        Box(modifier = Modifier
+                            .padding(0.5.dp)
+                            .border(1.dp, color = Color.Black)
+                            .wrapContentSize(Alignment.Center)
+                            .clickable { makePlay(pos) }
+                        ) {
+                            val color = when (moves[pos]) {
+                                Player.BLACK -> Color.Black
+                                Player.WHITE -> Color.Red
+                                else -> backGroundColor
                             }
+                            Box(
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                                    .background(color)
+                            )
                         }
                     }
                 }
