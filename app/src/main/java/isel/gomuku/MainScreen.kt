@@ -1,4 +1,4 @@
-package isel.gomuku.screens
+package isel.gomuku
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 import isel.gomuku.helpers.MENU_BUTTON_TEXT_SIZE
-import isel.gomuku.helpers.MenuState
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 

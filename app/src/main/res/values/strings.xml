@@ -2,6 +2,7 @@
     <string name="app_name">Gomoku</string>
     <string name="title_activity_about">Main to Author Connection</string>
     <string name="title_activity_play">Main to Play Connection</string>
+    <string name="title_activity_gameOptions">Options to remote or local</string>
     <string name="top_bar_go_back">finish (and go back to main?)</string>
     <string name="top_bar_navigate">going (from main) to (?)</string>
     <string name="Loading">Waiting for server response</string>
@@ -10,4 +11,8 @@
     <string name="choose_open_rule">Select game opening rules</string>
     <string name="choose_game_variant">Select game type</string>
     <string name="start_game">Start game</string>
+    <string name="game_type">Select the game type.</string>
+    <string name="local_game_title">Split screen</string>
+    <string name="remote_game_title">Online</string>
+    <string name="quick">quick</string>
 </resources>

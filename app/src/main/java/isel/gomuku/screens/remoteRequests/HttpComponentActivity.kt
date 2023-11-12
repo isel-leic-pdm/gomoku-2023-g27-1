@@ -1,4 +1,4 @@
-package isel.gomuku.screens.component
+package isel.gomuku.screens.remoteRequests
 
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent

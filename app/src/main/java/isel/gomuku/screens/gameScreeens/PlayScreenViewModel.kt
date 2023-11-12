@@ -1,32 +1,43 @@
-package isel.gomuku.screens
+package isel.gomuku.screens.gameScreeens
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import isel.gomuku.gameLogic.Board
+import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
-import isel.gomuku.screens.component.HttpViewModel
-import isel.gomuku.services.GomokuService
-import kotlinx.coroutines.launch
+import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
+import isel.gomuku.screens.gameScreeens.gatherInfo.GridSize
+import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
+import isel.gomuku.services.LocalService
 
 open class Game
 
 data class GameOptions(
     val gridSize: Int? = null,
     val variant: GameVariants? = null,
-    val openingRule: OpeningRules? = null
+    val openingRule: OpeningRules? = null,
+    val isGameLocal : Boolean = true
 ) : Game(){
-    val readyToStartGame = gridSize != null && variant != null && openingRule != null
+    private var gameStarted = false
+    fun startGame() {
+        gameStarted = true
+    }
+
+    val asGameStarted = gameStarted
+    val canStartGame = (gridSize != null && variant != null && openingRule != null) || isGameLocal
 }
 
-class a
+class RunningGame (val board: Board?, val player: Player): Game(){
+}
 
 
-class PlayScreenViewModel() : HttpViewModel() {
+
+class PlayScreenViewModel() : ViewModel() {
 
     val service by lazy {
-        GomokuService()
+        LocalService()
     }
 
     var game: Game by mutableStateOf(GameOptions())
@@ -55,7 +66,7 @@ class PlayScreenViewModel() : HttpViewModel() {
     }
 
     fun startGame(){
-        request { game = service.startGame() }
+        game = service.startGame()
 
     }
     fun play(pos: Position) {
@@ -63,7 +74,13 @@ class PlayScreenViewModel() : HttpViewModel() {
     }
 
     fun quit() {
-        request { }
+        //
+    }
+
+    fun changeGameType(remoteGame: Boolean) {
+        buildingGame {
+            game = it.copy(isGameLocal = remoteGame)
+        }
     }
 
 

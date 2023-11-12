@@ -13,15 +13,19 @@
         android:theme="@style/Theme.Gomuku"
         tools:targetApi="31">
         <activity
-            android:name=".screens.AuthorsScreen"
+            android:name=".screens.authors.AuthorsScreenActivity"
             android:exported="false"
             android:label="@string/title_activity_about"
             android:theme="@style/Theme.Gomuku" />
         <activity
-            android:name=".screens.PlayActivity"
+            android:name=".screens.gameScreeens.gatherInfo.GameOptionsActivity"
             android:exported="false"
-            android:label="@string/title_activity_play"
-            android:theme="@style/Theme.Gomuku" />
+            android:label= "@string/title_activity_gameOptions"
+            android:theme="@style/Theme.Gomuku"/>
+        <activity android:name=".screens.gameScreeens.localGame.LocalGameActivity"
+            android:exported="false"
+            android:label= "@string/quick"
+            android:theme="@style/Theme.Gomuku"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,4 +1,4 @@
-package isel.gomuku.screens.component
+package isel.gomuku.screens.remoteRequests
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

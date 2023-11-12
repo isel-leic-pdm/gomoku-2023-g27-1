@@ -1,6 +1,5 @@
 package isel.gomuku.gameLogic
 
-import isel.gomuku.screens.Game
 import kotlin.math.sqrt
 
 const val BOARD_SIZE = 15
@@ -12,10 +11,6 @@ abstract class Board{
     abstract val lastPlayer: Player
     val size get() = sqrt( moves.size.toDouble()).toInt()
     abstract fun play(pos: Position, player: Player): Board
-}
-
-class OpenGame (val board: Board?,val player: Player): Game(){
-
 }
 
 class BoardDraw(override val moves: MutableMap<Position, Player?>, override val lastPlayer: Player ) : Board() {
