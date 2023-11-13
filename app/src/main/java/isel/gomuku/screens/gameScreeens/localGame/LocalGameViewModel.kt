@@ -12,28 +12,12 @@ import isel.gomuku.gameLogic.Position
 class LocalGameViewModel : ViewModel() {
     val GRID_SIZE = 15
 
-    val moves : MutableMap<Position,Player?>
-    init {
-        moves = initBoard()
-    }
-
-    var board : Board by mutableStateOf(BoardRun(moves,Player.WHITE))
+    private var board : Board by mutableStateOf(BoardRun(Board.startBoard(GRID_SIZE),Player.WHITE))
 
     fun play(pos: Position) {
-         board = board.play(pos, board.lastPlayer.turn())
+        val newBoard = board
+        board = newBoard.play(pos, newBoard.lastPlayer.turn())
     }
 
-    private fun initBoard(): MutableMap<Position, Player?> {
-
-        val board = mutableMapOf<Position, Player?>()
-        repeat(GRID_SIZE * GRID_SIZE) {
-            board[it.toPosition(GRID_SIZE)] = null
-        }
-        return board
-    }
-
-    fun Int.toPosition(boardSize: Int): Position {
-        return Position(this / boardSize, rem(boardSize))
-
-    }
+    fun getMoves(): MutableMap<Position, Player?> = board.moves
 }

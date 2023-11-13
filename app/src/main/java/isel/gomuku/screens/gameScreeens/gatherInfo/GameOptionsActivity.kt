@@ -41,8 +41,7 @@ class GameOptionsActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {
-                    }
+                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {}
                     SearchMatch(
                         gatherInfoViewModel.game,
                         gatherInfoViewModel::changeGameType,

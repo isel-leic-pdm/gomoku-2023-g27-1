@@ -17,8 +17,8 @@ class LocalService() {
         TODO()
     }
 
-    fun startGame(): RunningGame {
-        val startBoard = BoardRun.startBoard(GRID_SIZE)
-        return RunningGame(BoardRun(startBoard,Player.WHITE),Player.BLACK)
+    fun startGame() {
+       /* val startBoard = BoardRun.startBoard(GRID_SIZE)
+        return RunningGame(BoardRun(startBoard,Player.WHITE),Player.BLACK)*/
     }
 }

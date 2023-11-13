@@ -66,7 +66,7 @@ class PlayScreenViewModel() : ViewModel() {
     }
 
     fun startGame(){
-        game = service.startGame()
+       // game = service.startGame()
 
     }
     fun play(pos: Position) {
