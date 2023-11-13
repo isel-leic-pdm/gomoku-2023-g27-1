@@ -9,6 +9,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -64,15 +65,18 @@ class RemoteGameActivity : HttpComponentActivity<RemoteGameViewModel>() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {}
-                }
-                DrawBoard(
-                    boardSize = gameOptions.gridSize!!,
-                    makePlay = { viewModel.play(it) },
-                    moves = viewModel.moves
-                )
-                Button(onClick = { this.finish() }) {
-                    Text("Quit")
+                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {
+                        pad ->
+                        DrawBoard(
+                            modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
+                            boardSize = gameOptions.gridSize!!,
+                            makePlay = { viewModel.play(it) },
+                            moves = viewModel.moves
+                        )
+                        Button(onClick = { this.finish() }) {
+                            Text("Quit")
+                        }
+                    }
                 }
             }
         }
