@@ -14,5 +14,9 @@
     <string name="game_type">Select the game type.</string>
     <string name="local_game_title">Split screen</string>
     <string name="remote_game_title">Online</string>
+    <string name="main_meu_play">Play</string>
+    <string name="main_meu_authors">Authors</string>
+    <string name="main_meu_talk">Talk</string>
+    <string name="main_meu_ranking">Ranking</string>
     <string name="quick">quick</string>
 </resources>

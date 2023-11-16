@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Gomuku"
         tools:targetApi="31">
         <activity
+            android:name=".screens.gameScreeens.ranking.RankingActivity"
+            android:exported="false" />
+        <activity
             android:name=".screens.authors.AuthorsScreenActivity"
             android:exported="false"
             android:label="@string/title_activity_about"
@@ -20,12 +23,13 @@
         <activity
             android:name=".screens.gameScreeens.gatherInfo.GameOptionsActivity"
             android:exported="false"
-            android:label= "@string/title_activity_gameOptions"
-            android:theme="@style/Theme.Gomuku"/>
-        <activity android:name=".screens.gameScreeens.localGame.LocalGameActivity"
+            android:label="@string/title_activity_gameOptions"
+            android:theme="@style/Theme.Gomuku" />
+        <activity
+            android:name=".screens.gameScreeens.localGame.LocalGameActivity"
             android:exported="false"
-            android:label= "@string/quick"
-            android:theme="@style/Theme.Gomuku"/>
+            android:label="@string/quick"
+            android:theme="@style/Theme.Gomuku" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,7 +40,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
     </application>
 
