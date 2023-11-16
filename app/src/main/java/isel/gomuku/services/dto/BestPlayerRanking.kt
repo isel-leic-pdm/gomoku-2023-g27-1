@@ -1,3 +1,3 @@
-package isel.gomuku.service.dto
+package isel.gomuku.services.dto
 
 class BestPlayerRanking (val playerName: String, val points: Int)

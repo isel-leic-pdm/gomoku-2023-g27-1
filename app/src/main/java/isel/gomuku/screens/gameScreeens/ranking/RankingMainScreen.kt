@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
-import isel.gomuku.service.dto.GlobalStatistics
+import isel.gomuku.services.dto.GlobalStatistics
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

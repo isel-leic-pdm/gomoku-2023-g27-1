@@ -2,13 +2,12 @@ package isel.gomuku.screens.gameScreeens.ranking
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import isel.gomuku.service.StatsService
-import isel.gomuku.service.dto.GlobalStatistics
-import isel.gomuku.service.dto.Rankings
+import isel.gomuku.services.StatsService
+import isel.gomuku.services.dto.GlobalStatistics
+import isel.gomuku.services.dto.Rankings
 import kotlinx.coroutines.launch
 
 class RankingViewModel:ViewModel() {

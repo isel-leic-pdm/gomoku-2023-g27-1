@@ -9,7 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 import isel.gomuku.helpers.MENU_BUTTON_TEXT_SIZE
-import isel.gomuku.service.dto.BestPlayerRanking
+import isel.gomuku.services.dto.BestPlayerRanking
 
 @Composable
 fun RankingStateScreen (

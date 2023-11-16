@@ -1,4 +1,4 @@
-package isel.gomuku.service.dto
+package isel.gomuku.services.dto
 
 class Rankings (val bestPlayerRanking: List<BestPlayerRanking>,
                 val victoriesRanking: List<VictoriesRanking>,

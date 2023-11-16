@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import isel.gomuku.helpers.MENU_BUTTON_WIDTH
 import isel.gomuku.helpers.MENU_PADDING
-import isel.gomuku.service.StatsService
+import isel.gomuku.services.StatsService
 import isel.gomuku.ui.theme.GomukuTheme
 
 enum class RankingMenuState {
@@ -26,7 +26,7 @@ enum class RankingMenuState {
 
 class RankingActivity : ComponentActivity() {
     private val rankingViewModel: RankingViewModel by viewModels()
-    private val service by lazy {application as StatsService}
+    private val service by lazy {application as StatsService }
     companion object {
         fun navigate(source: ComponentActivity) {
             val intent = Intent(source, RankingActivity::class.java)

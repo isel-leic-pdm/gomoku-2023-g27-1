@@ -1,14 +1,14 @@
-package isel.gomuku.service
+package isel.gomuku.services
 
-import isel.gomuku.service.dto.BestPlayerRanking
-import isel.gomuku.service.dto.DefeatsRanking
-import isel.gomuku.service.dto.GamesRanking
-import isel.gomuku.service.dto.GlobalStatistics
-import isel.gomuku.service.dto.Rankings
-import isel.gomuku.service.dto.TimePlayedRanking
-import isel.gomuku.service.dto.VictoriesRanking
+import isel.gomuku.services.dto.BestPlayerRanking
+import isel.gomuku.services.dto.DefeatsRanking
+import isel.gomuku.services.dto.GamesRanking
+import isel.gomuku.services.dto.GlobalStatistics
+import isel.gomuku.services.dto.Rankings
+import isel.gomuku.services.dto.TimePlayedRanking
+import isel.gomuku.services.dto.VictoriesRanking
 
-class StatsServiceLocal:StatsService {
+class StatsServiceLocal: StatsService {
 
 
     private val  rankings = Rankings (
