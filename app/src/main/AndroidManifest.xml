@@ -21,6 +21,11 @@
             android:label="@string/title_activity_about"
             android:theme="@style/Theme.Gomuku" />
         <activity
+            android:name=".screens.gameScreeens.remoteGame.RemoteGameActivity"
+            android:exported="false"
+            android:label="@string/title_activity_remote_play"
+            android:theme="@style/Theme.Gomuku" />
+        <activity
             android:name=".screens.gameScreeens.gatherInfo.GameOptionsActivity"
             android:exported="false"
             android:label="@string/title_activity_gameOptions"

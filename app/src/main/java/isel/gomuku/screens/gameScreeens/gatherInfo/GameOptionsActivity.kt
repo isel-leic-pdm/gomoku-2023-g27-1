@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
+import isel.gomuku.screens.gameScreeens.remoteGame.RemoteGameActivity
 import isel.gomuku.ui.theme.GomukuTheme
 
 class GameOptionsActivity : ComponentActivity() {
@@ -41,8 +42,7 @@ class GameOptionsActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {
-                    }
+                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {}
                     SearchMatch(
                         gatherInfoViewModel.game,
                         gatherInfoViewModel::changeGameType,
@@ -53,6 +53,8 @@ class GameOptionsActivity : ComponentActivity() {
                         if (gatherInfoViewModel.game.isGameLocal) {
                             gatherInfoViewModel.game.startGame()
                             LocalGameActivity.navigate(this)
+                        }else {
+                            RemoteGameActivity.navigate(this, gatherInfoViewModel.game)
                         }
                     }
                 }

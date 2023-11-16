@@ -1,5 +1,6 @@
 package isel.gomuku.screens.gameScreeens
 
+import android.os.Parcelable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,15 +12,17 @@ import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
 import isel.gomuku.screens.gameScreeens.gatherInfo.GridSize
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
 import isel.gomuku.services.LocalService
+import kotlinx.android.parcel.Parcelize
 
 open class Game
 
+@Parcelize
 data class GameOptions(
     val gridSize: Int? = null,
     val variant: GameVariants? = null,
     val openingRule: OpeningRules? = null,
     val isGameLocal : Boolean = true
-) : Game(){
+) : Game(), Parcelable {
     private var gameStarted = false
     fun startGame() {
         gameStarted = true
@@ -66,7 +69,7 @@ class PlayScreenViewModel() : ViewModel() {
     }
 
     fun startGame(){
-        game = service.startGame()
+       // game = service.startGame()
 
     }
     fun play(pos: Position) {
