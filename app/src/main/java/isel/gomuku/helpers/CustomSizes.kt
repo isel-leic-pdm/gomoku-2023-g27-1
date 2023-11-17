@@ -16,3 +16,8 @@ const val MENU_BUTTON_TEXT_SIZE = 50
  * Authors screen text size
  * */
 const val AUTHORS_TEXT_SIZE = 25
+
+/**
+ * Ranking screen text size
+ * */
+const val RANKING_TEXT_SIZE = 20

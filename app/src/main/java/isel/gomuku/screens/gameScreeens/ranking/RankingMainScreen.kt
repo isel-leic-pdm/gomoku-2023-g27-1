@@ -8,6 +8,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
+import isel.gomuku.helpers.MENU_BUTTON_TEXT_SIZE
+import isel.gomuku.helpers.RANKING_TEXT_SIZE
 
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
@@ -28,10 +31,10 @@ fun RankingScreen(
         Column(modifier = Modifier.padding(paddingValues)) {
 
             Button(onClick =  { onGetRankings() ; onStats (RankingMenuState.BEST_PLAYER) }, modifier = modifier) {
-                Text(text = "Best Players Ranking")
+                Text(text = "Best Players Ranking", fontSize = RANKING_TEXT_SIZE.sp)
             }
             Button(onClick =  { onGetGlobalStatistics() ; onStats (RankingMenuState.GLOBAL_STATS) }, modifier = modifier) {
-                Text(text = "Global Statistics")
+                Text(text = "Global Statistics", fontSize = RANKING_TEXT_SIZE.sp)
             }
         }
     }

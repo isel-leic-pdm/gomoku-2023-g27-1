@@ -18,6 +18,7 @@ import isel.gomuku.helpers.MENU_PADDING
 import isel.gomuku.screens.authors.AuthorsScreenActivity
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameOptionsActivity
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
+import isel.gomuku.screens.gameScreeens.ranking.RankingActivity
 import isel.gomuku.ui.theme.GomukuTheme
 import kotlin.system.exitProcess
 
@@ -43,7 +44,8 @@ class MainActivity : ComponentActivity() {
                             .padding(MENU_PADDING.dp)
                             .width(MENU_BUTTON_WIDTH.dp),
                         playHandle = { GameOptionsActivity.navigate(this)},
-                        authorsHandler = { AuthorsScreenActivity.navigate(this) }
+                        authorsHandler = { AuthorsScreenActivity.navigate(this) },
+                        rankingHandle = {RankingActivity.navigate(this)}
                     )
 
                 }
