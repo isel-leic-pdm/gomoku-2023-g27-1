@@ -16,3 +16,9 @@ const val MENU_BUTTON_TEXT_SIZE = 50
  * Authors screen text size
  * */
 const val AUTHORS_TEXT_SIZE = 25
+
+/**
+ *  Error message size
+ * */
+
+const val ERROR_MESSAGE_TEXT_SIZE = 30

@@ -43,7 +43,8 @@ class MainActivity : ComponentActivity() {
                             .padding(MENU_PADDING.dp)
                             .width(MENU_BUTTON_WIDTH.dp),
                         playHandle = { GameOptionsActivity.navigate(this)},
-                        authorsHandler = { AuthorsScreenActivity.navigate(this) }
+                        authorsHandler = { AuthorsScreenActivity.navigate(this) },
+                        rankingHandle = { TODO() }
                     )
 
                 }

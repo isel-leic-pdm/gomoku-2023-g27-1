@@ -46,6 +46,7 @@ class BoardRun(override val moves: MutableMap<Position, Player?>, override val l
     Board() {
     override fun play(pos: Position, player: Player): Board {
         require(lastPlayer != player) { "Player $player cannot play twice!" }
+        require(!moves.contains(pos)) {"Position already occupied!"}
         moves.set(pos, player)
         return when {
             checkWinner(player, pos) -> BoardWinner(moves, player)
