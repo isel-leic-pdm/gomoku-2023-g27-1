@@ -13,7 +13,7 @@ const val MENU_BUTTON_WIDTH = 250
 const val MENU_BUTTON_TEXT_SIZE = 50
 
 /**
- * Authors screen text size
+ * Authors screen button text size
  * */
 const val AUTHORS_TEXT_SIZE = 25
 
@@ -22,3 +22,6 @@ const val AUTHORS_TEXT_SIZE = 25
  * */
 
 const val ERROR_MESSAGE_TEXT_SIZE = 30
+
+const val RANKING_TEXT_SIZE = 20
+
