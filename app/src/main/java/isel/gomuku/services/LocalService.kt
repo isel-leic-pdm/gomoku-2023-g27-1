@@ -2,7 +2,7 @@ package isel.gomuku.services
 
 import isel.gomuku.gameLogic.BoardRun
 import isel.gomuku.gameLogic.Player
-import isel.gomuku.screens.gameScreeens.RunningGame
+
 
 
 interface Services{

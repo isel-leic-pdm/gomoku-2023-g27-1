@@ -5,10 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.GameOptions
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
+import isel.gomuku.screens.gameScreeens.remoteGame.RemoteGameActivity
 
-class GameOptionsViewModel : ViewModel() {
+class GameOptionsViewModel : BaseViewModel() {
     var game: GameOptions by mutableStateOf(GameOptions())
     private fun buildingGame(changeBoard : (GameOptions) -> Unit){
         val checkBoard = game
@@ -38,11 +40,15 @@ class GameOptionsViewModel : ViewModel() {
         }
     }
 
-    fun startGame(activity: ComponentActivity){
-        if (game.isGameLocal){
-            LocalGameActivity.navigate(activity)
-        }else{
-            TODO("Call remote activity with parameters")
+    fun startGame(activity: ComponentActivity,userToken: String? = null){
+        safeCall {
+            if (game.isGameLocal) {
+                game.startGame()
+                LocalGameActivity.navigate(activity)
+            }else {
+                require(userToken != null){ "Please login first"}
+                TODO()// RemoteGameActivity.navigate(this, viewModel.game)
+            }
         }
     }
 }

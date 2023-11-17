@@ -3,6 +3,7 @@ package isel.gomuku.screens.component
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,10 +27,9 @@ data class NavigationHandlers(
 fun TopBar(
     @StringRes title: Int = R.string.app_name,
     navigationHandlers: NavigationHandlers = NavigationHandlers()
-)
-{
+) {
     TopAppBar(
-        title = { Text(stringResource(id = title))},
+        title = { Text(stringResource(id = title)) },
         navigationIcon = {
             ConditionalIconButton(
                 action = navigationHandlers.onBackHandler,
@@ -38,6 +38,10 @@ fun TopBar(
             )
         },
         actions = {
+            ConditionalIconButton(
+                action = { /*TODO("Login")*/ }, image = Icons.Default.AccountCircle, string = R.string.top_bar_user
+
+            )
             ConditionalIconButton(
                 action = navigationHandlers.navigateToHandler,
                 image = Icons.Default.Info,

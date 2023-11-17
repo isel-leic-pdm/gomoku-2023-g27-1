@@ -2,6 +2,7 @@ package isel.gomuku
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,13 +17,15 @@ import androidx.compose.ui.unit.dp
 import isel.gomuku.helpers.MENU_BUTTON_WIDTH
 import isel.gomuku.helpers.MENU_PADDING
 import isel.gomuku.screens.authors.AuthorsScreenActivity
+import isel.gomuku.screens.component.BaseComponentActivity
+import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameOptionsActivity
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
 import isel.gomuku.screens.gameScreeens.ranking.RankingActivity
 import isel.gomuku.ui.theme.GomukuTheme
 import kotlin.system.exitProcess
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseComponentActivity<EmptyViewModel>() {
 
     companion object {
         fun navigate(source: ComponentActivity) {
@@ -30,6 +33,10 @@ class MainActivity : ComponentActivity() {
             source.startActivity(intent)
         }
     }
+
+    override val viewModel: EmptyViewModel
+        get() = TODO("Not yet implemented")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -39,6 +46,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    //Log.d("Test1",userToken ?: "NotLogged")
                     MainMenu(
                         Modifier
                             .padding(MENU_PADDING.dp)
@@ -58,6 +66,10 @@ class MainActivity : ComponentActivity() {
         exitProcess(0)
         TODO("Incorrect screen navigation")
     }
+}
+
+class EmptyViewModel : BaseViewModel() {
+
 }
 
 @Preview(showBackground = true)

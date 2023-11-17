@@ -12,16 +12,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
 import isel.gomuku.screens.gameScreeens.remoteGame.RemoteGameActivity
 import isel.gomuku.ui.theme.GomukuTheme
 
-class GameOptionsActivity : ComponentActivity() {
+class GameOptionsActivity : BaseComponentActivity<GameOptionsViewModel>() {
 
 
-    private val gatherInfoViewModel : GameOptionsViewModel by viewModels()
+    override val viewModel : GameOptionsViewModel by viewModels()
 
     companion object {
         fun navigate(source: ComponentActivity) {
@@ -33,10 +34,10 @@ class GameOptionsActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(gatherInfoViewModel.game.asGameStarted){
+        if(viewModel.game.asGameStarted){
             LocalGameActivity.navigate(this)
         }
-        setContent {
+        safeSetContent {
             GomukuTheme {
 
                 Surface(
@@ -44,18 +45,13 @@ class GameOptionsActivity : ComponentActivity() {
                 ) {
                     Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {}
                     SearchMatch(
-                        gatherInfoViewModel.game,
-                        gatherInfoViewModel::changeGameType,
-                        gatherInfoViewModel::changeGridSize,
-                        gatherInfoViewModel::changeOpeningRule,
-                        gatherInfoViewModel::changeGameVariant
+                        viewModel.game,
+                        viewModel::changeGameType,
+                        viewModel::changeGridSize,
+                        viewModel::changeOpeningRule,
+                        viewModel::changeGameVariant
                     ) {
-                        if (gatherInfoViewModel.game.isGameLocal) {
-                            gatherInfoViewModel.game.startGame()
-                            LocalGameActivity.navigate(this)
-                        }else {
-                            RemoteGameActivity.navigate(this, gatherInfoViewModel.game)
-                        }
+                        viewModel.startGame(this)
                     }
                 }
             }

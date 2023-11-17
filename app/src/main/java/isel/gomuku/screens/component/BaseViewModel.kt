@@ -17,7 +17,6 @@ abstract class BaseViewModel : ViewModel() {
     var error by mutableStateOf<String?>(null)
 
     protected fun safeCall(function: suspend () -> Unit) {
-        Log.d("Test",error?:"Blank")
         isLoading = true
 
         viewModelScope.launch {
