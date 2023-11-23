@@ -1,10 +1,15 @@
-package isel.gomuku.services
+package isel.gomuku.http
 
-import android.provider.CloudMediaProviderContract.AlbumColumns
-import isel.gomuku.gameLogic.Position
-import okhttp3.HttpUrl.Companion.toHttpUrl
+import com.google.gson.Gson
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
-class GameService(private val apiKey: String) : HttpService() {
+interface GameService {
+    suspend fun play(line: Int, column: Int)
+    suspend fun startGame(gridSize: Int, variants: String, openingRules: String)
+    suspend fun quitGame()
+}
+class GameServiceHttp(private val client: OkHttpClient, private val gson: Gson) : GameService {
 
     var lobbyId: Int? = null
 
@@ -15,19 +20,21 @@ class GameService(private val apiKey: String) : HttpService() {
 
     }
 
-    val baseUrl = {
-        (baseApiUrl + urlExtension).toHttpUrl()
-            .newBuilder()
-            .addQueryParameter(ApiKeyParameter, apiKey)
+    private val request: Request by lazy {
+        Request.Builder()
+            .url("https://localhost.com/")
+            .addHeader("accept", "application/json")
+            .build()
     }
 
-    suspend fun play(line: Int, column: Int) {}//doRequest(baseUrl().addQueryParameter()) {}
 
-    fun startGame(gridSize: Int, variants: String, openingRules: String) {
+    override suspend fun play(line: Int, column: Int) {}//doRequest(baseUrl().addQueryParameter()) {}
+
+    override suspend fun startGame(gridSize: Int, variants: String, openingRules: String) {
         TODO()
     }
 
-    fun quitGame() {
+    override suspend fun quitGame() {
 
     }
 }

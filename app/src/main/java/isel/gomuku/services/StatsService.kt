@@ -8,6 +8,7 @@ import isel.gomuku.services.dto.Rankings
 import isel.gomuku.services.dto.TimePlayedRanking
 import isel.gomuku.services.dto.VictoriesRanking
 
+
 class StatsServiceLocal: StatsService {
 
 
