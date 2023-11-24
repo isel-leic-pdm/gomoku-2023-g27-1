@@ -1,4 +1,4 @@
-package isel.gomuku.screens.gameScreeens.ranking
+package isel.gomuku.screens.ranking
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues

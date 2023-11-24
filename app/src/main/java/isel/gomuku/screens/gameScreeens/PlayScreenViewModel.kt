@@ -13,6 +13,8 @@ import isel.gomuku.screens.gameScreeens.gatherInfo.GridSize
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
 import isel.gomuku.services.LocalService
 import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
+
 
 open class Game
 
@@ -23,12 +25,15 @@ data class GameOptions(
     val openingRule: OpeningRules? = null,
     val isGameLocal : Boolean = true
 ) : Game(), Parcelable {
+    @IgnoredOnParcel
     private var gameStarted = false
     fun startGame() {
         gameStarted = true
     }
 
+    @IgnoredOnParcel
     val asGameStarted = gameStarted
+    @IgnoredOnParcel
     val canStartGame = (gridSize != null && variant != null && openingRule != null) || isGameLocal
 }
 

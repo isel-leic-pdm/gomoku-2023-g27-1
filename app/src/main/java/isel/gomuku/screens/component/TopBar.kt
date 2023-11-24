@@ -20,6 +20,7 @@ import isel.gomuku.R
 data class NavigationHandlers(
     val onBackHandler: (() -> Unit)? = null,
     val navigateToHandler: (() -> Unit)? = null,
+    val navigateToLogin : (() -> Unit)? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +40,9 @@ fun TopBar(
         },
         actions = {
             ConditionalIconButton(
-                action = { /*TODO("Login")*/ }, image = Icons.Default.AccountCircle, string = R.string.top_bar_user
+                action = { navigationHandlers.navigateToLogin },
+                image = Icons.Default.AccountCircle,
+                string = R.string.top_bar_user
 
             )
             ConditionalIconButton(

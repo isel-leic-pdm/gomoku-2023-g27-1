@@ -1,4 +1,4 @@
-package isel.gomuku.screens.gameScreeens.ranking
+package isel.gomuku.screens.ranking
 
 import android.content.Intent
 import android.os.Bundle

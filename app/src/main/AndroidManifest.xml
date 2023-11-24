@@ -17,7 +17,7 @@
         android:theme="@style/Theme.Gomuku"
         tools:targetApi="31">
         <activity
-            android:name=".screens.gameScreeens.ranking.RankingActivity"
+            android:name=".screens.ranking.RankingActivity"
             android:exported="false" />
         <activity
             android:name=".screens.authors.AuthorsScreenActivity"

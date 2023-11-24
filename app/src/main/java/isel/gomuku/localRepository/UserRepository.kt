@@ -1,25 +1,25 @@
-/*
 package isel.gomuku.localRepository
 
 interface UserRepository {
-    fun getToken(): String
-    fun getUser() : User
-    fun setToken(token: String)
+    fun getUser() : LoggedUser
+    fun setUser(loggedUser: LoggedUser)
+    fun deleteUser()
 }
 class UserDatabase : UserRepository {
-    var user = User(1,"Test",null)
-    override fun getToken(): String = "User token"
-    override fun getUser(): User{
-        return user
+    var loggedUser : LoggedUser?= LoggedUser(1,"Test",null)
+    override fun getUser(): LoggedUser {
+        return loggedUser ?: throw IllegalStateException("User not logged")
     }
-    override fun setToken(token: String) {
-        val u = user
-        user = u.copy(token = token)
+
+    override fun setUser(loggedUser: LoggedUser) {
+        this.loggedUser = loggedUser
     }
+
+    override fun deleteUser() {
+        loggedUser = null
+    }
+
 
 }
 
-data class User(val id : Int,val nome: String, val token: String?) {
-
-}
-*/
+data class LoggedUser(val id : Int, val nome: String, val token: String?)

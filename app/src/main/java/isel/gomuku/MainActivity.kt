@@ -21,7 +21,7 @@ import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameOptionsActivity
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
-import isel.gomuku.screens.gameScreeens.ranking.RankingActivity
+import isel.gomuku.screens.ranking.RankingActivity
 import isel.gomuku.ui.theme.GomukuTheme
 import kotlin.system.exitProcess
 
@@ -53,7 +53,7 @@ class MainActivity : BaseComponentActivity<EmptyViewModel>() {
                             .width(MENU_BUTTON_WIDTH.dp),
                         playHandle = { GameOptionsActivity.navigate(this)},
                         authorsHandler = { AuthorsScreenActivity.navigate(this) },
-                        rankingHandle = {RankingActivity.navigate(this)}
+                        rankingHandle = { RankingActivity.navigate(this)}
                     )
 
                 }
