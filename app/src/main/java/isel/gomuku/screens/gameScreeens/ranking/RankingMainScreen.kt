@@ -10,9 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import isel.gomuku.helpers.Idle
-import isel.gomuku.helpers.LoadState
-import isel.gomuku.helpers.MENU_BUTTON_TEXT_SIZE
 import isel.gomuku.helpers.RANKING_TEXT_SIZE
 
 import isel.gomuku.screens.component.NavigationHandlers
@@ -28,8 +25,8 @@ fun RankingScreen(
     onStats: (RankingMenuState) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
-    rankings:LoadState<Rankings> = Idle,
-    globalStatistics: LoadState<GlobalStatistics> = Idle,
+    rankings:Rankings?,
+    globalStatistics: GlobalStatistics?,
     currentState: RankingMenuState
 ) {
     Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = onBack)) })
@@ -46,7 +43,7 @@ fun RankingScreen(
             RankingMenuState.BEST_PLAYER -> RankingStateScreen(
                 onBack = onStats,
                 currentRankingState = currentState,
-                rankings = rankings
+                bestPlayers = rankings?.bestPlayerRanking
             )
 
             RankingMenuState.GLOBAL_STATS -> GlobalStatsScreen(
