@@ -1,6 +1,8 @@
 package isel.gomuku.http
 
+import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import isel.gomuku.services.FetchException
 import isel.gomuku.services.StatsService
 import isel.gomuku.services.dto.BestPlayerRanking
@@ -12,6 +14,9 @@ import isel.gomuku.services.dto.TimePlayedRanking
 import isel.gomuku.services.dto.VictoriesRanking
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -19,18 +24,23 @@ import java.io.IOException
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-class StatsServiceHttp(val client: OkHttpClient, val gson: Gson) : StatsService {
+class StatsServiceHttp(val client: OkHttpClient, val gson: Gson, val baseApiUrl:String) : StatsService {
 
-
-    private val rankingRequest = requestConstructor("http://localhost:8080/api/statistics/ranking")
-    private val globalStatsRequest = requestConstructor("http://localhost:8080/api/statistics")
-    private fun requestConstructor(url: String): Request {
-        return Request.Builder()
-            .url(url)
-            .addHeader("accept", "application/json")
-            .build()
+    val globalStatsUrl = {
+        baseApiUrl.toHttpUrl()
+            .newBuilder()
+            .addPathSegment("statistics")
     }
 
+    val rankingsUrl  = {
+        baseApiUrl.toHttpUrl()
+            .newBuilder()
+            .addPathSegment("statistics")
+            .addPathSegment("ranking")
+    }
+    val httpRequests = HttpRequest (client)
+
+    private val listDeserializationType = object : TypeToken<List<NasaImageDto>>() {}.type
     override suspend fun getRankings(): Rankings {
         return suspendCoroutine {
             client.newCall(rankingRequest).enqueue(object : Callback {
