@@ -45,3 +45,5 @@ interface StatsService {
     suspend fun getGlobalStats(): GlobalStatistics
 }
 
+class FetchException(message: String, cause: Throwable? = null)
+    : Exception(message, cause)

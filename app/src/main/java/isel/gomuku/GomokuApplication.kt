@@ -2,7 +2,7 @@ package isel.gomuku
 
 import android.app.Application
 import com.google.gson.Gson
-import isel.gomuku.http.GameService
+
 import isel.gomuku.http.GameServiceHttp
 import isel.gomuku.http.StatsServiceHttp
 import okhttp3.OkHttpClient

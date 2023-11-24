@@ -5,14 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
+import isel.gomuku.http.GameService
+import isel.gomuku.http.GameServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
-import isel.gomuku.services.GameService
-@SuppressLint("MutableCollectionMutableState")
-class RemoteGameViewModel : BaseViewModel() {
+import isel.gomuku.services.HttpService
 
-    private val service = GameService("HHHHHHHHHHHHHHHHHH")
+@SuppressLint("MutableCollectionMutableState")
+class RemoteGameViewModel (val service : GameServiceHttp) : BaseViewModel() {
+
 
     var moves : MutableMap<Position, Player?> = initBoard(0);
 

@@ -17,83 +17,96 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import isel.gomuku.helpers.Idle
+import isel.gomuku.helpers.LoadState
+import isel.gomuku.helpers.Loaded
+import isel.gomuku.helpers.Loading
 import isel.gomuku.helpers.RANKING_TEXT_SIZE
-import isel.gomuku.services.dto.BestPlayerRanking
-import isel.gomuku.services.dto.DefeatsRanking
+import isel.gomuku.services.dto.Rankings
 import isel.gomuku.services.dto.VictoriesRanking
 
 @Composable
 fun RankingStateScreen (
     onBack: (RankingMenuState) -> Unit,
     currentRankingState: RankingMenuState,
-    bestPlayers: List<BestPlayerRanking>? = null)
+    rankings: LoadState<Rankings> = Idle
+)
 {
     val (description, tittle) = selectRankingState(currentRankingState) ?: return
+
+
     Column  {
         Box {
             Button(onClick = {onBack(RankingMenuState.MENU)} ) {
                 Text(text = "Back to Rankings", fontSize = RANKING_TEXT_SIZE.sp)
             }
         }
-        Row (modifier = Modifier
-            .padding(5.dp)
-            .background(color = Color.Blue)
-            .fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Box (modifier = Modifier
-                .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
-                Text(text = description, fontSize = 30.sp)
-            }
+        if (rankings is Loaded) {
 
-        }
-        bestPlayers?.forEachIndexed { index, player ->
-            if (index == 0) {
-                Row (modifier = Modifier
-                    .padding(5.dp)
-                    .background(color = Color.Blue)
-                    .height(30.dp)
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                )  {
-                    Box (modifier = Modifier
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
-                        Text(text = "Rank", fontSize = 25.sp) //Rank
-                    }
-                    Box (modifier = Modifier
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
-                        Text(text = "Player",  fontSize = 25.sp) //Rank
-                    }
-
-                    Box (modifier = Modifier
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
-                        Text(text = tittle,  fontSize = 25.sp) //Rank
-                    }
+            Row (modifier = Modifier
+                .padding(5.dp)
+                .background(color = Color.Blue)
+                .fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Box (modifier = Modifier
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
+                    Text(text = description, fontSize = 30.sp)
                 }
+
             }
-                Row (modifier = Modifier
-                    .padding(5.dp)
-                    .background(color = Color.Blue)
-                    .height(30.dp)
-                    .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+            rankings.result.getOrNull()?.let { rankings ->
+                rankings.bestPlayerRanking.forEachIndexed { index, player ->
+                    if (index == 0) {
+                        Row (modifier = Modifier
+                            .padding(5.dp)
+                            .background(color = Color.Blue)
+                            .height(30.dp)
+                            .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        )  {
+                            Box (modifier = Modifier
+                                .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
+                                Text(text = "Rank", fontSize = 25.sp) //Rank
+                            }
+                            Box (modifier = Modifier
+                                .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
+                                Text(text = "Player",  fontSize = 25.sp) //Rank
+                            }
+
+                            Box (modifier = Modifier
+                                .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
+                                Text(text = tittle,  fontSize = 25.sp) //Rank
+                            }
+                        }
+                    }
+                    Row (modifier = Modifier
+                        .padding(5.dp)
+                        .background(color = Color.Blue)
+                        .height(30.dp)
+                        .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     )  {
-                    Box (modifier = Modifier
-                        .padding()
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
-                        Text(text = "${index+1}", fontSize = 25.sp) //Rank
-                    }
-                    Box (modifier = Modifier
-                        .padding()
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
-                        Text(text = player.playerName,  fontSize = 25.sp) //Rank
-                    }
+                        Box (modifier = Modifier
+                            .padding()
+                            .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
+                            Text(text = "${index+1}", fontSize = 25.sp) //Rank
+                        }
+                        Box (modifier = Modifier
+                            .padding()
+                            .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
+                            Text(text = player.playerName,  fontSize = 25.sp) //Rank
+                        }
 
-                    Box (modifier = Modifier
-                        .padding()
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
-                        Text(text = "${player.points}",  fontSize = 25.sp) //Rank
+                        Box (modifier = Modifier
+                            .padding()
+                            .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp)) ) {
+                            Text(text = "${player.points}",  fontSize = 25.sp) //Rank
+                        }
                     }
                 }
+
+            }
         }
+
     }
 }
 
@@ -112,14 +125,6 @@ fun selectRankingState(currentRankingState: RankingMenuState) : Pair<String,Stri
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RankingStateScreenPreview() {
-    RankingStateScreen(
-        onBack = {},
-        currentRankingState = RankingMenuState.BEST_PLAYER,
-        bestPlayers = listOf(
-            BestPlayerRanking("marsul", 10),
-            BestPlayerRanking("simão", 9),
-            BestPlayerRanking("eduardo", 8),
-        )
-    )
+
 }
 

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import isel.gomuku.GomokuApplication
 import isel.gomuku.helpers.MENU_BUTTON_WIDTH
 import isel.gomuku.helpers.MENU_PADDING
 import isel.gomuku.services.StatsServiceLocal
@@ -25,8 +26,9 @@ enum class RankingMenuState {
 }
 
 class RankingActivity : ComponentActivity() {
+    private val app by lazy { application as GomokuApplication }
     private val rankingViewModel: RankingViewModel by viewModels()
-    private val service = StatsServiceLocal()
+
     companion object {
         fun navigate(source: ComponentActivity) {
             val intent = Intent(source, RankingActivity::class.java)
@@ -38,32 +40,21 @@ class RankingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GomukuTheme {
-                when(rankingViewModel.currentState){
-                    RankingMenuState.MENU ->  RankingScreen(
-                        modifier = Modifier
-                            .padding(MENU_PADDING.dp)
-                            .width(MENU_BUTTON_WIDTH.dp),
-                        onBack = { finish() },
-                        onStats = rankingViewModel::changeStatsToShow,
-                        onGetGlobalStatistics = { rankingViewModel.getGlobalStats(service)},
-                        onGetRankings = {rankingViewModel.getRankings(service)}
-                    )
-                    RankingMenuState.BEST_PLAYER -> RankingStateScreen(
-                        onBack = rankingViewModel::changeStatsToShow,
-                        currentRankingState = rankingViewModel.currentState,
-                        bestPlayers = rankingViewModel.rankings?.bestPlayerRanking
-                    )
-                    RankingMenuState.GLOBAL_STATS -> GlobalStatsScreen(
-                        onBack = rankingViewModel::changeStatsToShow,
-                        globalStatistics = rankingViewModel.globalStatistics
-                    )
-                    else -> {
-                        TODO()
-                    }
-                }
-
+                RankingScreen(
+                    modifier = Modifier
+                        .padding(MENU_PADDING.dp)
+                        .width(MENU_BUTTON_WIDTH.dp),
+                    onBack = { finish() },
+                    onStats = rankingViewModel::changeStatsToShow,
+                    onGetGlobalStatistics = { rankingViewModel.getGlobalStats(app.statsService) },
+                    onGetRankings = { rankingViewModel.getRankings(app.statsService) },
+                    rankings = rankingViewModel.rankings,
+                    globalStatistics = rankingViewModel.globalStatistics,
+                    currentState = rankingViewModel.currentState
+                )
             }
+
         }
     }
-
 }
+
