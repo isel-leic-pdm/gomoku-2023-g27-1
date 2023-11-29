@@ -1,12 +1,14 @@
 package isel.gomuku.localRepository
 
+import android.provider.ContactsContract.CommonDataKinds.Email
+
 interface UserRepository {
     fun getUser() : LoggedUser
     fun setUser(loggedUser: LoggedUser)
     fun deleteUser()
 }
 class UserDatabase : UserRepository {
-    var loggedUser : LoggedUser?= LoggedUser(1,"Test",null)
+    var loggedUser : LoggedUser? = null
     override fun getUser(): LoggedUser {
         return loggedUser ?: throw IllegalStateException("User not logged")
     }
@@ -22,4 +24,4 @@ class UserDatabase : UserRepository {
 
 }
 
-data class LoggedUser(val id : Int, val nome: String, val token: String?)
+data class LoggedUser(val id : Int, val nome: String,val email: String, val token: String)
