@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import isel.gomuku.http.StatsServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
-import isel.gomuku.services.dto.GlobalStatistics
-import isel.gomuku.services.dto.Rankings
+import isel.gomuku.gameLogic.model.statistics.GlobalStatistics
+import isel.gomuku.gameLogic.model.statistics.Rankings
 
 class RankingViewModel:BaseViewModel() {
     var rankings : Rankings? by mutableStateOf(null)

@@ -1,30 +1,18 @@
 package isel.gomuku.http
 
-import android.util.Log
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import isel.gomuku.services.FetchException
 import isel.gomuku.services.StatsService
-import isel.gomuku.services.dto.BestPlayerRanking
-import isel.gomuku.services.dto.DefeatsRanking
-import isel.gomuku.services.dto.GamesRanking
-import isel.gomuku.services.dto.GlobalStatistics
-import isel.gomuku.services.dto.Rankings
-import isel.gomuku.services.dto.TimePlayedRanking
-import isel.gomuku.services.dto.VictoriesRanking
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.HttpUrl
+import isel.gomuku.gameLogic.model.statistics.BestPlayerRanking
+import isel.gomuku.gameLogic.model.statistics.DefeatsRanking
+import isel.gomuku.gameLogic.model.statistics.GamesRanking
+import isel.gomuku.gameLogic.model.statistics.GlobalStatistics
+import isel.gomuku.gameLogic.model.statistics.Rankings
+import isel.gomuku.gameLogic.model.statistics.TimePlayedRanking
+import isel.gomuku.gameLogic.model.statistics.VictoriesRanking
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import java.io.IOException
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
-class StatsServiceHttp(val client: OkHttpClient, val gson: Gson, val baseApiUrl:String) : StatsService {
+class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val baseApiUrl:String) : StatsService {
 
     val globalStatsUrl = {
         baseApiUrl.toHttpUrl()
@@ -33,53 +21,25 @@ class StatsServiceHttp(val client: OkHttpClient, val gson: Gson, val baseApiUrl:
     }
 
     val rankingsUrl  = {
-        baseApiUrl.toHttpUrl()
-            .newBuilder()
-            .addPathSegment("statistics")
+        globalStatsUrl()
             .addPathSegment("ranking")
     }
-    val httpRequests = HttpRequest (client)
 
-    private val listDeserializationType = object : TypeToken<List<NasaImageDto>>() {}.type
+    private val httpRequests = HttpRequest (client)
+
     override suspend fun getRankings(): Rankings {
-        return suspendCoroutine {
-            client.newCall(rankingRequest).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    it.resumeWithException(FetchException("Failed to fetch ranking", e))
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    val body = response.body
-                    if (!response.isSuccessful || body == null)
-                        it.resumeWithException(FetchException("Failed to fetch ranking: ${response.code}"))
-                    else {
-                        val dto = gson.fromJson(body.string(), RankingsDto::class.java)
-                        it.resumeWith(Result.success(dto.toRankings()))
-                    }
-                }
-            })
+        val request = httpRequests.get(rankingsUrl(), hashMapOf("accept" to "application/json"))
+        return httpRequests.doRequest(request) {
+            val dto = gson.fromJson(it.body?.string(), RankingsDto::class.java)
+            return@doRequest dto.toRankings()
         }
     }
 
 
-
     override suspend fun getGlobalStats(): GlobalStatistics {
-        return suspendCoroutine {
-            client.newCall(globalStatsRequest).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    it.resumeWithException(FetchException("Failed to fetch statistics", e))
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    val body = response.body
-                    if (!response.isSuccessful || body == null)
-                        it.resumeWithException(FetchException("Failed to fetch global statistics: ${response.code}"))
-                    else {
-                        val dto = gson.fromJson(body.string(), GlobalStatistics::class.java)
-                        it.resumeWith(Result.success(dto))
-                    }
-                }
-            })
+        val request = httpRequests.get(globalStatsUrl(), hashMapOf("accept" to "application/json"))
+        return httpRequests.doRequest(request) {
+            return@doRequest gson.fromJson(it.body?.string(), GlobalStatistics::class.java)
         }
     }
 
@@ -92,6 +52,5 @@ class StatsServiceHttp(val client: OkHttpClient, val gson: Gson, val baseApiUrl:
     ) {
         fun toRankings() = Rankings(bestPlayers, victories, mostGames, mostTime, playerDefeats)
     }
-
 }
 

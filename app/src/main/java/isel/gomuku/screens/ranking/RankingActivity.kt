@@ -18,10 +18,6 @@ import isel.gomuku.ui.theme.GomukuTheme
 
 enum class RankingMenuState {
     BEST_PLAYER,
-    VICTORIES,
-    DEFEATS,
-    MOST_TIME,
-    MOST_GAMES,
     GLOBAL_STATS,
     MENU
 }

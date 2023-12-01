@@ -5,9 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -18,17 +19,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import isel.gomuku.helpers.RANKING_TEXT_SIZE
-import isel.gomuku.services.dto.BestPlayerRanking
+import isel.gomuku.gameLogic.model.statistics.BestPlayerRanking
 
 
 @Composable
 fun RankingStateScreen(
     onBack: (RankingMenuState) -> Unit,
     currentRankingState: RankingMenuState,
-    bestPlayers: List<BestPlayerRanking>?
+    bestPlayerRanking: List<BestPlayerRanking>?
 ) {
-    val (description, tittle) = selectRankingState(currentRankingState) ?: return
-
 
     Column {
         Box {
@@ -39,100 +38,102 @@ fun RankingStateScreen(
 
         Row(
             modifier = Modifier
-                .padding(5.dp)
-                .background(color = Color.Blue)
-                .fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                .background(color = Color.Blue, shape = RoundedCornerShape(5.dp))
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
             Box(
                 modifier = Modifier
                     .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
             ) {
-                Text(text = description, fontSize = 30.sp)
+                Text(text = "Leader Board", fontSize = RANKING_TEXT_SIZE.sp)
             }
-
         }
-        bestPlayers?.forEachIndexed { index, player ->
-            if (index == 0) {
-                Row(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .background(color = Color.Blue)
-                        .height(30.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
-                    ) {
-                        Text(text = "Rank", fontSize = 25.sp) //Rank
-                    }
-                    Box(
-                        modifier = Modifier
-                            .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
-                    ) {
-                        Text(text = "Player", fontSize = 25.sp) //Rank
-                    }
+        RankingList(bestPlayerRanking = bestPlayerRanking)
+    }
+}
 
-                    Box(
-                        modifier = Modifier
-                            .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
-                    ) {
-                        Text(text = tittle, fontSize = 25.sp) //Rank
-                    }
-                }
+
+
+@Composable
+fun RankingList(bestPlayerRanking: List<BestPlayerRanking>?) {
+    LazyColumn(
+        userScrollEnabled = true,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        bestPlayerRanking?.forEachIndexed { index, player ->
+            items(1) {
+               RankingRow(rank = index,  player = player)
             }
-            Row(
+        }
+    }
+}
+
+@Composable
+fun RankingRow (rank :Int, player: BestPlayerRanking){
+    Row(
+        modifier = Modifier
+            .background(color = Color.Blue, shape = RoundedCornerShape(5.dp))
+            .padding(5.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+            Box(
                 modifier = Modifier
-                    .padding(5.dp)
-                    .background(color = Color.Blue)
-                    .height(30.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
             ) {
-                Box(
-                    modifier = Modifier
-                        .padding()
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
-                ) {
-                    Text(text = "${index + 1}", fontSize = 25.sp) //Rank
-                }
-                Box(
-                    modifier = Modifier
-                        .padding()
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
-                ) {
-                    Text(text = player.playerName, fontSize = 25.sp) //Rank
-                }
-
-                Box(
-                    modifier = Modifier
-                        .padding()
-                        .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
-                ) {
-                    Text(text = "${player.points}", fontSize = 25.sp) //Rank
-                }
+                Text(text = "#${rank + 1}", fontSize = RANKING_TEXT_SIZE.sp) //Rank
             }
-        }
+            Box(
+                modifier = Modifier
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
+            ) {
+                Text(text = player.playerName, fontSize = RANKING_TEXT_SIZE.sp) //Rank
+            }
 
+            Box(
+                modifier = Modifier
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
+            ) {
+                Text(text = "P${player.points}", fontSize = RANKING_TEXT_SIZE.sp) //Rank
+            }
     }
 }
 
 
-fun selectRankingState(currentRankingState: RankingMenuState): Pair<String, String>? {
-    return when (currentRankingState) {
-        RankingMenuState.BEST_PLAYER -> Pair("Best Players Ranking", "Points")
-        RankingMenuState.DEFEATS -> Pair("Defeats Ranking", "Defeats")
-        RankingMenuState.VICTORIES -> Pair("Victories Ranking", "Victories")
-        RankingMenuState.MOST_TIME -> Pair("Time played Ranking", "Time")
-        RankingMenuState.MOST_GAMES -> Pair("Games Played Ranking", "Games")
-        else -> null
-    }
-}
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RankingStateScreenPreview() {
+RankingStateScreen(
+        onBack = {},
+        currentRankingState = RankingMenuState.BEST_PLAYER,
+        bestPlayerRanking = listOf(
+            BestPlayerRanking("Player1", 50),
+            BestPlayerRanking("Player2", 49),
+            BestPlayerRanking("Player3", 48),
+            BestPlayerRanking("Player4", 47),
+            BestPlayerRanking("Player5", 46),
+            BestPlayerRanking("Player6", 45),
+            BestPlayerRanking("Player7", 44),
+            BestPlayerRanking("Player8", 43),
+            BestPlayerRanking("Player9", 42),
+            BestPlayerRanking("Player10", 41),
+            BestPlayerRanking("Player11", 40),
+            BestPlayerRanking("Player12", 39),
+            BestPlayerRanking("Player13", 38),
+            BestPlayerRanking("Player14", 37),
+            BestPlayerRanking("Player15", 36),
+             BestPlayerRanking("Player16", 35),
+            BestPlayerRanking("Player17", 34),
+            BestPlayerRanking("Player18", 33),
+            BestPlayerRanking("Player19", 32),
+            BestPlayerRanking("Player20", 31)
+        ))
+
 
 }
 

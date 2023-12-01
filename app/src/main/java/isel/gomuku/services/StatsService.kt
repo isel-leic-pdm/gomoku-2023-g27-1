@@ -1,12 +1,12 @@
 package isel.gomuku.services
 
-import isel.gomuku.services.dto.BestPlayerRanking
-import isel.gomuku.services.dto.DefeatsRanking
-import isel.gomuku.services.dto.GamesRanking
-import isel.gomuku.services.dto.GlobalStatistics
-import isel.gomuku.services.dto.Rankings
-import isel.gomuku.services.dto.TimePlayedRanking
-import isel.gomuku.services.dto.VictoriesRanking
+import isel.gomuku.gameLogic.model.statistics.BestPlayerRanking
+import isel.gomuku.gameLogic.model.statistics.DefeatsRanking
+import isel.gomuku.gameLogic.model.statistics.GamesRanking
+import isel.gomuku.gameLogic.model.statistics.GlobalStatistics
+import isel.gomuku.gameLogic.model.statistics.Rankings
+import isel.gomuku.gameLogic.model.statistics.TimePlayedRanking
+import isel.gomuku.gameLogic.model.statistics.VictoriesRanking
 
 
 class StatsServiceLocal: StatsService {
