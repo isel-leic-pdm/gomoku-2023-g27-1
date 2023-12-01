@@ -40,7 +40,7 @@ fun TopBar(
         },
         actions = {
             ConditionalIconButton(
-                action = { navigationHandlers.navigateToLogin },
+                action =  navigationHandlers.navigateToLogin ,
                 image = Icons.Default.AccountCircle,
                 string = R.string.top_bar_user
 

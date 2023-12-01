@@ -22,10 +22,11 @@ import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameOptionsActivity
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
 import isel.gomuku.screens.ranking.RankingActivity
+import isel.gomuku.screens.users.UsersActivity
 import isel.gomuku.ui.theme.GomukuTheme
 import kotlin.system.exitProcess
 
-class MainActivity : BaseComponentActivity<EmptyViewModel>() {
+class MainActivity : ComponentActivity() {
 
     companion object {
         fun navigate(source: ComponentActivity) {
@@ -34,8 +35,6 @@ class MainActivity : BaseComponentActivity<EmptyViewModel>() {
         }
     }
 
-    override val viewModel: EmptyViewModel
-        get() = TODO("Not yet implemented")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +52,9 @@ class MainActivity : BaseComponentActivity<EmptyViewModel>() {
                             .width(MENU_BUTTON_WIDTH.dp),
                         playHandle = { GameOptionsActivity.navigate(this)},
                         authorsHandler = { AuthorsScreenActivity.navigate(this) },
-                        rankingHandle = { RankingActivity.navigate(this)}
+                        rankingHandle = { RankingActivity.navigate(this)},
+                        loginHandler = { UsersActivity.navigate(this)}
+
                     )
 
                 }
