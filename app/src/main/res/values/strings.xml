@@ -22,4 +22,5 @@
     <string name="main_meu_talk">Talk</string>
     <string name="main_meu_ranking">Ranking</string>
     <string name="quick">quick</string>
+    <string name="activity_info_no_suitable_app">Problem in finding activity</string>
 </resources>
