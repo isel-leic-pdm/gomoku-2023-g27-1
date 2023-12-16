@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,7 +23,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +38,7 @@ import isel.gomuku.ui.theme.GomukuTheme
 
 
 const val FONT_SIZE = 25
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun DrawUserAuth(
@@ -41,30 +46,48 @@ fun DrawUserAuth(
     nickname: String,
     email: String?,
     password: String,
-    editName:(String) -> Unit,
-    editPassword:(String) -> Unit,
-    editEmail: (String) -> Unit
+    editName: (String) -> Unit,
+    editPassword: (String) -> Unit,
+    editEmail: (String) -> Unit,
+    changeForm: () ->Unit,
+    onSubmit:()->Unit
 ) {
+    val option =  if (email == null) {
+        Pair(stringResource(id = R.string.user_request_register), stringResource(id = R.string.user_request_login))
+    } else Pair(stringResource(id = R.string.user_request_login),stringResource(id = R.string.user_request_register))
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.align(Alignment.Center)) {
             Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text(text = stringResource(id = R.string.user_request_login), fontSize =  FONT_SIZE.sp)
+                Text(
+                    text = option.second,
+                    fontSize = FONT_SIZE.sp
+                )
             }
-            Text(text = stringResource(id = R.string.user_request_nickname), fontSize =  FONT_SIZE.sp)
+            Text(
+                text = stringResource(id = R.string.user_request_nickname),
+                fontSize = FONT_SIZE.sp
+            )
             OutlinedTextField(
                 value = nickname,
                 onValueChange = { editName(it) },
                 label = { Text(stringResource(id = R.string.user_request_nickname)) }
             )
             if (email != null) {
-                Text(text = stringResource(id = R.string.user_request_email), fontSize =  FONT_SIZE.sp)
+                Text(
+                    text = stringResource(id = R.string.user_request_email),
+                    fontSize = FONT_SIZE.sp
+                )
                 OutlinedTextField(
                     value = email,
                     onValueChange = { editEmail(it) },
                     label = { Text(stringResource(id = R.string.user_request_email)) }
                 )
             }
-            Text(text = stringResource(id = R.string.user_request_password), fontSize =  FONT_SIZE.sp)
+            Text(
+                text = stringResource(id = R.string.user_request_password),
+                fontSize = FONT_SIZE.sp
+            )
             OutlinedTextField(
                 value = password,
                 onValueChange = { editPassword(it) },
@@ -76,9 +99,17 @@ fun DrawUserAuth(
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
+            ClickableText(
+                text =AnnotatedString(option.first),
+                style = TextStyle(Color.Blue),
+                onClick = { changeForm()})
+
             Column(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Button(modifier = modifier,onClick = { /*TODO*/ }) {
-                    Text(text = stringResource(id = R.string.user_request_login), fontSize =  FONT_SIZE.sp)
+                Button(modifier = modifier, onClick = { onSubmit()}) {
+                    Text(
+                        text = option.second,
+                        fontSize = FONT_SIZE.sp
+                    )
                 }
             }
         }
@@ -116,9 +147,12 @@ fun Preview() {
                     nickname,
                     email,
                     password,
-                    {nickname = it},
-                    {password = it},
-                    {email = it})
+                    { nickname = it },
+                    { password = it },
+                    { email = it },
+                    {},
+                    {}
+                    )
 
             }
 

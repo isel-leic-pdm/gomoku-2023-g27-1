@@ -1,43 +1,28 @@
 package isel.gomuku.screens.users
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
+import isel.gomuku.helpers.viewModelInit
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.users.component.DrawUserAuth
 import isel.gomuku.ui.theme.GomukuTheme
+
+
 
 class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
 
@@ -48,7 +33,15 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
         }
     }
 
-    override val viewModel: UsersViewModel by viewModels()
+    override val viewModel: UsersViewModel by viewModels {
+        viewModelInit {
+            UsersViewModel(
+                dependencyContainer.userStorage
+            )
+        }
+    }
+
+    private var needsRegistering by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,16 +57,25 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
                                 onBackHandler = { finish() })
                         )
                     }) { pad ->
-                        DrawUserAuth(
-                            modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
-                                nickname = "",
-                                email = "",
-                                password = "",
-                                editName = {},
-                                editPassword = {},
-                                editEmail = {}
+                        val user = viewModel.user
+                        if (user == null){
+                            DrawUserAuth(
+                                modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
+                                nickname = viewModel.inputName,
+                                email = if (needsRegistering)viewModel.inputEmail else null,
+                                password = viewModel.inputPassword,
+                                editName = {viewModel.inputName = it},
+                                editPassword = {viewModel.inputPassword = it},
+                                editEmail = {viewModel.inputEmail = it},
+                                changeForm = {
+                                    needsRegistering = !needsRegistering
+                                    viewModel.inputEmail = ""
+                                },
+                                if (!needsRegistering) viewModel::login else TODO()
                             )
-
+                        }else{
+                            Text(user.nome, modifier = Modifier.padding(vertical = pad.calculateTopPadding()))
+                        }
                     }
                 }
             }

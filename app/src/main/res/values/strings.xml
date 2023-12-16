@@ -25,6 +25,7 @@
     <string name="user_request_email">Email</string>
     <string name="user_request_password">Password</string>
     <string name="user_request_login">Login</string>
+    <string name="user_request_register">Register</string>
     <string name="quick">quick</string>
     <string name="activity_info_no_suitable_app">Problem in finding activity</string>
 </resources>
