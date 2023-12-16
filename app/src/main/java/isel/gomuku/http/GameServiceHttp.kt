@@ -1,185 +1,157 @@
 package isel.gomuku.http
 
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import isel.gomuku.gameLogic.Player
-import isel.gomuku.services.HttpService
-import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.FormBody
-import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody
-import okhttp3.Response
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 interface GameService {
-    suspend fun play(line: Int, column: Int)
-    suspend fun startGame(gridSize: Int, variants: String, openingRules: String)
-    suspend fun quitGame()
+    suspend fun play(line: Int, column: Int, auth: String)
+    suspend fun startGame(gridSize: Int, variants: String, openingRules: String, auth: String)
+    suspend fun quitGame(auth: String)
+    suspend fun getGameState(auth: String)
+    suspend fun getPlayerActiveGame(auth: String)
+    suspend fun getGameInfo(auth: String)
 }
 
-const val KEY = "KEY"
+class GameServiceHttp(
+    private val client: OkHttpClient,
+    private val gson: Gson,
+    private val baseApiUrl: String
+) : GameService {
 
-class GameServiceHttp(private val client: OkHttpClient, private val gson: Gson) : GameService {
-
-    var lobbyId: Int? = null
-
-    companion object {
-        //const val urlExtension = "game/"
-    }
+    private var lobbyId: Int? = null // Guardar em memoria local
 
     //Pode ser usado para polling
-    private val request: (String) -> Request = { extension ->
-        Request.Builder()
-            .url("https://localhost.com/game/$extension")
-            .addHeader("accept", "application/json")
-            .addHeader("Authorization", KEY)
-            .build()
+    val gameUrl = {
+        baseApiUrl.toHttpUrl()
+            .newBuilder()
+            .addPathSegment("game")
+    }
+    val startGameURL = {
+        gameUrl()
+            .addPathSegment("start")
+    }
+    val playUrl = {
+        gameUrl()
+            .addPathSegment("play")
+            .addPathSegment("$lobbyId")
+    }
+    val quitUrl = {
+        gameUrl()
+            .addPathSegment("quit")
+            .addPathSegment("$lobbyId")
     }
 
-    private val postRequest: (String, RequestBody) -> Request = { extension, body ->
-        Request.Builder()
-            .url("https://localhost.com/game/$extension")
-            .addHeader("accept", "application/json")
-            .addHeader("Authorization", KEY)
-            .post(body)
-            .build()
+
+    val gameState = {
+        gameUrl()
+            .addPathSegment("$lobbyId")
+            .addPathSegment("state")
     }
+    val gameInfo = {
+        gameUrl()
+            .addPathSegment("$lobbyId")
+    }
+    val activeGame = {
+        gameUrl()
+            .addPathSegment("active-match")
+    }
+
     private fun requestBody(params: List<Pair<String, String>>): RequestBody {
         var body = FormBody.Builder()
         params.forEach { param -> body = body.add(param.first, param.second) }
         return body.build()
     }
 
-    override suspend fun play(line: Int, column: Int) {
+    private val httpRequests = HttpRequest(client)
+
+    /** Recebe
+    class GameDataOutput(val game: GameStatus): GameStatusOutputModel()
+    class GameRunningOutput(val gameRunning: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
+    class GameOpenedOutput(val gameOpened:GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
+    class AwaitingOpponentOutput(val awaitingOpponent: GameStatus): GameStatusOutputModel()
+    class WaitingOpponentPiecesOutput(val waitingOpponentPieces: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
+    class GameEndedOutput(val gameEnded: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
+    class PlayMadeOutput(val playMade: GameStatus): GameStatusOutputModel()
+    class LobbyClosedOutput(val lobbyClosed: GameStatus): GameStatusOutputModel()
+     */
+    override suspend fun play(line: Int, column: Int, auth: String) {
         val params: List<Pair<String, String>> =
             listOf(Pair("lin", line.toString()), Pair("col", column.toString()))
-        doRequest("play/$lobbyId", body = requestBody(params)) {
-        }
-    }
-
-
-    override suspend fun startGame(gridSize: Int, variants: String, openingRules: String) {
-        val params: List<Pair<String, String>> = listOf(
-            Pair("grid", gridSize.toString()),
-            Pair("openingRule", openingRules), Pair("variant", variants)
+        val request = httpRequests.post(
+            playUrl(), requestBody(params),
+            hashMapOf("accept" to "application/json", "Authorization" to auth)
         )
-
-        doRequest("start", body = requestBody(params)) {
+        httpRequests.doRequest(request) {
+            //Recebe um gameStatusOutputModel
+            //AwaitingOpponentOutput,   GameEndedOutput, PlayMadeOutput
             val dto = gson.fromJson(it.body?.string(), Player::class.java)
         }
     }
 
-    override suspend fun quitGame() {
-        doRequest("quit", body = requestBody(emptyList())) {}
-    }
 
-    private suspend fun <T> doRequest(
-        urlExtension: String,
-        validateBody: Boolean = true,
-        body: RequestBody? = null,
-        callback: (Response) -> T
-    ): T {
-        val request = if (body == null) this.request(urlExtension)
-        else this.postRequest(urlExtension, body)
-        val httpCall = client.newCall(request);
+    override suspend fun startGame(
+        gridSize: Int,
+        variants: String,
+        openingRules: String,
+        auth: String
+    ) {
+        val params: List<Pair<String, String>> = listOf(
+            Pair("grid", gridSize.toString()),
+            Pair("openingRule", openingRules), Pair("variant", variants)
+        )
+        val request = httpRequests.post(
+            startGameURL(), requestBody(params),
+            hashMapOf("accept" to "application/json", "Authorization" to auth)
+        )
 
-        return suspendCancellableCoroutine {
-            it.invokeOnCancellation {
-                httpCall.cancel()
-            }
-
-            httpCall.enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    it.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if (validateBody && (response.isSuccessful == false || response.body == null))
-                        it.resumeWithException(Exception(response.message))
-
-                    try {
-                        it.resume(callback(response))
-                    } catch (e: Exception) {
-                        it.resumeWithException(e)
-                    }
-
-                }
-            })
+        httpRequests.doRequest(request) {
+            //Recebe um gameStatusOutputModel
+            //WaitingOpponentPiecesOutput,   AwaitingOpponentOutput
+            val dto = gson.fromJson(it.body?.string(), Int::class.java)
+            lobbyId = dto
         }
     }
-}
 
-
-/*
-package isel.gomuku.services
-
-import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-
-import okhttp3.Response
-
-abstract class GomokuService() {
-
-    companion object {
-        const val apiKeyParameter = "api_key"
-        const val BaseApiUrl = "" //Acrescentar
-    }
-
-
-    private val httpClient =
-        OkHttpClient.Builder().build()
-
-
-
-    suspend fun <T> doRequest(
-        url: HttpUrl.Builder,
-        validateBody: Boolean = true,
-        callback: (Response) -> T
-    ): T {
-        val request = Request
-            .Builder()
-            .url(url.build())
-            .build()
-
-        val httpCall = httpClient.newCall(request);
-
-        return suspendCancellableCoroutine {
-            it.invokeOnCancellation {
-                httpCall.cancel()
-            }
-
-            httpCall.enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    it.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if (validateBody && (response.isSuccessful == false || response.body == null))
-                        it.resumeWithException(Exception(response.message))
-
-                    try {
-                        it.resume(callback(response))
-                    } catch (e: Exception) {
-                        it.resumeWithException(e)
-                    }
-
-                }
-            })
+    override suspend fun quitGame(auth: String) {
+        val request = httpRequests.post(
+            quitUrl(), requestBody(emptyList()),
+            hashMapOf("accept" to "application/json", "Authorization" to auth)
+        )
+        httpRequests.doRequest(request) {
+            //Recebe um gameStatusOutputModel
+            //LobbyClosedOutput,    GameEndedOutput
+            return@doRequest gson.fromJson<String?>(it.body?.string(), String::class.java)
         }
     }
+
+    override suspend fun getGameState(auth: String) {
+        val request = httpRequests.get(
+            gameState(),
+            hashMapOf("accept" to "application/json", "Authorization" to auth)
+        )
+        httpRequests.doRequest(request) {
+            //Recebe um gameStatusOutputModel
+            //AwaitingOpponentOutput, GameEndedOutput
+
+        }
+    }
+
+    //Checks if player is in a game that has not ended
+    //Returns an id if player is in a game
+    override suspend fun getPlayerActiveGame(auth: String) {
+        val request = httpRequests.get(
+            activeGame(),
+            hashMapOf("accept" to "application/json", "Authorization" to auth)
+        )
+        httpRequests.doRequest(request) {
+            //Recebe um gameStatusOutputModel
+            //GameDataOutput
+        }
+    }
+
+
 }
- */

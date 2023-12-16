@@ -14,8 +14,8 @@ import isel.gomuku.helpers.RANKING_TEXT_SIZE
 
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
-import isel.gomuku.services.dto.GlobalStatistics
-import isel.gomuku.services.dto.Rankings
+import isel.gomuku.gameLogic.model.statistics.GlobalStatistics
+import isel.gomuku.gameLogic.model.statistics.Rankings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,35 +25,37 @@ fun RankingScreen(
     onStats: (RankingMenuState) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
-    rankings:Rankings?,
+    rankings: Rankings?,
     globalStatistics: GlobalStatistics?,
     currentState: RankingMenuState
 ) {
-    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = onBack)) })
-    { paddingValues ->
-        when (currentState) {
-            RankingMenuState.MENU -> RankingMenuScreen(
-                modifier = modifier,
-                onStats = onStats,
-                onGetGlobalStatistics = onGetGlobalStatistics,
-                onGetRankings = onGetRankings,
-                paddingValues = paddingValues
-            )
 
-            RankingMenuState.BEST_PLAYER -> RankingStateScreen(
-                onBack = onStats,
-                currentRankingState = currentState,
-                bestPlayers = rankings?.bestPlayerRanking
-            )
+    when (currentState) {
 
-            RankingMenuState.GLOBAL_STATS -> GlobalStatsScreen(
-                onBack = onStats,
-                globalStatistics = globalStatistics
-            )
+        RankingMenuState.MENU ->
+            Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = onBack)) })
+            { paddingValues ->
+                RankingMenuScreen(
+                    modifier = modifier,
+                    onStats = onStats,
+                    onGetGlobalStatistics = onGetGlobalStatistics,
+                    onGetRankings = onGetRankings,
+                    paddingValues = paddingValues
+                )
+            }
 
-            else -> TODO()
-        }
+        RankingMenuState.BEST_PLAYER -> RankingStateScreen(
+            onBack = onStats,
+            currentRankingState = currentState,
+            bestPlayerRanking = rankings?.bestPlayerRanking
+        )
+
+        RankingMenuState.GLOBAL_STATS -> GlobalStatsScreen(
+            onBack = onStats,
+            globalStatistics = globalStatistics
+        )
     }
+
 }
 
 
@@ -65,7 +67,7 @@ fun RankingMenuScreen(
     onGetRankings: () -> Unit,
     paddingValues: PaddingValues
 ) {
-    Column (modifier = modifier.padding(paddingValues)) {
+    Column(modifier = modifier.padding(paddingValues)) {
         Button(
             onClick = { onGetRankings(); onStats(RankingMenuState.BEST_PLAYER) },
             modifier = modifier

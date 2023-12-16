@@ -23,6 +23,7 @@ abstract class BaseViewModel : ViewModel() {
             try {
                 function()
             } catch (e: Exception) {
+                Log.d("Test","error",e)
                 error = e.message.toString()//TODO:Proper error presentation
             }
             isLoading = false

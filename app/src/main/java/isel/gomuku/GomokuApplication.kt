@@ -22,13 +22,13 @@ class GomokuApplication : Application(), DependencyContainer {
         UserDatabase()
     }
     override val gameService by lazy {
-        GameServiceHttp(client, gson)
+        GameServiceHttp(client, gson, REMOTE_GAME_API_BASE_URL)
     }
     override val statsService by lazy {
-        StatsServiceHttp(client, gson)
+        StatsServiceHttp(client, gson, REMOTE_GAME_API_BASE_URL)
     }
 
     companion object {
-        const val REMOTE_GAME_API_BASE_URL = "http://localhost:8080/api"
+        const val REMOTE_GAME_API_BASE_URL = "http://10.0.2.2:8080/api"
     }
 }
