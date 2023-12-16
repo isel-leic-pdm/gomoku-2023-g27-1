@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import isel.gomuku.MainActivity
 import isel.gomuku.screens.component.BaseComponentActivity
+import isel.gomuku.ui.theme.GomukuTheme
 
 class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
 
@@ -29,14 +30,17 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         safeSetContent {
-            Box{
-                Column(modifier = Modifier.align(Alignment.Center)) {
-                    Text(text = "Login", fontSize = 25.sp)
-                    OutlinedTextField(
-                        value = viewModel.inputEmail,
-                        onValueChange = { viewModel.inputEmail = it },
-                        label = { Text("Email") }
-                    )
+            GomukuTheme{
+
+                Box{
+                    Column(modifier = Modifier.align(Alignment.Center)) {
+                        Text(text = "Login", fontSize = 25.sp)
+                        OutlinedTextField(
+                            value = viewModel.inputEmail,
+                            onValueChange = { viewModel.inputEmail = it },
+                            label = { Text("Email") }
+                        )
+                    }
                 }
             }
         }
