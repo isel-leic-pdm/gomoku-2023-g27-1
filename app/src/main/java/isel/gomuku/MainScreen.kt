@@ -40,25 +40,25 @@ fun MainMenu(
 
         Button(onClick = playHandle, modifier = modifier) {
             Text(
-                text = stringResource(id = R.string.main_meu_play),
+                text = stringResource(id = R.string.main_menu_play),
                 fontSize = MENU_BUTTON_TEXT_SIZE.sp
             )
         }
         Button(onClick = authorsHandler, modifier = modifier) {
             Text(
-                text = stringResource(id = R.string.main_meu_authors),
+                text = stringResource(id = R.string.main_menu_authors),
                 fontSize = MENU_BUTTON_TEXT_SIZE.sp
             )
         }
         Button(onClick = { /*TODO*/ }, modifier = modifier) {
             Text(
-                text = stringResource(id = R.string.main_meu_talk),
+                text = stringResource(id = R.string.main_menu_talk),
                 fontSize = MENU_BUTTON_TEXT_SIZE.sp
             )
         }
         Button(onClick = rankingHandle, modifier = modifier) {
             Text(
-                text = stringResource(id = R.string.main_meu_ranking),
+                text = stringResource(id = R.string.main_menu_ranking),
                 fontSize = MENU_BUTTON_TEXT_SIZE.sp
             )
         }

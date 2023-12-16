@@ -153,5 +153,9 @@ class GameServiceHttp(
         }
     }
 
+    override suspend fun getGameInfo(auth: String) {
+        TODO("Not yet implemented")
+    }
+
 
 }

@@ -9,7 +9,7 @@
     <string name="top_bar_navigate">going (from main) to (?)</string>
     <string name="top_bar_user">Going to user login or info</string>
     <string name="Loading">Waiting for server response</string>
-    <string name="Dismiss">Ok</string>
+    <string name="Dismiss">OK</string>
     <string name="choose_grid">Select grid Size</string>
     <string name="choose_open_rule">Select game opening rules</string>
     <string name="choose_game_variant">Select game type</string>
@@ -17,10 +17,14 @@
     <string name="game_type">Select the game type.</string>
     <string name="local_game_title">Split screen</string>
     <string name="remote_game_title">Online</string>
-    <string name="main_meu_play">Play</string>
-    <string name="main_meu_authors">Authors</string>
-    <string name="main_meu_talk">Talk</string>
-    <string name="main_meu_ranking">Ranking</string>
+    <string name="main_menu_play">Play</string>
+    <string name="main_menu_authors">Authors</string>
+    <string name="main_menu_talk">Talk</string>
+    <string name="main_menu_ranking">Ranking</string>
+    <string name="user_request_nickname">Nickname</string>
+    <string name="user_request_email">Email</string>
+    <string name="user_request_password">Password</string>
+    <string name="user_request_login">Login</string>
     <string name="quick">quick</string>
     <string name="activity_info_no_suitable_app">Problem in finding activity</string>
 </resources>
