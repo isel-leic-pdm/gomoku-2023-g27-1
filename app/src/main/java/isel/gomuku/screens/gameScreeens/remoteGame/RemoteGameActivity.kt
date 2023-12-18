@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import isel.gomuku.GomokuApplication
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
@@ -25,6 +26,8 @@ import isel.gomuku.screens.gameScreeens.components.DrawBoard
 import isel.gomuku.ui.theme.GomukuTheme
 
 class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
+
+    private val app by lazy { application as GomokuApplication }
 
     companion object {
         private const val extra = "TO_CHANGE"
@@ -35,44 +38,47 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
         }
     }
 
-    private val gameOptions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-        this.intent.getParcelableExtra("", GameOptions::class.java)
-    else
-        this.intent.getParcelableExtra<GameOptions?>(extra)
     override val viewModel: RemoteGameViewModel by viewModels()
-
-    init {
-        require(gameOptions != null)
-        viewModel.startGame(
-            gameOptions.gridSize!!,
-            gameOptions.variant!!,
-            gameOptions.openingRule!!
-        )
-    }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("Test", "On create")
         super.onCreate(savedInstanceState)
+        val gameOptions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            this.intent.getParcelableExtra(extra, GameOptions::class.java)
+        else
+            this.intent.getParcelableExtra<GameOptions?>(extra)
+        require(gameOptions != null) { "How is it null?" }
 
-        Log.d("Test", "Testing extras in navigate")
+        val token = app.userStorage.getUser()?.token
 
-        viewModel.moves = viewModel.initBoard(gameOptions!!.gridSize!!)
-        setContent {
+        viewModel.startGame(
+            gameOptions.gridSize!!,
+            gameOptions.variant!!,
+            gameOptions.openingRule!!,
+            app.gameService,
+            token!!
+        )
+
+        safeSetContent {
             GomukuTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = { finish() })) }) {
-                        pad ->
+                    Scaffold(topBar = {
+                        TopBar(navigationHandlers = NavigationHandlers(onBackHandler = {
+                            finish()
+                        }))
+                    }) { pad ->
                         DrawBoard(
                             modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
-                            boardSize = gameOptions.gridSize!!,
-                            makePlay = { viewModel.play(it) },
-                            moves = viewModel.moves
+                            boardSize = gameOptions.gridSize,
+                            makePlay = { viewModel.play(it, app.gameService, token) },
+                            moves = viewModel.board.moves
                         )
-                        Button(onClick = { this.finish() }) {
-                            Text("Quit")
+                        Button(onClick = { viewModel.quit(app.gameService, token) }) {
+                            Text("Give up")
                         }
                     }
                 }
