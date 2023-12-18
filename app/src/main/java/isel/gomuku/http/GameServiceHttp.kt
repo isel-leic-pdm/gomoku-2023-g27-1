@@ -79,3 +79,4 @@ class GameServiceHttp(private val client: OkHttpClient, private val gson: Gson, 
     }
 
 }
+

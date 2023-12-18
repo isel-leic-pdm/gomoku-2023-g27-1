@@ -30,8 +30,7 @@ class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val
     override suspend fun getRankings(): Rankings {
         val request = httpRequests.get(rankingsUrl(), hashMapOf("accept" to "application/json"))
         return httpRequests.doRequest(request) {
-            val dto = gson.fromJson(it.body?.string(), RankingsDto::class.java)
-            return@doRequest dto.toRankings()
+            return@doRequest gson.fromJson(it.body?.string(), Rankings::class.java)
         }
     }
 
@@ -39,18 +38,13 @@ class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val
     override suspend fun getGlobalStats(): GlobalStatistics {
         val request = httpRequests.get(globalStatsUrl(), hashMapOf("accept" to "application/json"))
         return httpRequests.doRequest(request) {
-            return@doRequest gson.fromJson(it.body?.string(), GlobalStatistics::class.java)
+            val dto = gson.fromJson(it.body?.string(), GlobalStatisticsDto::class.java)
+            return@doRequest dto.toGlobalStatistics()
         }
     }
 
-    private data class RankingsDto(
-        val bestPlayers: List<BestPlayerRanking>,
-        val victories: List<VictoriesRanking>,
-        val mostGames: List<GamesRanking>,
-        val mostTime: List<TimePlayedRanking>,
-        val playerDefeats: List<DefeatsRanking>
-    ) {
-        fun toRankings() = Rankings(bestPlayers, victories, mostGames, mostTime, playerDefeats)
+    private data class GlobalStatisticsDto(val gameStats : GlobalStatistics) {
+        fun toGlobalStatistics() = gameStats
     }
 }
 
