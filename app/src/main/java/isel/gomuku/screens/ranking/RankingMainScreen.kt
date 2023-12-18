@@ -47,7 +47,7 @@ fun RankingScreen(
         RankingMenuState.BEST_PLAYER -> RankingStateScreen(
             onBack = onStats,
             currentRankingState = currentState,
-            bestPlayerRanking = rankings?.bestPlayerRanking
+            bestPlayerRanking = rankings?.bestPlayers
         )
 
         RankingMenuState.GLOBAL_STATS -> GlobalStatsScreen(

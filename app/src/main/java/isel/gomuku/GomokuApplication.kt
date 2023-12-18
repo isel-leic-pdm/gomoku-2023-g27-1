@@ -12,9 +12,9 @@ import okhttp3.OkHttpClient
 
 class GomokuApplication : Application(), DependencyContainer {
 
-    val gson = Gson()
+    private val gson = Gson()
 
-    val client =
+    private val client =
         OkHttpClient.Builder()
             .build()
 

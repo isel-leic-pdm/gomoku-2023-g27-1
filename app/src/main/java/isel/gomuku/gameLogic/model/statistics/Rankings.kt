@@ -1,8 +1,10 @@
 package isel.gomuku.gameLogic.model.statistics
 
-class Rankings (val bestPlayerRanking: List<BestPlayerRanking>,
-                val victoriesRanking: List<VictoriesRanking>,
-                val gamesRanking: List<GamesRanking>,
-                val timePlayedRanking: List<TimePlayedRanking>,
-                val defeatsRanking: List<DefeatsRanking>
-    )
+class Rankings (  val bestPlayers: List<BestPlayerRanking>,
+                  val victories: List<VictoriesRanking>,
+                  val mostGames: List<GamesRanking>,
+                  val mostTime: List<TimePlayedRanking>,
+                  val playerDefeats: List<DefeatsRanking>,
+                  val prevPage: String?,
+                  val nextPage: String?
+)

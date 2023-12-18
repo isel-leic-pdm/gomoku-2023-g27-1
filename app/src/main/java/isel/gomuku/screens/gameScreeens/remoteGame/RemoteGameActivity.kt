@@ -51,14 +51,14 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
             this.intent.getParcelableExtra<GameOptions?>(extra)
         require(gameOptions != null) { "How is it null?" }
 
-        val token = app.userStorage.getUser().token
+        val token = app.userStorage.getUser()?.token
 
         viewModel.startGame(
             gameOptions.gridSize!!,
             gameOptions.variant!!,
             gameOptions.openingRule!!,
             app.gameService,
-            token
+            token!!
         )
 
         safeSetContent {
