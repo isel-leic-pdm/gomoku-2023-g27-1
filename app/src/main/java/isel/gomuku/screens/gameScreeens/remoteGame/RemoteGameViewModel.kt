@@ -2,18 +2,16 @@ package isel.gomuku.screens.gameScreeens.remoteGame
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import isel.gomuku.gameLogic.Board
 import isel.gomuku.gameLogic.BoardRun
 import isel.gomuku.gameLogic.Player
 import isel.gomuku.gameLogic.Position
-import isel.gomuku.http.GameServiceHttp
+import isel.gomuku.httpServices.GameServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
-import java.net.PasswordAuthentication
 
 @SuppressLint("MutableCollectionMutableState")
 class RemoteGameViewModel : BaseViewModel() {

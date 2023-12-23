@@ -14,8 +14,8 @@ import isel.gomuku.helpers.RANKING_TEXT_SIZE
 
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
-import isel.gomuku.gameLogic.model.statistics.GlobalStatistics
-import isel.gomuku.gameLogic.model.statistics.Rankings
+import isel.gomuku.httpServices.model.statistics.GlobalStatistics
+import isel.gomuku.httpServices.model.statistics.Rankings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

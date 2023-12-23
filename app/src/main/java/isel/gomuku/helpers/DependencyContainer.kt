@@ -1,7 +1,8 @@
-package isel.gomuku.services
+package isel.gomuku.helpers
 
-import isel.gomuku.http.GameService
+import isel.gomuku.httpServices.GameService
 import isel.gomuku.localRepository.UserRepository
+import isel.gomuku.services.StatsService
 
 interface DependencyContainer {
     val statsService : StatsService

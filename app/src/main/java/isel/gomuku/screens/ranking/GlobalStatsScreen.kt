@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import isel.gomuku.helpers.RANKING_TEXT_SIZE
-import isel.gomuku.gameLogic.model.statistics.GlobalStatistics
+import isel.gomuku.httpServices.model.statistics.GlobalStatistics
 
 
 @Composable

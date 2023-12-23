@@ -1,4 +1,4 @@
-package isel.gomuku.gameLogic.model.statistics
+package isel.gomuku.httpServices.model.statistics
 
 class Rankings (val bestPlayerRanking: List<BestPlayerRanking>,
                 val victoriesRanking: List<VictoriesRanking>,

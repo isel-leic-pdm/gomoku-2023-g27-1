@@ -3,11 +3,11 @@ package isel.gomuku
 import android.app.Application
 import com.google.gson.Gson
 
-import isel.gomuku.http.GameServiceHttp
-import isel.gomuku.http.StatsServiceHttp
+import isel.gomuku.httpServices.GameServiceHttp
+import isel.gomuku.httpServices.StatsServiceHttp
 import isel.gomuku.localRepository.UserDatabase
 import isel.gomuku.localRepository.UserRepository
-import isel.gomuku.services.DependencyContainer
+import isel.gomuku.helpers.DependencyContainer
 import okhttp3.OkHttpClient
 
 class GomokuApplication : Application(), DependencyContainer {

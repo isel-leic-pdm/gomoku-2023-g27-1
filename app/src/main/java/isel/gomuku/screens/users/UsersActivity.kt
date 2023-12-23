@@ -71,7 +71,8 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
                                     needsRegistering = !needsRegistering
                                     viewModel.inputEmail = ""
                                 },
-                                if (!needsRegistering) viewModel::login else TODO()
+                                if (!needsRegistering) viewModel::login else viewModel::login
+
                             )
                         }else{
                             Text(user.nome, modifier = Modifier.padding(vertical = pad.calculateTopPadding()))

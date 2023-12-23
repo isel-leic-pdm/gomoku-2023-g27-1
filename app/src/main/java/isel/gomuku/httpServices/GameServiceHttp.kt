@@ -1,4 +1,4 @@
-package isel.gomuku.http
+package isel.gomuku.httpServices
 
 import com.google.gson.Gson
 import isel.gomuku.gameLogic.Player
