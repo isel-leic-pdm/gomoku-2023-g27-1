@@ -36,7 +36,7 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
     override val viewModel: UsersViewModel by viewModels {
         viewModelInit {
             UsersViewModel(
-                dependencyContainer.userStorage
+                dependencyContainer.userService
             )
         }
     }

@@ -1,11 +1,11 @@
 package isel.gomuku.utils
 
-import isel.gomuku.services.http.game.GameService
-import isel.gomuku.repository.user.UserRepository
-import isel.gomuku.services.http.statistics.StatsServiceHttp
+import isel.gomuku.services.GameService
+import isel.gomuku.services.StatsService
+import isel.gomuku.services.UserService
 
 interface DependencyContainer {
-    val statsService : StatsServiceHttp
+    val statsService : StatsService
     val gameService : GameService
-    val userStorage : UserRepository
+    val userService : UserService
 }

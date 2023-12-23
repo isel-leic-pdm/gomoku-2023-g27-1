@@ -15,6 +15,4 @@ class UserMem : UserRepository {
     override fun deleteUser() {
         loggedUser = null
     }
-
-
 }

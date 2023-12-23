@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -51,7 +50,7 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
             this.intent.getParcelableExtra<GameOptions?>(extra)
         require(gameOptions != null) { "How is it null?" }
 
-        val token = app.userStorage.getUser()?.token
+        val token = app.userService.getUser()?.token
 
         viewModel.startGame(
             gameOptions.gridSize!!,

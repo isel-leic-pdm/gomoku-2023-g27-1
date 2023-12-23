@@ -1,13 +1,14 @@
 package isel.gomuku.services.http.statistics
 
 import com.google.gson.Gson
+import isel.gomuku.services.StatsService
 import isel.gomuku.services.http.HttpRequest
 import isel.gomuku.services.http.statistics.model.GlobalStatistics
 import isel.gomuku.services.http.statistics.model.Rankings
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 
-class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val baseApiUrl:String) {
+class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val baseApiUrl:String) : StatsService {
 
     val globalStatsUrl = {
         baseApiUrl.toHttpUrl()
@@ -21,7 +22,7 @@ class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val
     }
 
     private val httpRequests = HttpRequest (client)
-    suspend fun getRankings(): Rankings {
+    override suspend fun getRankings(): Rankings {
         val request = httpRequests.get(rankingsUrl(), hashMapOf("accept" to "application/json"))
         return httpRequests.doRequest(request) {
             return@doRequest gson.fromJson(it.body?.string(), Rankings::class.java)
@@ -29,7 +30,7 @@ class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val
     }
 
 
-    suspend fun getGlobalStats(): GlobalStatistics {
+    override suspend fun getGlobalStats(): GlobalStatistics {
         val request = httpRequests.get(globalStatsUrl(), hashMapOf("accept" to "application/json"))
         return httpRequests.doRequest(request) {
             val dto = gson.fromJson(it.body?.string(), GlobalStatisticsDto::class.java)
