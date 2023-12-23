@@ -2,12 +2,12 @@ package isel.gomuku
 
 import android.app.Application
 import com.google.gson.Gson
+import isel.gomuku.repository.user.UserMem
 
-import isel.gomuku.httpServices.GameServiceHttp
-import isel.gomuku.httpServices.StatsServiceHttp
-import isel.gomuku.localRepository.UserDatabase
-import isel.gomuku.localRepository.UserRepository
-import isel.gomuku.helpers.DependencyContainer
+import isel.gomuku.services.http.game.GameServiceHttp
+import isel.gomuku.services.http.statistics.StatsServiceHttp
+import isel.gomuku.repository.user.UserRepository
+import isel.gomuku.utils.DependencyContainer
 import okhttp3.OkHttpClient
 
 class GomokuApplication : Application(), DependencyContainer {
@@ -19,7 +19,7 @@ class GomokuApplication : Application(), DependencyContainer {
             .build()
 
     override val userStorage: UserRepository by lazy {
-        UserDatabase()
+        UserMem()
     }
     override val gameService by lazy {
         GameServiceHttp(client, gson, REMOTE_GAME_API_BASE_URL)

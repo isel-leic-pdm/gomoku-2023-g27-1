@@ -45,7 +45,7 @@
             android:label="@string/quick"
             android:theme="@style/Theme.Gomuku" />
         <activity
-            android:name=".MainActivity"
+            android:name=".screens.home.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Gomuku">

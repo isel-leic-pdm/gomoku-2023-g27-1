@@ -15,7 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import isel.gomuku.helpers.viewModelInit
+import isel.gomuku.screens.utils.viewModelInit
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar

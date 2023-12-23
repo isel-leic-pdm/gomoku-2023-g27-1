@@ -1,17 +1,8 @@
 package isel.gomuku.screens.gameScreeens
 
 import android.os.Parcelable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import isel.gomuku.gameLogic.Board
-import isel.gomuku.gameLogic.Player
-import isel.gomuku.gameLogic.Position
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
-import isel.gomuku.screens.gameScreeens.gatherInfo.GridSize
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
-import isel.gomuku.services.LocalService
 import kotlinx.android.parcel.Parcelize
 import kotlinx.parcelize.IgnoredOnParcel
 

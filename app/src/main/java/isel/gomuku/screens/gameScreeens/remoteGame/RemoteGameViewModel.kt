@@ -6,15 +6,16 @@ import android.annotation.SuppressLint
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
-import isel.gomuku.gameLogic.Board
-import isel.gomuku.gameLogic.Player
-import isel.gomuku.http.GameServiceHttp
+import isel.gomuku.services.local.gameLogic.Board
+import isel.gomuku.services.local.gameLogic.Player
 import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
 import kotlinx.android.parcel.Parcelize
 import android.os.Parcelable
-import isel.gomuku.gameLogic.Position
+import isel.gomuku.services.local.gameLogic.Position
+import isel.gomuku.services.http.game.GameServiceHttp
+import isel.gomuku.services.local.gameLogic.BoardRun
 
 //@Parcelize
 //data class ParcelizedPosition private constructor(val lin: Int, val col: Int):Parcelable
@@ -34,7 +35,7 @@ class RemoteGameViewModel(private val saveHandle: SavedStateHandle) : BaseViewMo
 
     var lobbyId: Int? by mutableStateOf(null)
 
-    //var board: Board by mutableStateOf(BoardRun(Board.startBoard(15), Player.WHITE))
+    var board: Board by mutableStateOf(BoardRun(Board.startBoard(15), Player.WHITE))
 
 
     init {

@@ -18,8 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import isel.gomuku.helpers.RANKING_TEXT_SIZE
-import isel.gomuku.httpServices.model.statistics.BestPlayerRanking
+import isel.gomuku.utils.RANKING_TEXT_SIZE
+import isel.gomuku.services.http.statistics.model.BestPlayerRanking
 
 
 @Composable

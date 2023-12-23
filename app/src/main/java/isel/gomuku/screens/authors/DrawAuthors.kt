@@ -12,7 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import isel.gomuku.helpers.AUTHORS_TEXT_SIZE
+import isel.gomuku.utils.AUTHORS_TEXT_SIZE
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 

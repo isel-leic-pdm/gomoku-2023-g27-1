@@ -3,17 +3,15 @@ package isel.gomuku.screens.ranking
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import isel.gomuku.GomokuApplication
-import isel.gomuku.helpers.MENU_BUTTON_WIDTH
-import isel.gomuku.helpers.MENU_PADDING
+import isel.gomuku.utils.MENU_BUTTON_WIDTH
+import isel.gomuku.utils.MENU_PADDING
 import isel.gomuku.screens.component.BaseComponentActivity
-import isel.gomuku.services.StatsServiceLocal
 import isel.gomuku.ui.theme.GomukuTheme
 
 enum class RankingMenuState {

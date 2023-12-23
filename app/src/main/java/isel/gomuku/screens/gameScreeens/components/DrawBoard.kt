@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import isel.gomuku.gameLogic.Player
-import isel.gomuku.gameLogic.Position
+import isel.gomuku.services.local.gameLogic.Player
+import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.ui.theme.GomukuTheme
 
 private const val ROW_PADDING = 5

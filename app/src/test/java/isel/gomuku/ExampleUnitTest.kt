@@ -1,8 +1,8 @@
 package isel.gomuku
 
-import isel.gomuku.gameLogic.Player
-import isel.gomuku.gameLogic.Position
-import isel.gomuku.gameLogic.toPosition
+import isel.gomuku.services.local.gameLogic.Player
+import isel.gomuku.services.local.gameLogic.Position
+import isel.gomuku.services.local.gameLogic.toPosition
 import org.junit.Test
 
 import org.junit.Assert.*

@@ -3,8 +3,8 @@ package isel.gomuku.screens.users
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import isel.gomuku.localRepository.LoggedUser
-import isel.gomuku.localRepository.UserRepository
+import isel.gomuku.repository.user.UserRepository
+import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.screens.component.BaseViewModel
 
 class UsersViewModel(private val userStorage: UserRepository) : BaseViewModel() {

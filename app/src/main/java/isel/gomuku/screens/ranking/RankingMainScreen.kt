@@ -10,12 +10,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import isel.gomuku.helpers.RANKING_TEXT_SIZE
+import isel.gomuku.utils.RANKING_TEXT_SIZE
 
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
-import isel.gomuku.httpServices.model.statistics.GlobalStatistics
-import isel.gomuku.httpServices.model.statistics.Rankings
+import isel.gomuku.services.http.statistics.model.GlobalStatistics
+import isel.gomuku.services.http.statistics.model.Rankings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

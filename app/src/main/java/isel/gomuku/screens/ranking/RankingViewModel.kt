@@ -3,10 +3,10 @@ package isel.gomuku.screens.ranking
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import isel.gomuku.httpServices.StatsServiceHttp
+import isel.gomuku.services.http.statistics.StatsServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
-import isel.gomuku.httpServices.model.statistics.GlobalStatistics
-import isel.gomuku.httpServices.model.statistics.Rankings
+import isel.gomuku.services.http.statistics.model.GlobalStatistics
+import isel.gomuku.services.http.statistics.model.Rankings
 
 class RankingViewModel:BaseViewModel() {
     var rankings : Rankings? by mutableStateOf(null)
