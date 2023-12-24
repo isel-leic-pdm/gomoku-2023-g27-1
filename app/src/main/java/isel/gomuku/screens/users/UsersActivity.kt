@@ -2,6 +2,7 @@ package isel.gomuku.screens.users
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,7 +42,7 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
         }
     }
 
-    private var needsRegistering by mutableStateOf(false)
+    private var isRegistering by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,19 +62,24 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
                     }) { pad ->
                         val user = viewModel.user
                         if (user == null){
+                            if (isRegistering) {
+                                Log.d("Test","will register")
+                            } else {
+                                Log.d("Test","will login")
+                            }
                             DrawUserAuth(
                                 modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
                                 nickname = viewModel.inputName,
-                                email = if (needsRegistering)viewModel.inputEmail else null,
+                                email = if (isRegistering)viewModel.inputEmail else null ,
                                 password = viewModel.inputPassword,
                                 editName = {viewModel.inputName = it},
                                 editPassword = {viewModel.inputPassword = it},
                                 editEmail = {viewModel.inputEmail = it},
                                 changeForm = {
-                                    needsRegistering = !needsRegistering
+                                    isRegistering = !isRegistering
                                     viewModel.inputEmail = ""
                                 },
-                                if (!needsRegistering) viewModel::login else viewModel::login
+                                if (isRegistering) viewModel::register else viewModel::login
 
                             )
                         }else{
