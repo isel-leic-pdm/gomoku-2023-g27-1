@@ -10,7 +10,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
-import org.json.JSONStringer
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -26,14 +25,16 @@ class HttpRequest (private val client: OkHttpClient){
         }
         return request.build()
     }
-    fun post(url: HttpUrl.Builder, body: RequestBody, headers: Map<String, String> = emptyMap()) : Request {
-        val request = Request.Builder()
+    fun post(
+        url: HttpUrl.Builder,
+        body: RequestBody,
+        headers: Map<String, String> = emptyMap()
+    ): Request {
+        return Request.Builder()
             .url(url.build())
             .post(body)
-            .header("Content-Type", "application/json")
+            .headers(headers.toHeaders())
             .build()
-        println(request)
-        return request
     }
     suspend fun <T> doRequest(
         request: Request,

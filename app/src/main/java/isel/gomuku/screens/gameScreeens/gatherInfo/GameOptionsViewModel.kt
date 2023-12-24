@@ -4,13 +4,12 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.gameScreeens.GameOptions
 import isel.gomuku.screens.gameScreeens.localGame.LocalGameActivity
-import isel.gomuku.screens.gameScreeens.remoteGame.RemoteGameActivity
+import isel.gomuku.services.UserService
 
-class GameOptionsViewModel : BaseViewModel() {
+class GameOptionsViewModel(private val userService: UserService) : BaseViewModel() {
     var game: GameOptions by mutableStateOf(GameOptions())
     private fun buildingGame(changeBoard : (GameOptions) -> Unit){
         val checkBoard = game
@@ -34,9 +33,11 @@ class GameOptionsViewModel : BaseViewModel() {
         }
     }
 
-    fun changeGameType(remoteGame: Boolean) {
+    fun changeGameType(remoteGame: Boolean, navigate:() -> Unit) {
         buildingGame {
-            game = it.copy(isGameLocal = remoteGame)
+            if (it.isGameLocal && userService.getUser() == null){
+                navigate()
+            }else game = it.copy(isGameLocal = remoteGame)
         }
     }
 

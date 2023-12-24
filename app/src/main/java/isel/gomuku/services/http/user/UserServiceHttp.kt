@@ -13,7 +13,9 @@ import isel.gomuku.services.http.user.model.UserAuthorization
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 
 class Problem(val status:String,val title:String, val type : String,val detail:String)
 class UserServiceHttp(
@@ -30,6 +32,18 @@ class UserServiceHttp(
     override fun getUser(): LoggedUser? {
         return userRepository.getUser()
     }
+    private suspend fun remoteRequest(request: Request,action:(Response) -> Unit){
+        try {
+            requestBuilder.doRequest(request){
+                action(it)
+            }
+        }catch (jsonException:JsonSyntaxException){
+            throw IllegalStateException("Fatal error:" + jsonException.message)
+        }catch (remote:RemoteSourceException){
+            val prob = gson.fromJson(remote.body?.string(),Problem::class.java)
+            throw Exception(if (prob.detail != null)prob.title +":" + prob.detail else prob.title)
+        }
+    }
     override suspend fun login(userName: String, password: String): LoggedUser {
         val login = LoginBody(userName, password)
         val body = gson.toJson(login).toRequestBody("application/json".toMediaType())
@@ -38,22 +52,14 @@ class UserServiceHttp(
             body
         )
         var user : LoggedUser? = null
-        try {
-        requestBuilder.doRequest(request){
+        remoteRequest(request){
+            val dto = gson.fromJson(it.body?.string(),UserAuthorization::class.java)
+            Log.d("Test",dto.toString())
+            user = LoggedUser(dto.id,dto.nickname,dto.tokenInfo.tokenValue)
+        }
+        userRepository.setUser(user!!)
 
-                Log.d("Test","Before response return")
-                val a = it.body
-                val dto = gson.fromJson(it.body?.string(),UserAuthorization::class.java)
-                Log.d("Test",dto.toString())
-                user = LoggedUser(dto.id,dto.nickname,dto.token.tokenValue)
-        }
-        }catch (jsonException:JsonSyntaxException){
-            throw IllegalStateException("Fatal error:" + jsonException.message)
-        }catch (remote:RemoteSourceException){
-            val prob = gson.fromJson(remote.body?.string(),Problem::class.java)
-            throw Exception(if (prob.detail != null)prob.title +":" + prob.detail else prob.title)
-        }
-        return user ?: TODO()
+        return user!!
     }
 
     override fun register(userName: String, email: String, password: String): LoggedUser {
