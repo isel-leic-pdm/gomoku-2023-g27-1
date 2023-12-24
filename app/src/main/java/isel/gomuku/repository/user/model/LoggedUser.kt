@@ -1,3 +1,5 @@
 package isel.gomuku.repository.user.model
 
-data class LoggedUser(val id : Int, val nome: String,val email: String, val token: String)
+import isel.gomuku.services.http.user.model.Token
+
+data class LoggedUser(val id : Int, val nome: String,val token:String)

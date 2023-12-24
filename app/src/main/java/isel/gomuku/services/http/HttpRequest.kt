@@ -1,13 +1,16 @@
 package isel.gomuku.services.http
 
+import android.util.Log
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import org.json.JSONStringer
 import java.io.IOException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -27,10 +30,10 @@ class HttpRequest (private val client: OkHttpClient){
         val request = Request.Builder()
             .url(url.build())
             .post(body)
-        headers.forEach { (key, value) ->
-            request.addHeader(key, value)
-        }
-        return request.build()
+            .header("Content-Type", "application/json")
+            .build()
+        println(request)
+        return request
     }
     suspend fun <T> doRequest(
         request: Request,
@@ -38,7 +41,7 @@ class HttpRequest (private val client: OkHttpClient){
         callback: (Response) -> T
     ): T {
 
-        val httpCall = client.newCall(request);
+        val httpCall =  client.newCall(request);
 
         return suspendCancellableCoroutine {
             it.invokeOnCancellation {
@@ -50,12 +53,16 @@ class HttpRequest (private val client: OkHttpClient){
                     it.resumeWithException(e)
                 }
                 override fun onResponse(call: Call, response: Response) {
-                    if (validateBody && (!response.isSuccessful || response.body == null))
-                        it.resumeWithException(Exception(response.message))
-                    try {
-                        it.resume(callback(response))
-                    } catch (e: Exception) {
-                        it.resumeWithException(e)
+                    if (validateBody && (!response.isSuccessful || response.body == null)){
+                        it.resumeWithException(RemoteSourceException(response.body))
+                    }else{
+                        try {
+
+                            Log.d("Test","Still ran")
+                            it.resume(callback(response))
+                        } catch (e: Exception) {
+                            it.resumeWithException(e)
+                        }
                     }
                 }
             })
