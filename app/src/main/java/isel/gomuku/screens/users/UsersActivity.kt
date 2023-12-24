@@ -2,7 +2,6 @@ package isel.gomuku.screens.users
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +20,7 @@ import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.users.component.DrawUserAuth
+import isel.gomuku.screens.users.component.DrawUserDetails
 import isel.gomuku.ui.theme.GomukuTheme
 
 
@@ -61,14 +61,10 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
                         )
                     }) { pad ->
                         val user = viewModel.user
+                        val modifier = Modifier.padding(vertical = pad.calculateTopPadding())
                         if (user == null){
-                            if (isRegistering) {
-                                Log.d("Test","will register")
-                            } else {
-                                Log.d("Test","will login")
-                            }
                             DrawUserAuth(
-                                modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
+                                modifier = modifier,
                                 nickname = viewModel.inputName,
                                 email = if (isRegistering)viewModel.inputEmail else null ,
                                 password = viewModel.inputPassword,
@@ -83,7 +79,7 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
 
                             )
                         }else{
-                            Text(user.nome, modifier = Modifier.padding(vertical = pad.calculateTopPadding()))
+                            DrawUserDetails(modifier = modifier, user = user)
                         }
                     }
                 }
