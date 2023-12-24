@@ -6,9 +6,11 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
 import kotlin.coroutines.resume
@@ -27,7 +29,7 @@ class HttpRequest (private val client: OkHttpClient){
     }
     fun post(
         url: HttpUrl.Builder,
-        body: RequestBody,
+        body: RequestBody =  "".toRequestBody("application/json".toMediaType()),
         headers: Map<String, String> = emptyMap()
     ): Request {
         return Request.Builder()

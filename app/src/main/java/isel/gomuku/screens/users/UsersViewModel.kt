@@ -17,25 +17,16 @@ class UsersViewModel(private val userService: UserService) : BaseViewModel() {
     fun login(){
         safeCall {
             if (user != null) throw IllegalStateException("User already logged")//Should not be possible
-            //call login services that return LoggedUser
             val userName = inputName
             val password = inputPassword
             val newUser : LoggedUser = userService.login(userName,password) //TODO:Deal with the error
-            /*LoggedUser(
-            1,
-            inputName,
-            inputEmail,
-            "secureToken"
-        )*/
-            user = newUser/*
-            //Set in flow memory
-            userService.saveUser(newUser)*/
+            user = newUser
         }
     }
     fun logout(){
         safeCall {
-            userService.logout()
             user = null
+            userService.logout()
         }
     }
     fun register(){

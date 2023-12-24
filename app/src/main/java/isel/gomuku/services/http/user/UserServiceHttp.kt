@@ -12,7 +12,6 @@ import isel.gomuku.services.http.user.model.LoginBody
 import isel.gomuku.services.http.user.model.UserAuthorization
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
@@ -25,17 +24,21 @@ class UserServiceHttp(
     private val userRepository: UserRepository
 ) : UserService {
 
-    private val userURI =
+    private val userURI ={
         baseApiUrl.toHttpUrl().newBuilder().addPathSegment("user")
+    }
 
-    private val loginURI = userURI.addPathSegment("login")
+    private val loginURI = { userURI().addPathSegment("login") }
+    private val logoutURI = { userURI().addPathSegment("logout") }
     override fun getUser(): LoggedUser? {
         return userRepository.getUser()
     }
-    private suspend fun remoteRequest(request: Request,action:(Response) -> Unit){
+    private suspend fun remoteRequest(request: Request,action:((Response) -> Unit)? = null){
         try {
             requestBuilder.doRequest(request){
-                action(it)
+                if (action != null) {
+                    action(it)
+                }
             }
         }catch (jsonException:JsonSyntaxException){
             throw IllegalStateException("Fatal error:" + jsonException.message)
@@ -48,7 +51,7 @@ class UserServiceHttp(
         val login = LoginBody(userName, password)
         val body = gson.toJson(login).toRequestBody("application/json".toMediaType())
         val request = requestBuilder.post(
-            loginURI,
+            loginURI(),
             body
         )
         var user : LoggedUser? = null
@@ -66,8 +69,14 @@ class UserServiceHttp(
         TODO("Not yet implemented")
     }
 
-    override fun logout() {
-        TODO("Not yet implemented")
+    override suspend fun logout() {
+        val token = userRepository.getUser()?.token
+            ?: throw IllegalStateException("User as not logged in yet")
+        val request = requestBuilder.post(
+            logoutURI(),
+            headers = mapOf("Authorization" to "Bearer $token")
+        )
+        remoteRequest(request)
     }
 
     companion object {

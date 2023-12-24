@@ -54,7 +54,9 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
                     Scaffold(topBar = {
                         TopBar(
                             navigationHandlers = NavigationHandlers(
-                                onBackHandler = { finish() })
+                                onBackHandler = { finish() },
+                                logout = if (viewModel.user != null) viewModel::logout else null
+                            )
                         )
                     }) { pad ->
                         val user = viewModel.user

@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,7 +21,8 @@ import isel.gomuku.R
 data class NavigationHandlers(
     val onBackHandler: (() -> Unit)? = null,
     val navigateToHandler: (() -> Unit)? = null,
-    val navigateToLogin : (() -> Unit)? = null
+    val navigateToLogin : (() -> Unit)? = null,
+    val logout : (() -> Unit)? = null
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,6 +46,11 @@ fun TopBar(
                 image = Icons.Default.AccountCircle,
                 string = R.string.top_bar_user
 
+            )
+            ConditionalIconButton(
+                action = navigationHandlers.logout,
+                image = Icons.Default.ExitToApp,
+                string = R.string.top_bar_user_logout
             )
             ConditionalIconButton(
                 action = navigationHandlers.navigateToHandler,
