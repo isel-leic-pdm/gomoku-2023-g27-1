@@ -13,6 +13,7 @@ import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
 import kotlinx.android.parcel.Parcelize
 import android.os.Parcelable
+import isel.gomuku.services.UserService
 import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.services.http.game.GameServiceHttp
 import isel.gomuku.services.local.gameLogic.BoardRun
@@ -23,7 +24,11 @@ import isel.gomuku.services.local.gameLogic.BoardRun
 data class Plays(val pos: Position, val player: Player?) : Parcelable
 
 @SuppressLint("MutableCollectionMutableState")
-class RemoteGameViewModel(private val saveHandle: SavedStateHandle) : BaseViewModel() {
+class RemoteGameViewModel(
+    private val saveHandle: SavedStateHandle,
+    private val userService: UserService,
+    private val gameService: GameServiceHttp
+) : BaseViewModel() {
 
     companion object {
         val saveArgument = ""
@@ -52,15 +57,14 @@ class RemoteGameViewModel(private val saveHandle: SavedStateHandle) : BaseViewMo
         gridSize: Int,
         variants: GameVariants,
         openingRules: OpeningRules,
-        service: GameServiceHttp,
-        authentication: String
     ) {
         safeCall {
             if (lobbyId != null) {
-                setServiceLobby(service)
+                setServiceLobby()
                 throw Exception("In the middle of a game, reconnecting")
             }
-            service.startGame(gridSize, variants.name, openingRules.name, authentication)
+            val token = userService.getUser()?.token ?: throw IllegalStateException("User not logged In")//TODO:Check if exception is necessary please
+            gameService.startGame(gridSize, variants.name, openingRules.name, token)
 
             moves = Board.startBoard(gridSize)
 
@@ -70,14 +74,15 @@ class RemoteGameViewModel(private val saveHandle: SavedStateHandle) : BaseViewMo
     }
 
 
-    private fun setServiceLobby(service: GameServiceHttp) {
+    private fun setServiceLobby() {
         if (lobbyId != null)
-            service.setLobbyId(lobbyId!!)
+            gameService.setLobbyId(lobbyId!!)
     }
 
-    fun play(pos: Position, service: GameServiceHttp, authentication: String) {
+    fun play(pos: Position) {
         safeCall {
-            service.play(pos.lin, pos.col, authentication)
+            val token = userService.getUser()?.token ?: throw IllegalStateException("User not logged In")//TODO:Check if exception is necessary please
+            gameService.play(pos.lin, pos.col, token)
             val movesCopy = HashMap(moves)
             movesCopy[pos] = player
             moves = movesCopy
@@ -85,9 +90,10 @@ class RemoteGameViewModel(private val saveHandle: SavedStateHandle) : BaseViewMo
         }
     }
 
-    fun quit(service: GameServiceHttp, authentication: String) {
+    fun quit() {
         safeCall {
-            service.quitGame(authentication)
+            val token = userService.getUser()?.token ?: throw IllegalStateException("User not logged In")//TODO:Check if exception is necessary please
+            gameService.quitGame(token)
             saveHandle[saveArgument] = null
         }
     }

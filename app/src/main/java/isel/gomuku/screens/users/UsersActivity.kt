@@ -20,6 +20,7 @@ import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.users.component.DrawUserAuth
+import isel.gomuku.screens.users.component.DrawUserDetails
 import isel.gomuku.ui.theme.GomukuTheme
 
 
@@ -36,12 +37,12 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
     override val viewModel: UsersViewModel by viewModels {
         viewModelInit {
             UsersViewModel(
-                dependencyContainer.userStorage
+                dependencyContainer.userService
             )
         }
     }
 
-    private var needsRegistering by mutableStateOf(false)
+    private var isRegistering by mutableStateOf(false)
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,28 +55,31 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
                     Scaffold(topBar = {
                         TopBar(
                             navigationHandlers = NavigationHandlers(
-                                onBackHandler = { finish() })
+                                onBackHandler = { finish() },
+                                logout = if (viewModel.user != null) viewModel::logout else null
+                            )
                         )
                     }) { pad ->
                         val user = viewModel.user
+                        val modifier = Modifier.padding(vertical = pad.calculateTopPadding())
                         if (user == null){
                             DrawUserAuth(
-                                modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
+                                modifier = modifier,
                                 nickname = viewModel.inputName,
-                                email = if (needsRegistering)viewModel.inputEmail else null,
+                                email = if (isRegistering)viewModel.inputEmail else null ,
                                 password = viewModel.inputPassword,
                                 editName = {viewModel.inputName = it},
                                 editPassword = {viewModel.inputPassword = it},
                                 editEmail = {viewModel.inputEmail = it},
                                 changeForm = {
-                                    needsRegistering = !needsRegistering
+                                    isRegistering = !isRegistering
                                     viewModel.inputEmail = ""
                                 },
-                                if (!needsRegistering) viewModel::login else viewModel::login
+                                if (isRegistering) viewModel::register else viewModel::login
 
                             )
                         }else{
-                            Text(user.nome, modifier = Modifier.padding(vertical = pad.calculateTopPadding()))
+                            DrawUserDetails(modifier = modifier, user = user)
                         }
                     }
                 }

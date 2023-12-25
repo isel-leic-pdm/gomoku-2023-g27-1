@@ -1,8 +1,19 @@
 package isel.gomuku
 
+import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
+import isel.gomuku.repository.user.model.LoggedUser
+import isel.gomuku.services.http.HttpRequest
+import isel.gomuku.services.http.requestBody.LoginBody
+import isel.gomuku.services.http.user.model.UserAuthorization
 import isel.gomuku.services.local.gameLogic.Player
 import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.services.local.gameLogic.toPosition
+import kotlinx.coroutines.runBlocking
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -30,5 +41,29 @@ class ExampleUnitTest {
                     require( board.get(pos) != null)
                 }
             }
+    }
+
+    @Test
+    fun remote_request(){
+        val gson = Gson()
+
+        runBlocking {
+            val request = HttpRequest(OkHttpClient())
+            val testR = request.post(
+                "http://localhost:8080/api/user/login".toHttpUrl().newBuilder(),
+                gson.toJson(LoginBody("a","b")).toRequestBody("application/json".toMediaType())
+            )
+
+            request.doRequest(testR){
+                try {
+                    val a = it.body
+                    val dto = gson.fromJson(it.body?.string(), UserAuthorization::class.java)
+                    println(LoggedUser(dto.id,dto.nickname,dto.token.tokenValue))
+                }catch (e: JsonSyntaxException){
+                    throw IllegalStateException("Fatal error:" + e.message)
+                }
+            }
+        }
+
     }
 }

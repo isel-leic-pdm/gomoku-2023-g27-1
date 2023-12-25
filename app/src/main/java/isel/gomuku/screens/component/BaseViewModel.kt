@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import isel.gomuku.services.http.RemoteSourceException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -18,12 +20,13 @@ abstract class BaseViewModel : ViewModel() {
 
     protected fun safeCall(function: suspend () -> Unit) {
         isLoading = true
-
-        viewModelScope.launch {
+        //TODO:Check concurrency
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 function()
             } catch (e: Exception) {
                 Log.d("Test","error",e)
+
                 error = e.message.toString()//TODO:Proper error presentation
             }
             isLoading = false

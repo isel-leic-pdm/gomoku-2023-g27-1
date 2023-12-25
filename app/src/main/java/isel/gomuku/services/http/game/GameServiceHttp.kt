@@ -2,6 +2,7 @@ package isel.gomuku.services.http.game
 
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import isel.gomuku.services.GameService
 import isel.gomuku.services.http.HttpRequest
 import isel.gomuku.services.http.game.httpModel.AwaitingOpponent
 import isel.gomuku.services.http.game.httpModel.GameEnded
@@ -10,13 +11,6 @@ import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
-
-interface GameService {
-    suspend fun play(line: Int, column: Int, auth: String)
-    suspend fun startGame(gridSize: Int, variants: String, openingRules: String, auth: String): Int
-    suspend fun quitGame(auth: String)
-    suspend fun getGameState(auth: String)
-}
 
 class GameServiceHttp(
     private val client: OkHttpClient,
