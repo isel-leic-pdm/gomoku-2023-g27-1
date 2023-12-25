@@ -1,7 +1,9 @@
 package isel.gomuku
 
 import android.app.Application
+import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
+import isel.gomuku.repository.user.UserDataStore
 import isel.gomuku.repository.user.UserMem
 
 import isel.gomuku.services.http.game.GameServiceHttp
@@ -20,7 +22,13 @@ class GomokuApplication : Application(), DependencyContainer {
     private val client =
         OkHttpClient.Builder()
             .build()
-    private val userRepo = UserMem()
+
+    private val dataStore by preferencesDataStore(
+        name = UserPreferencesDataStoreName
+    )
+    private val userRepo : UserRepository by lazy {
+        /*UserMem()*/ /*Or*/ UserDataStore(dataStore)
+    }
 
     override val userService: UserService by lazy {
         UserServiceHttp(HttpRequest(client),gson, REMOTE_GAME_API_BASE_URL,userRepo)
@@ -34,5 +42,6 @@ class GomokuApplication : Application(), DependencyContainer {
 
     companion object {
         const val REMOTE_GAME_API_BASE_URL = "http://10.0.2.2:8080/api"
+        const val UserPreferencesDataStoreName = "UserInfo"
     }
 }
