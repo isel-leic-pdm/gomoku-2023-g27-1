@@ -1,15 +1,18 @@
 package isel.gomuku.screens.ranking
 
+import android.service.notification.NotificationListenerService.Ranking
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
 import isel.gomuku.services.http.statistics.StatsServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
-import isel.gomuku.services.http.statistics.model.GlobalStatistics
+import isel.gomuku.services.http.statistics.model.RankingModel
 import isel.gomuku.services.http.statistics.model.Rankings
+import okhttp3.internal.wait
 
-class RankingViewModel:BaseViewModel() {
-    var rankings : Rankings? by mutableStateOf(null)
+class RankingViewModel(private val service: StatsServiceHttp):BaseViewModel() {
+    var rankings: RankingModel? by mutableStateOf(null)
         private set
     var globalStatistics: GlobalStatistics? by mutableStateOf(null)
         private set
@@ -19,13 +22,46 @@ class RankingViewModel:BaseViewModel() {
     fun changeStatsToShow (state: RankingMenuState) {
         currentState = state
     }
-    fun getRankings (service : StatsServiceHttp) {
+    fun getRankings () {
         safeCall {
-               rankings = service.getRankings()
+            val currRankings = rankings
+            if (currRankings != null && currRankings.nextPage != null) {
+                val page = currRankings.nextPage.takeLastWhile { it.isDigit() }
+                val res  = service.getRankings(page)
+                rankings = updateRankings(currRankings, res)
+            } else {
+                repeat(5) {
+                    if (it == 0)
+                        rankings = service.getRankings("$it")
+                    else {
+                        val currRankings = rankings
+                        if (currRankings?.nextPage != null) {
+                            val res  = service.getRankings("$it")
+                            rankings = updateRankings(currRankings, res)
+                        }
+                    }
+                }
+
+
+            }
         }
 
     }
-    fun getGlobalStats (service : StatsServiceHttp) {
+    private fun updateRankings (currRankings: RankingModel, newRankings: RankingModel): RankingModel {
+        val ranks = Rankings (
+            bestPlayers = currRankings.rankings.bestPlayers + newRankings.rankings.bestPlayers,
+            victories = currRankings.rankings.victories + newRankings.rankings.victories,
+            mostGames = currRankings.rankings.mostGames + newRankings.rankings.mostGames,
+            mostTime = currRankings.rankings.mostTime + newRankings.rankings.mostTime,
+            playerDefeats = currRankings.rankings.playerDefeats + newRankings.rankings.playerDefeats,
+        )
+        return  RankingModel(
+            rankings = ranks,
+            prevPage = newRankings.prevPage,
+            nextPage = newRankings.nextPage
+        )
+    }
+    fun getGlobalStats () {
         safeCall {
             globalStatistics = service.getGlobalStats()
         }

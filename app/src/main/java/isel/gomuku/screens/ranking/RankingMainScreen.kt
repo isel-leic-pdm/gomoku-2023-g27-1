@@ -10,12 +10,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
 import isel.gomuku.utils.RANKING_TEXT_SIZE
 
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
-import isel.gomuku.services.http.statistics.model.GlobalStatistics
-import isel.gomuku.services.http.statistics.model.Rankings
+import isel.gomuku.services.http.statistics.model.RankingModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +25,7 @@ fun RankingScreen(
     onStats: (RankingMenuState) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
-    rankings: Rankings?,
+    rankings: RankingModel?,
     globalStatistics: GlobalStatistics?,
     currentState: RankingMenuState
 ) {
@@ -44,10 +44,12 @@ fun RankingScreen(
                 )
             }
 
-        RankingMenuState.BEST_PLAYER -> RankingStateScreen(
+        RankingMenuState.BEST_PLAYER -> RankingStateScreen (
             onBack = onStats,
+            onGetRankings = onGetRankings,
+            nextPage = rankings?.nextPage,
             currentRankingState = currentState,
-            bestPlayerRanking = rankings?.bestPlayers
+            bestPlayerRanking = rankings?.rankings?.bestPlayers
         )
 
         RankingMenuState.GLOBAL_STATS -> GlobalStatsScreen(

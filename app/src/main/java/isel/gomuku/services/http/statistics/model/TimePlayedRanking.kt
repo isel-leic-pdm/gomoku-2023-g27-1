@@ -1,3 +1,3 @@
-package isel.gomuku.services.http.statistics.model
+package com.isel.gomokuApi.domain.model.statistcs
 
-class TimePlayedRanking (val playerName: String, val timePlayed: String)
+class TimePlayedRanking (val id: Int, val playerName: String, val timePlayed: String, val rank: Int)

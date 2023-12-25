@@ -12,6 +12,7 @@ import isel.gomuku.GomokuApplication
 import isel.gomuku.utils.MENU_BUTTON_WIDTH
 import isel.gomuku.utils.MENU_PADDING
 import isel.gomuku.screens.component.BaseComponentActivity
+import isel.gomuku.screens.utils.viewModelInit
 import isel.gomuku.ui.theme.GomukuTheme
 
 enum class RankingMenuState {
@@ -22,7 +23,9 @@ enum class RankingMenuState {
 
 class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
     private val app by lazy { application as GomokuApplication }
-    override val viewModel: RankingViewModel by viewModels()
+    override val viewModel: RankingViewModel by viewModels {
+        viewModelInit { RankingViewModel(app.statsService) }
+    }
 
     companion object {
         fun navigate(source: ComponentActivity) {
@@ -41,8 +44,8 @@ class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
                         .width(MENU_BUTTON_WIDTH.dp),
                     onBack = { finish() },
                     onStats = viewModel::changeStatsToShow,
-                    onGetGlobalStatistics = { viewModel.getGlobalStats(app.statsService) },
-                    onGetRankings = { viewModel.getRankings(app.statsService) },
+                    onGetGlobalStatistics = { viewModel.getGlobalStats() },
+                    onGetRankings = { viewModel.getRankings() },
                     rankings = viewModel.rankings,
                     globalStatistics = viewModel.globalStatistics,
                     currentState = viewModel.currentState

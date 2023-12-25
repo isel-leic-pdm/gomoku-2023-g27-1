@@ -6,8 +6,7 @@ import com.isel.gomokuApi.domain.model.statistcs.GamesRanking
 import com.isel.gomokuApi.domain.model.statistcs.TimePlayedRanking
 import com.isel.gomokuApi.domain.model.statistcs.VictoriesRanking
 
-class Rankings (val bestPlayers: List<BestPlayerRanking>,
-                val victories: List<VictoriesRanking>,
-                val mostGames: List<GamesRanking>,
-                val mostTime: List<TimePlayedRanking>,
-                val playerDefeats: List<DefeatsRanking>)
+class RankingModel (val rankings: Rankings,
+                    val prevPage: String?,
+                    val nextPage: String?
+)
