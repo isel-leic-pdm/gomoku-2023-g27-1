@@ -9,11 +9,19 @@ import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.services.UserService
 
 class UsersViewModel(private val userService: UserService) : BaseViewModel() {
-    var user : LoggedUser? by mutableStateOf(userService.getUser())
+    var user : LoggedUser? by mutableStateOf(initUserViewModel())
 
     var inputName by mutableStateOf ("")
     var inputEmail by mutableStateOf("")
     var inputPassword by mutableStateOf("")
+
+    private fun initUserViewModel(): LoggedUser?{
+        var tempUser:LoggedUser? = null
+        safeCall {
+            tempUser = userService.getUser()
+        }
+        return tempUser
+    }
 
     fun login(){
         safeCall {

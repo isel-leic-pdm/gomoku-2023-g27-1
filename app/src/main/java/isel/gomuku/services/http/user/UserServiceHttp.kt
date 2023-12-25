@@ -75,7 +75,7 @@ class UserServiceHttp(
         return authenticateUser(register,registerURI())
     }
 
-    override fun getUser(): LoggedUser? {
+    override suspend fun getUser(): LoggedUser? {
         return userRepository.getUser()
     }
 

@@ -16,17 +16,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
-import isel.gomuku.GomokuApplication
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.GameOptions
 import isel.gomuku.screens.gameScreeens.components.DrawBoard
+import isel.gomuku.screens.utils.viewModelInitWithSavedState
 import isel.gomuku.ui.theme.GomukuTheme
 
 class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
 
-    private val app by lazy { application as GomokuApplication }
 
     companion object {
         private const val extra = "TO_CHANGE"
@@ -37,7 +36,15 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
         }
     }
 
-    override val viewModel: RemoteGameViewModel by viewModels()
+    override val viewModel: RemoteGameViewModel by viewModels {
+        viewModelInitWithSavedState(this) {
+            RemoteGameViewModel(
+                it,
+                dependencyContainer.userService,
+                dependencyContainer.gameService
+            )
+        }
+    }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
@@ -50,14 +57,11 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
             this.intent.getParcelableExtra<GameOptions?>(extra)
         require(gameOptions != null) { "How is it null?" }
 
-        val token = app.userService.getUser()?.token
 
         viewModel.startGame(
             gameOptions.gridSize!!,
             gameOptions.variant!!,
-            gameOptions.openingRule!!,
-            app.gameService,
-            token!!
+            gameOptions.openingRule!!
         )
 
         safeSetContent {
@@ -73,10 +77,10 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
                         DrawBoard(
                             modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
                             boardSize = gameOptions.gridSize,
-                            makePlay = { viewModel.play(it, app.gameService, token) },
+                            makePlay =  viewModel::play,
                             moves = viewModel.board.moves
                         )
-                        Button(onClick = { viewModel.quit(app.gameService, token) }) {
+                        Button(onClick = viewModel::quit) {
                             Text("Give up")
                         }
                     }

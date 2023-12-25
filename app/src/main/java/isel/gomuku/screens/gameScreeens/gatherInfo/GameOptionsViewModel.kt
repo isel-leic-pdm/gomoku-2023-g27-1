@@ -34,10 +34,13 @@ class GameOptionsViewModel(private val userService: UserService) : BaseViewModel
     }
 
     fun changeGameType(remoteGame: Boolean, navigate:() -> Unit) {
-        buildingGame {
-            if (it.isGameLocal && userService.getUser() == null){
-                navigate()
-            }else game = it.copy(isGameLocal = remoteGame)
+        safeCall {
+            val user =  userService.getUser()
+            buildingGame {
+                if (it.isGameLocal && user == null){
+                    navigate()
+                }else game = it.copy(isGameLocal = remoteGame)
+            }
         }
     }
 
