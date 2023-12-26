@@ -25,6 +25,7 @@ fun RankingScreen(
     onStats: (RankingMenuState) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
+    onGetMoreRankings: () -> Unit,
     rankings: RankingModel?,
     globalStatistics: GlobalStatistics?,
     currentState: RankingMenuState
@@ -46,7 +47,7 @@ fun RankingScreen(
 
         RankingMenuState.BEST_PLAYER -> RankingStateScreen (
             onBack = onStats,
-            onGetRankings = onGetRankings,
+            onGetMoreRankings = onGetMoreRankings,
             nextPage = rankings?.nextPage,
             currentRankingState = currentState,
             bestPlayerRanking = rankings?.rankings?.bestPlayers

@@ -1,6 +1,5 @@
 package isel.gomuku.screens.ranking
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,9 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +25,7 @@ import isel.gomuku.utils.RANKING_TEXT_SIZE
 @Composable
 fun RankingStateScreen(
     onBack: (RankingMenuState) -> Unit,
-    onGetRankings : () -> Unit,
+    onGetMoreRankings : () -> Unit,
     nextPage : String? = null,
     currentRankingState: RankingMenuState,
     bestPlayerRanking: List<BestPlayerRanking>?
@@ -55,27 +51,31 @@ fun RankingStateScreen(
                 Text(text = "Leader Board", fontSize = RANKING_TEXT_SIZE.sp)
             }
         }
-        RankingList(bestPlayerRanking = bestPlayerRanking, nextPage = nextPage, onGetRankings = onGetRankings)
+        RankingList(bestPlayerRanking = bestPlayerRanking, nextPage = nextPage, onGetMoreRankings = onGetMoreRankings)
     }
 }
 
 
 
 @Composable
-fun RankingList(bestPlayerRanking: List<BestPlayerRanking>?, nextPage: String?, onGetRankings: () -> Unit) {
+fun RankingList(bestPlayerRanking: List<BestPlayerRanking>?, nextPage: String?, onGetMoreRankings: () -> Unit) {
     LazyColumn(
         userScrollEnabled = true,
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
         ,
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Log.d("RankingList", "RankingList: ${bestPlayerRanking?.size}")
         bestPlayerRanking?.forEach { player ->
-            items(1) {
+            item {
                RankingRow(  player = player)
             }
+        }
+        item {
+                Button(onClick = { onGetMoreRankings() }, enabled = nextPage != null) {
+                    Text(text = "Load More", fontSize = RANKING_TEXT_SIZE.sp)
+                }
         }
     }
 }
@@ -85,26 +85,26 @@ fun RankingRow ( player: BestPlayerRanking){
     Row(
         modifier = Modifier
             .background(color = Color.Blue, shape = RoundedCornerShape(5.dp))
-            .padding(5.dp)
+            .padding(8.dp)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
             Box(
                 modifier = Modifier
-                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(8.dp))
             ) {
                 Text(text = "#${player.rank}", fontSize = RANKING_TEXT_SIZE.sp) //Rank
             }
             Box(
                 modifier = Modifier
-                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(8.dp))
             ) {
                 Text(text = player.playerName, fontSize = RANKING_TEXT_SIZE.sp) //Rank
             }
 
             Box(
                 modifier = Modifier
-                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(8.dp))
             ) {
                 Text(text = "P${player.points}", fontSize = RANKING_TEXT_SIZE.sp) //Rank
             }
@@ -118,13 +118,13 @@ fun RankingRow ( player: BestPlayerRanking){
 fun RankingStateScreenPreview() {
 RankingStateScreen(
         onBack = {},
-        onGetRankings = {},
+        onGetMoreRankings = {},
         currentRankingState = RankingMenuState.BEST_PLAYER,
         bestPlayerRanking = listOf(
            BestPlayerRanking(1, "Player1", 100, 1),
-            BestPlayerRanking(2, "Player2", 90, 2),
-            BestPlayerRanking(3, "Player3", 80, 3),
-            BestPlayerRanking(4, "Player4", 70, 4),
+            BestPlayerRanking(2, "Player2", 90, 9),
+            BestPlayerRanking(3, "Player3", 80, 99),
+            BestPlayerRanking(4, "Player4", 70, 999),
             BestPlayerRanking(5, "Player5", 60, 5),
             BestPlayerRanking(6, "Player6", 50, 6),
             BestPlayerRanking(7, "Player7", 40, 7),

@@ -46,6 +46,7 @@ class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
                     onStats = viewModel::changeStatsToShow,
                     onGetGlobalStatistics = { viewModel.getGlobalStats() },
                     onGetRankings = { viewModel.getRankings() },
+                    onGetMoreRankings = { viewModel.getMoreRankings() },
                     rankings = viewModel.rankings,
                     globalStatistics = viewModel.globalStatistics,
                     currentState = viewModel.currentState

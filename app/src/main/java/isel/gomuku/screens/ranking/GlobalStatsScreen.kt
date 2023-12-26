@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,24 +37,50 @@ fun GlobalStatsScreen(
 
         Row(
             modifier = Modifier
-                .padding(5.dp)
-                .background(color = Color.Blue)
+                .padding(16.dp)
+                .background(color = Color.Blue,  shape = RoundedCornerShape(8.dp))
                 .fillMaxWidth(), horizontalArrangement = Arrangement.Center
         ) {
             Box(
                 modifier = Modifier
-                    .background(color = Color.Yellow, shape = RoundedCornerShape(5.dp))
+                    .background(color = Color.Yellow, shape = RoundedCornerShape(8.dp))
             ) {
-                Text(text = "Global statistics", fontSize = 30.sp)
+                Text(text = "Global statistics", fontSize = 24.sp)
             }
         }
-
-        Text(text = "Total games: ${globalStatistics?.totalGames}", fontSize = 25.sp)
-        Text(text = "Total Victories: ${globalStatistics?.totalVictories}", fontSize = 25.sp)
-        Text(text = "Total Time: ${globalStatistics?.totalTime}", fontSize = 25.sp)
+        Column ( modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+        ) {
+            ColumnItem ("Games", "${globalStatistics?.totalGames}")
+            ColumnItem ("Victories", "${globalStatistics?.totalVictories}")
+            ColumnItem ("Time Played", "${globalStatistics?.totalTime}")
+        }
     }
 }
 
+@Composable
+fun ColumnItem(description: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Box(
+            modifier = Modifier
+                .background(color = Color.Yellow, shape = RoundedCornerShape(8.dp))
+        ) {
+            Text(text = "$description :", color = Color.Black, fontSize = 24.sp)
+        }
+        Box(
+            modifier = Modifier
+                .background(color = Color.Yellow, shape = RoundedCornerShape(8.dp))
+        ) {
+            Text(text = value, color = Color.Black, fontSize = 24.sp)
+        }
+    }
+}
 
 @Preview
 @Composable

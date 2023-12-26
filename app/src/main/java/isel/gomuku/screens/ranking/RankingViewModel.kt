@@ -1,6 +1,5 @@
 package isel.gomuku.screens.ranking
 
-import android.service.notification.NotificationListenerService.Ranking
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,7 +8,6 @@ import isel.gomuku.services.http.statistics.StatsServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.services.http.statistics.model.RankingModel
 import isel.gomuku.services.http.statistics.model.Rankings
-import okhttp3.internal.wait
 
 class RankingViewModel(private val service: StatsServiceHttp):BaseViewModel() {
     var rankings: RankingModel? by mutableStateOf(null)
@@ -25,29 +23,22 @@ class RankingViewModel(private val service: StatsServiceHttp):BaseViewModel() {
     fun getRankings () {
         safeCall {
             val currRankings = rankings
-            if (currRankings != null && currRankings.nextPage != null) {
-                val page = currRankings.nextPage.takeLastWhile { it.isDigit() }
-                val res  = service.getRankings(page)
-                rankings = updateRankings(currRankings, res)
-            } else {
-                repeat(5) {
-                    if (it == 0)
-                        rankings = service.getRankings("$it")
-                    else {
-                        val currRankings = rankings
-                        if (currRankings?.nextPage != null) {
-                            val res  = service.getRankings("$it")
-                            rankings = updateRankings(currRankings, res)
-                        }
-                    }
-                }
-
-
+            if (currRankings == null) {
+                rankings = service.getRankings("0")
             }
         }
-
     }
-    private fun updateRankings (currRankings: RankingModel, newRankings: RankingModel): RankingModel {
+    fun getMoreRankings () {
+        safeCall {
+            val currRankings = rankings
+            if ( currRankings?.nextPage != null) {
+                val page = currRankings.nextPage.takeLastWhile { it.isDigit() }
+                val res = service.getRankings(page)
+                rankings = getMoreRankings(currRankings, res)
+            }
+        }
+    }
+    private fun getMoreRankings (currRankings: RankingModel, newRankings: RankingModel): RankingModel {
         val ranks = Rankings (
             bestPlayers = currRankings.rankings.bestPlayers + newRankings.rankings.bestPlayers,
             victories = currRankings.rankings.victories + newRankings.rankings.victories,
