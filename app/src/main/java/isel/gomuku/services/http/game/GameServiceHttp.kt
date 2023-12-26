@@ -5,8 +5,15 @@ import com.google.gson.JsonSyntaxException
 import isel.gomuku.services.GameService
 import isel.gomuku.services.http.HttpRequest
 import isel.gomuku.services.http.game.httpModel.AwaitingOpponent
+import isel.gomuku.services.http.game.httpModel.AwaitingOpponentOutput
 import isel.gomuku.services.http.game.httpModel.GameEnded
+import isel.gomuku.services.http.game.httpModel.GameEndedOutput
+import isel.gomuku.services.http.game.httpModel.GameOpenedOutput
+import isel.gomuku.services.http.game.httpModel.GameRunningOutput
+import isel.gomuku.services.http.game.httpModel.Move
+import isel.gomuku.services.http.game.httpModel.UserInfo
 import isel.gomuku.services.http.game.httpModel.WaitingOpponentPiecesOutput
+import isel.gomuku.services.local.gameLogic.Player
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -64,56 +71,36 @@ class GameServiceHttp(
 
     private val httpRequests = HttpRequest(client)
 
-    /** Recebe
-    class GameDataOutput(val game: GameStatus): GameStatusOutputModel()
-    class GameRunningOutput(val gameRunning: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class GameOpenedOutput(val gameOpened:GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class AwaitingOpponentOutput(val awaitingOpponent: GameStatus): GameStatusOutputModel()
-    class WaitingOpponentPiecesOutput(val waitingOpponentPieces: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class GameEndedOutput(val gameEnded: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class PlayMadeOutput(val playMade: GameStatus): GameStatusOutputModel()
-    class LobbyClosedOutput(val lobbyClosed: GameStatus): GameStatusOutputModel()
-     */
+    fun setLobbyId(lobby: Int) {
+        lobbyId = lobby
+    }
 
-    /**
-     AwaitingOpponent -> AwaitingOpponentOutput(status)
-     Game -> GameDataOutput(status)
-     GameEnded -> GameEndedOutput(status,userSevice.getUserInfoById(status.opponentId))
-     GameOpened -> GameOpenedOutput(status,userSevice.getUserInfoById(status.opponentId))
-     GameRunning -> GameRunningOutput(status,userSevice.getUserInfoById(status.opponentId))
-     LobbyClosed -> LobbyClosedOutput(status)
-     PlayMade -> PlayMadeOutput(status)
-     WaitingOpponentPieces -> WaitingOpponentPiecesOutput(status,userSevice.getUserInfoById(status.opponentId))
-     */
-
-    fun setLobbyId(lobby: Int){lobbyId = lobby}
-
-    override suspend fun play(line: Int, column: Int, auth: String) {
+    override suspend fun play(line: Int, column: Int, auth: String): GameStateReturn? {
         val params: List<Pair<String, String>> =
             listOf(Pair("lin", line.toString()), Pair("col", column.toString()))
         val request = httpRequests.post(
             playUrl(), requestBody(params),
             hashMapOf("accept" to "application/json", "Authorization" to auth)
         )
-        httpRequests.doRequest(request) {
+        return httpRequests.doRequest(request) {
             //Recebe um gameStatusOutputModel
             //AwaitingOpponentOutput,   GameEndedOutput, PlayMadeOutput
-            try{
-                val dto = gson.fromJson(it.body?.string(), GameEnded::class.java)
-                if (dto.winner == null) throw Exception("This game ended in a draw")
-                throw Exception("You have won this game")
-            }catch (_ : JsonSyntaxException){}
+            try {
+                val dto = gson.fromJson(it.body?.string(), GameEndedOutput::class.java)
+                return@doRequest GameStateReturn(dto.gameEnded.moves, false, dto.gameEnded.winner, true)
+            } catch (_: JsonSyntaxException) {
+            }
+            return@doRequest null
         }
     }
 
 
-    /** Make startGame return lobby and player type*/
     override suspend fun startGame(
         gridSize: Int,
         variants: String,
         openingRules: String,
         auth: String
-    ): Int {
+    ): GameStart {
         val params: List<Pair<String, String>> = listOf(
             Pair("grid", gridSize.toString()),
             Pair("openingRule", openingRules), Pair("variant", variants)
@@ -127,15 +114,14 @@ class GameServiceHttp(
             //Recebe um gameStatusOutputModel
             //WaitingOpponentPiecesOutput,   AwaitingOpponentOutput
             try {
-                val dto = gson.fromJson(it.body?.string(), AwaitingOpponent::class.java)
-                lobbyId = dto.lobbyId
-                return@doRequest dto.lobbyId
-            }catch (_: Exception){}
+                val dto = gson.fromJson(it.body?.string(), AwaitingOpponentOutput::class.java)
+                return@doRequest GameStart(dto.awaitingOpponent.lobbyId, Player.BLACK)
+            } catch (_: Exception) {
+            }
 
             val dto = gson.fromJson(it.body?.string(), WaitingOpponentPiecesOutput::class.java)
-            lobbyId = dto.gameOpened.lobbyId
 
-            return@doRequest dto.gameOpened.lobbyId
+            return@doRequest GameStart(dto.gameOpened.lobbyId, Player.WHITE)
         }
     }
 
@@ -150,26 +136,72 @@ class GameServiceHttp(
         }
     }
 
-    override suspend fun getGameState(auth: String) {
+    override suspend fun getGameState(auth: String): GameStateReturn? {
         val request = httpRequests.get(
             gameState(),
             hashMapOf("accept" to "application/json", "Authorization" to auth)
         )
-        httpRequests.doRequest(request) {
-            //Recebe um gameStatusOutputModel
+        return httpRequests.doRequest(request) {
             //AwaitingOpponentOutput, GameEndedOutput,
             //GameRunningOutput, GameOpenedOutput
             //WaitingOpponentPieces
 
             try {
-                val dto = gson.fromJson(it.body?.string(), GameEnded::class.java)
-                if (dto.winner == null)
-                    throw Exception("This game ended in a draw")
-                throw Exception("You have lost this game")
-            }catch (_ : JsonSyntaxException){}
+                val dto = gson.fromJson(it.body?.string(), GameRunningOutput::class.java)
+                return@doRequest GameStateReturn(
+                    dto.gameOpened.moves,
+                    false,
+                    null,
+                    false
+                )
+            } catch (_: JsonSyntaxException) {
+            }
+
+            try {
+                val dto = gson.fromJson(it.body?.string(), GameOpenedOutput::class.java)
+                return@doRequest GameStateReturn(
+                    dto.gameOpened.moves,
+                    false,
+                    null,
+                    false
+                )
+            } catch (_: JsonSyntaxException) {
+            }
+
+            try {
+                val dto = gson.fromJson(it.body?.string(), WaitingOpponentPiecesOutput::class.java)
+                return@doRequest GameStateReturn(
+                    dto.gameOpened.moves,
+                    true,
+                    null,
+                    false
+                )
+            } catch (_: JsonSyntaxException) {
+            }
+
+            try {
+                val dto = gson.fromJson(it.body?.string(), GameEndedOutput::class.java)
+                return@doRequest GameStateReturn(
+                    dto.gameEnded.moves,
+                    false,
+                    dto.gameEnded.winner,
+                    true
+                )
+            } catch (_: JsonSyntaxException) {
+            }
+
+            return@doRequest null
+
         }
     }
 
 
 }
 
+class GameStateReturn(
+    val moves: List<Move>,
+    val inOpponentOpening: Boolean,
+    val winner: Int?,
+    val hasGameEnded: Boolean
+)
+class GameStart(val id: Int, val player: Player)
