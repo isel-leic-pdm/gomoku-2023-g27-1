@@ -13,6 +13,7 @@ import isel.gomuku.services.http.game.httpModel.GameRunningOutput
 import isel.gomuku.services.http.game.httpModel.Move
 import isel.gomuku.services.http.game.httpModel.UserInfo
 import isel.gomuku.services.http.game.httpModel.WaitingOpponentPiecesOutput
+import isel.gomuku.services.local.gameLogic.Player
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -70,28 +71,6 @@ class GameServiceHttp(
 
     private val httpRequests = HttpRequest(client)
 
-    /** Recebe
-    class GameDataOutput(val game: GameStatus): GameStatusOutputModel()
-    class GameRunningOutput(val gameRunning: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class GameOpenedOutput(val gameOpened:GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class AwaitingOpponentOutput(val awaitingOpponent: GameStatus): GameStatusOutputModel()
-    class WaitingOpponentPiecesOutput(val waitingOpponentPieces: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class GameEndedOutput(val gameEnded: GameStatus,val opponent:UserInfo?): GameStatusOutputModel()
-    class PlayMadeOutput(val playMade: GameStatus): GameStatusOutputModel()
-    class LobbyClosedOutput(val lobbyClosed: GameStatus): GameStatusOutputModel()
-     */
-
-    /**
-    AwaitingOpponent -> AwaitingOpponentOutput(status)
-    Game -> GameDataOutput(status)
-    GameEnded -> GameEndedOutput(status,userSevice.getUserInfoById(status.opponentId))
-    GameOpened -> GameOpenedOutput(status,userSevice.getUserInfoById(status.opponentId))
-    GameRunning -> GameRunningOutput(status,userSevice.getUserInfoById(status.opponentId))
-    LobbyClosed -> LobbyClosedOutput(status)
-    PlayMade -> PlayMadeOutput(status)
-    WaitingOpponentPieces -> WaitingOpponentPiecesOutput(status,userSevice.getUserInfoById(status.opponentId))
-     */
-
     fun setLobbyId(lobby: Int) {
         lobbyId = lobby
     }
@@ -116,13 +95,12 @@ class GameServiceHttp(
     }
 
 
-    /** Make startGame return lobby and player type*/
     override suspend fun startGame(
         gridSize: Int,
         variants: String,
         openingRules: String,
         auth: String
-    ): Int {
+    ): GameStart {
         val params: List<Pair<String, String>> = listOf(
             Pair("grid", gridSize.toString()),
             Pair("openingRule", openingRules), Pair("variant", variants)
@@ -137,15 +115,13 @@ class GameServiceHttp(
             //WaitingOpponentPiecesOutput,   AwaitingOpponentOutput
             try {
                 val dto = gson.fromJson(it.body?.string(), AwaitingOpponentOutput::class.java)
-                lobbyId = dto.awaitingOpponent.lobbyId
-                return@doRequest dto.awaitingOpponent.lobbyId
+                return@doRequest GameStart(dto.awaitingOpponent.lobbyId, Player.BLACK)
             } catch (_: Exception) {
             }
 
             val dto = gson.fromJson(it.body?.string(), WaitingOpponentPiecesOutput::class.java)
-            lobbyId = dto.gameOpened.lobbyId
 
-            return@doRequest dto.gameOpened.lobbyId
+            return@doRequest GameStart(dto.gameOpened.lobbyId, Player.WHITE)
         }
     }
 
@@ -228,3 +204,4 @@ class GameStateReturn(
     val winner: Int?,
     val hasGameEnded: Boolean
 )
+class GameStart(val id: Int, val player: Player)
