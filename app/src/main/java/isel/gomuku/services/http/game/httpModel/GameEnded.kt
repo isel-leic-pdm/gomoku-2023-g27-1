@@ -7,3 +7,5 @@ class GameEnded(
     val playerPiece: GoPiece?,
     val opponentId: Int
 )
+
+class  GameEndedOutput(val gameEnded: GameEnded,val opponent:UserInfo?)

@@ -14,6 +14,14 @@ import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
 import kotlinx.android.parcel.Parcelize
 import android.os.Parcelable
 import android.util.Log
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import isel.gomuku.R
 import isel.gomuku.services.UserService
 import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.services.http.game.GameServiceHttp
@@ -44,6 +52,10 @@ class RemoteGameViewModel(
 
     var poll by mutableStateOf(false)
 
+    var isGameOver: Boolean by mutableStateOf(false)
+
+    private var winner: Boolean? by mutableStateOf(null)
+
 
     init {
         val data = saveHandle.get<Game?>(saveArgument)
@@ -60,22 +72,24 @@ class RemoteGameViewModel(
         variants: GameVariants,
         openingRules: OpeningRules,
     ) {
-        safeCall {Log.d("Test", "User = ${userService.getUser()}")
+        safeCall {
+            Log.d("Test", "User = ${userService.getUser()}")
             if (lobbyId != null) {
                 setServiceLobby()
                 throw Exception("In the middle of a game, reconnecting")
             }
             val token = userService.getUser()?.token!!
-            val id = gameService.startGame(gridSize, variants.name, openingRules.name, token)
-            lobbyId = id
+            val info = gameService.startGame(gridSize, variants.name, openingRules.name, token)
+            lobbyId = info.id
             setServiceLobby()
 
             moves = Board.startBoard(gridSize)
 
-            /** Make startGame return lobby and player type*/
-            saveHandle[saveArgument] = Game(moves, id, Player.BLACK)
+            poll = info.player != Player.BLACK
+
+            saveHandle[saveArgument] = Game(moves, info.id, info.player)
         }
-        poll = true
+
     }
 
 
@@ -86,6 +100,8 @@ class RemoteGameViewModel(
 
     fun play(pos: Position) {
         safeCall {
+            if (isGameOver) throw Exception("Game is already over")
+            if(poll == true) throw Exception("Not your turn")
             val token = userService.getUser()?.token!!
             val info = gameService.play(pos.lin, pos.col, token)
             val movesCopy = HashMap(moves)
@@ -111,28 +127,44 @@ class RemoteGameViewModel(
 
     suspend fun fetchState() {
         val token = userService.getUser()?.token!!
-        val id = userService.getUser()?.id!!
+
         val info = gameService.getGameState(token) ?: return
         val newMoves = HashMap(moves)
         if (moves.size < info.moves.size)
             for (move in info.moves)
-                if (moves[move.position] == null)
+                if (moves[move.position] == null) {
                     newMoves[move.position] =
                         if (move.goPiece == GoPiece.BLACK) Player.BLACK else Player.WHITE
+                    if (!info.inOpponentOpening) poll = false
+                }
 
         moves = newMoves
 
         if (info.hasGameEnded) {
             poll = false
-
-            if (info.winner == null)
-                throw Exception("This game Ended in a draw")
-            if (info.winner == id)
-                throw Exception("You have won this game")
-            throw Exception("You have lost this game")
+            saveHandle[saveArgument] = null
+            val id = userService.getUser()?.id!!
+            isGameOver = true
+            if (info.winner != null)
+                winner = info.winner == id
         }
 
         saveHandle[saveArgument] = Game(moves, lobbyId!!, player!!)
+    }
+
+
+    @Composable
+    fun EndingScreen(modifier: Modifier) {
+
+        Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+            val text: String = when(winner){
+                null -> stringResource(R.string.Tie)
+                true -> stringResource(R.string.Winner)
+                false -> stringResource(R.string.Loser)
+            }
+            Text(text = text, modifier = modifier)
+
+        }
     }
 
 }

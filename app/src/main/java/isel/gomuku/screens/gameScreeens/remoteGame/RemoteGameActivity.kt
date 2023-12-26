@@ -76,21 +76,29 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
                             finish()
                         }))
                     }) { pad ->
-                        LaunchedEffect(viewModel.poll){
-                            while (viewModel.poll) {
-                                delay(500)
-                                viewModel.fetchState()
+                        LaunchedEffect(viewModel.poll) {
+                            try {
+                                while (viewModel.poll) {
+                                    delay(500)
+                                    viewModel.fetchState()
+                                }
+                            }catch (e: Exception){
+                                Log.d("Test", e.toString())
                             }
                         }
-                        DrawBoard(
-                            modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
-                            boardSize = gameOptions.gridSize,
-                            makePlay =  viewModel::play,
-                            moves = viewModel.moves
-                        )
-                        Button(onClick = viewModel::quit) {
-                            Text("Give up")
+                        if (!viewModel.isGameOver){
+                            DrawBoard(
+                                modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
+                                boardSize = gameOptions.gridSize,
+                                makePlay = viewModel::play,
+                                moves = viewModel.moves
+                            )
+                            Button(onClick = viewModel::quit) {
+                                Text("Give up")
+                            }
                         }
+                        else viewModel.EndingScreen(Modifier.padding(vertical = pad.calculateTopPadding()))
+
                     }
                 }
             }
