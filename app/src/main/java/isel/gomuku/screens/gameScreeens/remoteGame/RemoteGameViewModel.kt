@@ -13,9 +13,11 @@ import isel.gomuku.screens.gameScreeens.gatherInfo.GameVariants
 import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
 import kotlinx.android.parcel.Parcelize
 import android.os.Parcelable
+import android.util.Log
 import isel.gomuku.services.UserService
 import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.services.http.game.GameServiceHttp
+import isel.gomuku.services.http.game.httpModel.GoPiece
 import isel.gomuku.services.local.gameLogic.BoardRun
 
 //@Parcelize
@@ -34,13 +36,13 @@ class RemoteGameViewModel(
         val saveArgument = ""
     }
 
-    var moves by mutableStateOf<MutableMap<Position, Player?>>(Board.startBoard(15)) //mutableStateOf(listOf<Plays>())
+    var moves by mutableStateOf<MutableMap<Position, Player?>>(Board.startBoard(15))
 
     var player: Player? by mutableStateOf(null)
 
-    var lobbyId: Int? by mutableStateOf(null)
+    private var lobbyId: Int? by mutableStateOf(null)
 
-    var board: Board by mutableStateOf(BoardRun(Board.startBoard(15), Player.WHITE))
+    var poll by mutableStateOf(false)
 
 
     init {
@@ -58,19 +60,22 @@ class RemoteGameViewModel(
         variants: GameVariants,
         openingRules: OpeningRules,
     ) {
-        safeCall {
+        safeCall {Log.d("Test", "User = ${userService.getUser()}")
             if (lobbyId != null) {
                 setServiceLobby()
                 throw Exception("In the middle of a game, reconnecting")
             }
-            val token = userService.getUser()?.token ?: throw IllegalStateException("User not logged In")//TODO:Check if exception is necessary please
-            gameService.startGame(gridSize, variants.name, openingRules.name, token)
+            val token = userService.getUser()?.token!!
+            val id = gameService.startGame(gridSize, variants.name, openingRules.name, token)
+            lobbyId = id
+            setServiceLobby()
 
             moves = Board.startBoard(gridSize)
 
             /** Make startGame return lobby and player type*/
-            saveHandle[saveArgument] = Game(moves, 0, Player.BLACK)
+            saveHandle[saveArgument] = Game(moves, id, Player.BLACK)
         }
+        poll = true
     }
 
 
@@ -81,22 +86,55 @@ class RemoteGameViewModel(
 
     fun play(pos: Position) {
         safeCall {
-            val token = userService.getUser()?.token ?: throw IllegalStateException("User not logged In")//TODO:Check if exception is necessary please
-            gameService.play(pos.lin, pos.col, token)
+            val token = userService.getUser()?.token!!
+            val info = gameService.play(pos.lin, pos.col, token)
             val movesCopy = HashMap(moves)
             movesCopy[pos] = player
             moves = movesCopy
             saveHandle[saveArgument] = Game(moves, lobbyId!!, player!!)
+            if (info != null) {
+                if (info.winner != null)
+                    throw Exception("You have won this game")
+                else throw Exception("This game ended in a draw")
+            }
+            poll = true
         }
     }
 
     fun quit() {
         safeCall {
-            val token = userService.getUser()?.token ?: throw IllegalStateException("User not logged In")//TODO:Check if exception is necessary please
+            val token = userService.getUser()?.token!!
             gameService.quitGame(token)
             saveHandle[saveArgument] = null
         }
     }
+
+    suspend fun fetchState() {
+        val token = userService.getUser()?.token!!
+        val id = userService.getUser()?.id!!
+        val info = gameService.getGameState(token) ?: return
+        val newMoves = HashMap(moves)
+        if (moves.size < info.moves.size)
+            for (move in info.moves)
+                if (moves[move.position] == null)
+                    newMoves[move.position] =
+                        if (move.goPiece == GoPiece.BLACK) Player.BLACK else Player.WHITE
+
+        moves = newMoves
+
+        if (info.hasGameEnded) {
+            poll = false
+
+            if (info.winner == null)
+                throw Exception("This game Ended in a draw")
+            if (info.winner == id)
+                throw Exception("You have won this game")
+            throw Exception("You have lost this game")
+        }
+
+        saveHandle[saveArgument] = Game(moves, lobbyId!!, player!!)
+    }
+
 }
 
 fun createPlayList(gridSize: Int): List<Plays> {

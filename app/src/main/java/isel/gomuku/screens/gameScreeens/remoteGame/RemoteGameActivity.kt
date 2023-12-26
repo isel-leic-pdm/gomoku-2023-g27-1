@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
@@ -23,6 +24,7 @@ import isel.gomuku.screens.gameScreeens.GameOptions
 import isel.gomuku.screens.gameScreeens.components.DrawBoard
 import isel.gomuku.screens.utils.viewModelInitWithSavedState
 import isel.gomuku.ui.theme.GomukuTheme
+import kotlinx.coroutines.delay
 
 class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
 
@@ -74,11 +76,17 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
                             finish()
                         }))
                     }) { pad ->
+                        LaunchedEffect(viewModel.poll){
+                            while (viewModel.poll) {
+                                delay(500)
+                                viewModel.fetchState()
+                            }
+                        }
                         DrawBoard(
                             modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
                             boardSize = gameOptions.gridSize,
                             makePlay =  viewModel::play,
-                            moves = viewModel.board.moves
+                            moves = viewModel.moves
                         )
                         Button(onClick = viewModel::quit) {
                             Text("Give up")

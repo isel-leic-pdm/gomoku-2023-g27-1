@@ -47,6 +47,9 @@ class UserServiceHttp(
             throw IllegalStateException("Fatal error:" + jsonException.message)
         }catch (remote:RemoteSourceException){
             val prob = gson.fromJson(remote.body?.string(), Problem::class.java)
+            if (remote.status == 401){
+                logout()
+            }
             throw Exception(if (prob.detail != null)prob.title +":" + prob.detail else prob.title)
         }
     }
@@ -87,6 +90,7 @@ class UserServiceHttp(
             logoutURI(),
             headers = mapOf("Authorization" to "Bearer $token")
         )
+        userRepository.deleteUser()
         remoteRequest(request)
     }
 

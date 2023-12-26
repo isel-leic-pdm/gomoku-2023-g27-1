@@ -57,7 +57,7 @@ class HttpRequest (private val client: OkHttpClient){
                 }
                 override fun onResponse(call: Call, response: Response) {
                     if (validateBody && (!response.isSuccessful || response.body == null)){
-                        it.resumeWithException(RemoteSourceException(response.body))
+                        it.resumeWithException(RemoteSourceException(response.body,response.code))
                     }else{
                         try {
 
