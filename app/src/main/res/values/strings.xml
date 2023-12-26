@@ -28,5 +28,8 @@
     <string name="user_request_register">Register</string>
     <string name="quick">quick</string>
     <string name="activity_info_no_suitable_app">Problem in finding activity</string>
-    <string name="top_bar_user_logout">Loggin user out</string>
+    <string name="top_bar_user_logout">Logging user out</string>
+    <string name="Winner">You have won this game</string>
+    <string name="Loser">You have lost this game</string>
+    <string name="Tie">You have tied with your opponent</string>
 </resources>
