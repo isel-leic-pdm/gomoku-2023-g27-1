@@ -58,7 +58,7 @@ class ExampleUnitTest {
                 try {
                     val a = it.body
                     val dto = gson.fromJson(it.body?.string(), UserAuthorization::class.java)
-                    println(LoggedUser(dto.id,dto.nickname,dto.token.tokenValue))
+                    println(LoggedUser(dto.id,dto.nickname,dto.tokenInfo.tokenValue))
                 }catch (e: JsonSyntaxException){
                     throw IllegalStateException("Fatal error:" + e.message)
                 }
