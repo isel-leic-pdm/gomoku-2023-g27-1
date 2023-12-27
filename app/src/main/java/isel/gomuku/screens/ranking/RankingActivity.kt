@@ -15,11 +15,7 @@ import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.utils.viewModelInit
 import isel.gomuku.ui.theme.GomukuTheme
 
-enum class RankingMenuState {
-    BEST_PLAYER,
-    GLOBAL_STATS,
-    MENU
-}
+
 
 class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
     private val app by lazy { application as GomokuApplication }
@@ -43,13 +39,17 @@ class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
                         .padding(MENU_PADDING.dp)
                         .width(MENU_BUTTON_WIDTH.dp),
                     onBack = { finish() },
+                    onBackMenu ={viewModel.currentState = RankingMenuState.MENU},
                     onStats = viewModel::changeStatsToShow,
                     onGetGlobalStatistics = { viewModel.getGlobalStats() },
                     onGetRankings = { viewModel.getRankings() },
                     onGetMoreRankings = { viewModel.getMoreRankings() },
+                    onEditName = viewModel::editName,
                     rankings = viewModel.rankings,
                     globalStatistics = viewModel.globalStatistics,
-                    currentState = viewModel.currentState
+                    currentState = viewModel.currentState,
+                    nickname = viewModel.nickname,
+                    searchNickname = viewModel::search
                 )
             }
 
