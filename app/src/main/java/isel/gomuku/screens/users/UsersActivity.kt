@@ -2,6 +2,7 @@ package isel.gomuku.screens.users
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,11 +43,10 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
         }
     }
 
-    private var isRegistering by mutableStateOf(false)
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("Test","Created")
         safeSetContent {
             GomukuTheme {
                 Surface(
@@ -66,16 +66,13 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
                             DrawUserAuth(
                                 modifier = modifier,
                                 nickname = viewModel.inputName,
-                                email = if (isRegistering)viewModel.inputEmail else null ,
+                                email = if (viewModel.isRegistering)viewModel.inputEmail else null ,
                                 password = viewModel.inputPassword,
                                 editName = {viewModel.inputName = it},
                                 editPassword = {viewModel.inputPassword = it},
                                 editEmail = {viewModel.inputEmail = it},
-                                changeForm = {
-                                    isRegistering = !isRegistering
-                                    viewModel.inputEmail = ""
-                                },
-                                if (isRegistering) viewModel::register else viewModel::login
+                                changeForm = viewModel::changeForm,
+                                if (viewModel.isRegistering) viewModel::register else viewModel::login
 
                             )
                         }else{

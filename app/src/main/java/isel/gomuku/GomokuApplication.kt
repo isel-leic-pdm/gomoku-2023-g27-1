@@ -27,14 +27,15 @@ class GomokuApplication : Application(), DependencyContainer {
         name = UserPreferencesDataStoreName
     )
     private val userRepo : UserRepository by lazy {
-        /*UserMem()*/ /*Or*/ UserDataStore(dataStore)
+        /*UserMem() *//*Or*/ UserDataStore(dataStore)
     }
+    private val requestBuilder = HttpRequest(client)
 
     override val userService: UserService by lazy {
-        UserServiceHttp(HttpRequest(client),gson, REMOTE_GAME_API_BASE_URL,userRepo)
+        UserServiceHttp(requestBuilder,gson, REMOTE_GAME_API_BASE_URL,userRepo)
     }
     override val gameService by lazy {
-        GameServiceHttp(client, gson, REMOTE_GAME_API_BASE_URL)
+        GameServiceHttp(requestBuilder, gson, REMOTE_GAME_API_BASE_URL)
     }
     override val statsService by lazy {
         StatsServiceHttp(client, gson, REMOTE_GAME_API_BASE_URL)
