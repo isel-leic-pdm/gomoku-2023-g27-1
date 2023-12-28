@@ -22,6 +22,7 @@ import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.GameOptions
 import isel.gomuku.screens.gameScreeens.components.DrawBoard
+import isel.gomuku.screens.gameScreeens.gatherInfo.GameOptionsActivity
 import isel.gomuku.screens.users.UsersActivity
 import isel.gomuku.screens.utils.viewModelInitWithSavedState
 import isel.gomuku.ui.theme.GomukuTheme
@@ -49,6 +50,14 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.canPlay({ GameOptionsActivity.navigate(this) }) {
+            UsersActivity.navigate(this,it)
+        }
+        viewModel.poll = true
+        Log.d("Test","Resumed")
+    }
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +74,7 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
             gameOptions.gridSize!!,
             gameOptions.variant!!,
             gameOptions.openingRule!!,
-            { UsersActivity.navigate(this) }
+            { UsersActivity.navigate(this,it) }
         )
 
         safeSetContent {
@@ -82,7 +91,7 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
                             try {
                                 while (viewModel.poll) {
                                     delay(1000)
-                                    viewModel.fetchState({ UsersActivity.navigate(this@RemoteGameActivity) })
+                                    viewModel.fetchState({ UsersActivity.navigate(this@RemoteGameActivity,it) })
                                 }
                             }catch (e: Exception){
                                 Log.d("Test", e.toString())

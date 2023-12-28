@@ -1,6 +1,7 @@
 package isel.gomuku.screens.users
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -20,17 +21,24 @@ import isel.gomuku.screens.utils.viewModelInit
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
+import isel.gomuku.screens.gameScreeens.GameOptions
+import isel.gomuku.screens.gameScreeens.remoteGame.RedirectException
+import isel.gomuku.screens.gameScreeens.remoteGame.RemoteGameActivity
 import isel.gomuku.screens.users.component.DrawUserAuth
 import isel.gomuku.screens.users.component.DrawUserDetails
 import isel.gomuku.ui.theme.GomukuTheme
-
+import java.lang.Exception
 
 
 class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
 
     companion object {
-        fun navigate(source: ComponentActivity) {
+        private const val EXTERNAL_WARNING = "EXTERNAL_WARNING"
+        fun navigate(source: ComponentActivity,exception: Exception? = null) {
             val intent = Intent(source, UsersActivity::class.java)
+            if (exception != null){
+                intent.putExtra(EXTERNAL_WARNING, exception)
+            }
             source.startActivity(intent)
         }
     }
@@ -47,6 +55,13 @@ class UsersActivity() : BaseComponentActivity<UsersViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("Test","Created")
+        viewModel.presentExternalError{
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                this.intent.getParcelableExtra(EXTERNAL_WARNING, RedirectException::class.java)
+            else
+                this.intent.getParcelableExtra<RedirectException>(EXTERNAL_WARNING)
+        }
+
         safeSetContent {
             GomukuTheme {
                 Surface(

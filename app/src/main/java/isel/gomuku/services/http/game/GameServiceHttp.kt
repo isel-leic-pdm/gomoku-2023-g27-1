@@ -3,6 +3,7 @@ package isel.gomuku.services.http.game
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.services.GameService
 import isel.gomuku.services.http.HttpRequest
 import isel.gomuku.services.http.Problem
@@ -151,7 +152,7 @@ class GameServiceHttp(
         }*/
     }
 
-    override suspend fun getGameState(auth: String): GameStateReturn? {
+    override suspend fun getGameState(auth: String): GameStateReturn {
         TODO()
         /*val request = httpRequests.get(
             gameState(),

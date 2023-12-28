@@ -34,6 +34,9 @@ import kotlinx.coroutines.withContext
 //data class ParcelizedPosition private constructor(val lin: Int, val col: Int):Parcelable
 @Parcelize
 data class Plays(val pos: Position, val player: Player?) : Parcelable
+@Parcelize
+class RedirectException(override val message: String ="You must login once more" ) : Exception(), Parcelable {
+}
 
 @SuppressLint("MutableCollectionMutableState")
 class RemoteGameViewModel(
@@ -58,10 +61,13 @@ class RemoteGameViewModel(
 
     private var winner: Boolean? by mutableStateOf(null)
 
-    private var user : LoggedUser? = null
+    private var activeUser : LoggedUser? = null
 
 
     init {
+        safeCall {
+            activeUser = userService.getUser()
+        }
         val data = saveHandle.get<Game?>(saveArgument)
         if (data != null) {
             moves = data.moves
@@ -76,7 +82,7 @@ class RemoteGameViewModel(
         gridSize: Int,
         variants: GameVariants,
         openingRules: OpeningRules,
-        redirect: () -> Unit
+        redirect: (Exception) -> Unit
     ) {
         safeCall {
             val lobby = lobbyId
@@ -84,28 +90,32 @@ class RemoteGameViewModel(
                 setServiceLobby(lobby)
                 throw Exception("In the middle of a game, reconnecting")
             }
-            val token = userService.getUser()?.token
-            if (token == null){
-                redirect()
-                return@safeCall
-            }
-            when(val gameState = gameService.startGame(gridSize, variants.name, openingRules.name, token)){
-                is AwaitingOpponent -> {
-                    withContext(Dispatchers.Main){
-                        lobbyId = gameState.lobbyId
-                        setServiceLobby(gameState.lobbyId)
+            try {
+                val user : LoggedUser = activeUser ?: throw RedirectException()
+                when(val gameState = gameService.startGame(gridSize, variants.name, openingRules.name, user.token)){
+                    is AwaitingOpponent -> {
+                        withContext(Dispatchers.Main){
+                            lobbyId = gameState.lobbyId
+                            setServiceLobby(gameState.lobbyId)
 
-                        moves = Board.startBoard(gridSize)
+                            moves = Board.startBoard(gridSize)
 
-                        poll = true
+                            poll = true
 
-                        saveHandle[saveArgument] = Game(moves, gameState.lobbyId, null)
+                            saveHandle[saveArgument] = Game(moves, gameState.lobbyId, null)
+                        }
+
                     }
 
+                    else -> {throw IllegalStateException("Unexpected GameState : $gameState")}
                 }
-
-                else -> {throw IllegalStateException("Unexpected GameState : $gameState")}
+            }catch (ex: RedirectException){
+                Log.d("Test","Exception thrown")
+                withContext(Dispatchers.Main){
+                    redirect(ex)
+                }
             }
+
 
         }
 
@@ -143,41 +153,40 @@ class RemoteGameViewModel(
         }
     }
 
-    suspend fun fetchState(redirect: () -> Unit) {
-        val user = user
-        val token = if (user != null) {
-            user.token
-        }else{
-            val tempUser = userService.getUser()
-            if (tempUser == null) {
-                redirect()
-                return
-            }
-            tempUser.token
-        }
+    suspend fun fetchState(redirect: (Exception) -> Unit) {
+        safeCall {
+            try {
+                val user: LoggedUser = activeUser ?: throw RedirectException()
+                val info = gameService.getGameState(user.token)
+                val newMoves = HashMap(moves)
+                if (moves.size < info.moves.size)
+                    for (move in info.moves)
+                        if (moves[move.position] == null) {
+                            newMoves[move.position] =
+                                if (move.goPiece == GoPiece.BLACK) Player.BLACK else Player.WHITE
+                            if (!info.inOpponentOpening) poll = false
+                        }
 
-        val info = gameService.getGameState(token) ?: return
-        val newMoves = HashMap(moves)
-        if (moves.size < info.moves.size)
-            for (move in info.moves)
-                if (moves[move.position] == null) {
-                    newMoves[move.position] =
-                        if (move.goPiece == GoPiece.BLACK) Player.BLACK else Player.WHITE
-                    if (!info.inOpponentOpening) poll = false
+                moves = newMoves
+
+                if (info.hasGameEnded) {
+                    poll = false
+                    saveHandle[saveArgument] = null
+                    val id = userService.getUser()?.id!!
+                    isGameOver = true
+                    if (info.winner != null)
+                        winner = info.winner == id
                 }
 
-        moves = newMoves
-
-        if (info.hasGameEnded) {
-            poll = false
-            saveHandle[saveArgument] = null
-            val id = userService.getUser()?.id!!
-            isGameOver = true
-            if (info.winner != null)
-                winner = info.winner == id
+                saveHandle[saveArgument] = Game(moves, lobbyId!!, player!!)
+            }catch (ex: RedirectException){
+                Log.d("Test","Exception thrown")
+                withContext(Dispatchers.Main){
+                    redirect(ex)
+                }
+            }
         }
 
-        saveHandle[saveArgument] = Game(moves, lobbyId!!, player!!)
     }
 
 
@@ -192,6 +201,22 @@ class RemoteGameViewModel(
             }
             Text(text = text, modifier = modifier)
 
+        }
+    }
+
+    fun canPlay(selectGame:() -> Unit,reLogin: (Exception) -> Unit) {
+        safeCall {
+        if (activeUser == null){
+
+                val tempUser = userService.getUser()
+                if (tempUser != null){
+                    activeUser = tempUser
+                }else reLogin(RedirectException())
+            }
+        }
+        if (lobbyId == null){
+            //TODO:See if its in running game and try to rejoin
+            selectGame()
         }
     }
 

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.screens.component.BaseViewModel
+import isel.gomuku.screens.gameScreeens.remoteGame.RedirectException
 import isel.gomuku.services.UserService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -68,5 +69,14 @@ class UsersViewModel(private val userService: UserService) : BaseViewModel() {
     fun changeForm() {
         isRegistering = !isRegistering
         inputEmail = ""
+    }
+
+    fun showWarning(warning: RedirectException,clearExternalWarning: ()->Unit) {
+        error = warning.message
+        clearExternalWarning()
+    }
+
+    fun presentExternalError(getExternalWarning: () -> RedirectException?) {
+        error = getExternalWarning()?.message
     }
 }
