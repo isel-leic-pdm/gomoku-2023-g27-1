@@ -22,11 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
+import isel.gomuku.R
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.utils.RANKING_TEXT_SIZE
@@ -35,13 +37,10 @@ import isel.gomuku.utils.RANKING_TEXT_SIZE
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlobalStatsScreen(
-    onBack: () -> Unit,
+    modifier: Modifier,
     globalStatistics: GlobalStatistics?,
 ) {
-    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = onBack)) })
-    { paddingValues ->
-
-        Column(modifier = Modifier.padding(paddingValues)) {
+        Column(modifier = modifier) {
             Row(
                 modifier = Modifier
                     .padding(16.dp)
@@ -58,19 +57,18 @@ fun GlobalStatsScreen(
                             shape = RoundedCornerShape(8.dp)
                         )
                 ) {
-                    Text(text = "Global statistics", fontSize = RANKING_TEXT_SIZE.sp)
+                    Text(text = stringResource (id = R.string.global_statistics), fontSize = RANKING_TEXT_SIZE.sp)
                 }
             }
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ColumnItem("Games Played", "${globalStatistics?.totalGames}")
-                ColumnItem("Victories", "${globalStatistics?.totalVictories}")
-                ColumnItem("Time Played", "${globalStatistics?.totalTime}")
+                ColumnItem(stringResource (id = R.string.stats_games), "${globalStatistics?.totalGames}")
+                ColumnItem(stringResource (id = R.string.stats_victories), "${globalStatistics?.totalVictories}")
+                ColumnItem(stringResource (id = R.string.stats_time), "${globalStatistics?.totalTime}")
             }
         }
-    }
 }
 
 @Composable
@@ -90,7 +88,7 @@ fun ColumnItem(description: String, value: String) {
     ) {
 
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(4.dp)
         ) {
 
             Text(text = description,
@@ -100,7 +98,7 @@ fun ColumnItem(description: String, value: String) {
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, end = 8.dp)
+                    .padding(top = 4.dp, end = 4.dp)
             )
 
             Text(text = value,
@@ -110,7 +108,7 @@ fun ColumnItem(description: String, value: String) {
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, end = 8.dp)
+                    .padding(top = 4.dp, end = 4.dp)
             )
 
         }

@@ -1,21 +1,24 @@
 package isel.gomuku.screens.ranking
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
+import isel.gomuku.R
+import isel.gomuku.services.http.statistics.model.LeaderBoard
+import isel.gomuku.services.http.statistics.model.PlayerStats
 import isel.gomuku.utils.RANKING_TEXT_SIZE
 
-import isel.gomuku.screens.component.NavigationHandlers
-import isel.gomuku.screens.component.TopBar
 import isel.gomuku.services.http.statistics.model.RankingModel
 import kotlinx.coroutines.CoroutineScope
 
@@ -23,49 +26,48 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun RankingScreen(
     modifier: Modifier,
-    onBack: () -> Unit,
-    onBackMenu: () -> Unit,
-    onStats: (RankingMenuState) -> Unit,
+    onState: (RankingScreenState) -> Unit,
+    onGetPlayer: (Int) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
     onGetMoreRankings: () -> Unit,
     onEditName: (String) -> Unit,
-    rankings: RankingModel?,
+    playerStats:PlayerStats?,
+    leaderBoard: LeaderBoard?,
     globalStatistics: GlobalStatistics?,
-    currentState: RankingMenuState,
+    currentState: RankingScreenState,
     nickname : String,
     searchNickname: (LazyListState, CoroutineScope) -> Unit,
 ) {
 
     when (currentState) {
-
-        RankingMenuState.MENU ->
-            Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = onBack)) })
-            { paddingValues ->
+        RankingScreenState.MENU ->
                 RankingMenuScreen(
                     modifier = modifier,
-                    onStats = onStats,
+                    onState = onState,
                     onGetGlobalStatistics = onGetGlobalStatistics,
                     onGetRankings = onGetRankings,
-                    paddingValues = paddingValues
                 )
-            }
-
-        RankingMenuState.BEST_PLAYER ->
+        RankingScreenState.LEADER_BOARD ->
             LeaderBoardScreen (
-            onBack =  onBackMenu ,
-            onGetMoreRankings = onGetMoreRankings,
-            onEditName = onEditName,
-            nextPage = rankings?.nextPage,
-            bestPlayerRanking = rankings?.rankings?.bestPlayers,
-            nickname = nickname,
-            searchNickname = searchNickname
+                modifier = modifier,
+                onState = onState,
+                onGetPlayer = onGetPlayer,
+                onGetMoreRankings = onGetMoreRankings,
+                onEditName = onEditName,
+                nextPage = leaderBoard?.nextPage,
+                bestPlayerRanking = leaderBoard?.players,
+                nickname = nickname,
+                searchNickname = searchNickname
         )
 
-        RankingMenuState.GLOBAL_STATS -> GlobalStatsScreen(
-            onBack = onBackMenu,
+        RankingScreenState.GLOBAL_STATS ->
+            GlobalStatsScreen(
+            modifier = modifier,
             globalStatistics = globalStatistics
         )
+        RankingScreenState.PLAYER_STATS ->
+            PlayerStatsScreen(modifier = modifier, playerStats = playerStats )
     }
 
 }
@@ -74,23 +76,25 @@ fun RankingScreen(
 @Composable
 fun RankingMenuScreen(
     modifier: Modifier,
-    onStats: (RankingMenuState) -> Unit,
+    onState: (RankingScreenState) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
-    paddingValues: PaddingValues
 ) {
-    Column(modifier = modifier.padding(paddingValues)) {
-        Button(
-            onClick = { onGetRankings(); onStats(RankingMenuState.BEST_PLAYER) },
-            modifier = modifier
-        ) {
-            Text(text = "Best Players Ranking", fontSize = RANKING_TEXT_SIZE.sp)
-        }
-        Button(
-            onClick = { onGetGlobalStatistics(); onStats(RankingMenuState.GLOBAL_STATS) },
-            modifier = modifier
-        ) {
-            Text(text = "Global Statistics", fontSize = RANKING_TEXT_SIZE.sp)
+    Row  {
+        Spacer(Modifier.padding(16.dp))
+        Column(modifier = modifier) {
+            Button(
+                onClick = { onGetRankings() },
+            ) {
+                Text(stringResource(id = R.string.ranking_leader_board), fontSize = RANKING_TEXT_SIZE.sp)
+            }
+            Spacer(Modifier.padding(16.dp))
+            Button(
+                onClick = { onGetGlobalStatistics() },
+            ) {
+                Text(stringResource(id = R.string.global_statistics), fontSize = RANKING_TEXT_SIZE.sp)
+            }
         }
     }
+
 }

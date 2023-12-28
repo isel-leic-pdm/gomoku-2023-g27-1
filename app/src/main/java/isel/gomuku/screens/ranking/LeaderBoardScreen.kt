@@ -2,6 +2,7 @@ package isel.gomuku.screens.ranking
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,18 +26,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.isel.gomokuApi.domain.model.statistcs.BestPlayerRanking
-import isel.gomuku.screens.component.NavigationHandlers
-import isel.gomuku.screens.component.TopBar
+import isel.gomuku.R
 import isel.gomuku.utils.RANKING_TEXT_SIZE
 import kotlinx.coroutines.CoroutineScope
 
@@ -45,47 +46,47 @@ const val NICKNAME_CHAR_LIMIT = 20
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderBoardScreen(
-    onBack: () -> Unit,
+    modifier: Modifier,
+    onState: (RankingScreenState) -> Unit,
+    onGetPlayer: (Int) -> Unit,
     onGetMoreRankings: () -> Unit,
     onEditName: (String) -> Unit,
-    nextPage: String? = null,
+    nextPage: Int? = null,
     bestPlayerRanking: List<BestPlayerRanking>?,
     nickname: String,
     searchNickname: (LazyListState, CoroutineScope) -> Unit,
 
     ) {
 
-    Scaffold(topBar = { TopBar(navigationHandlers = NavigationHandlers(onBackHandler = onBack)) })
-    { paddingValues ->
-
-        Column(modifier = Modifier.padding(paddingValues)) {
-            Row(
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .fillMaxWidth(), horizontalArrangement = Arrangement.Center
+        ) {
+            Box(
                 modifier = Modifier
-                    .padding(16.dp)
                     .background(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = RoundedCornerShape(8.dp)
                     )
-                    .fillMaxWidth(), horizontalArrangement = Arrangement.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                ) {
-                    Text(text = "Leader Board", fontSize = RANKING_TEXT_SIZE.sp)
-                }
+                Text(text = "Leader Board", fontSize = RANKING_TEXT_SIZE.sp)
             }
-            RankingList(
-                bestPlayerRanking = bestPlayerRanking,
-                nextPage = nextPage, onEditName = onEditName,
-                onGetMoreRankings = onGetMoreRankings,
-                nickname = nickname,
-                searchNickname = searchNickname
-            )
         }
+        RankingList(
+            onState = onState,
+            onGetPlayer = onGetPlayer,
+            bestPlayerRanking = bestPlayerRanking,
+            nextPage = nextPage, onEditName = onEditName,
+            onGetMoreRankings = onGetMoreRankings,
+            nickname = nickname,
+            searchNickname = searchNickname
+        )
     }
 }
 
@@ -93,8 +94,10 @@ fun LeaderBoardScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RankingList(
+    onState: (RankingScreenState) -> Unit,
+    onGetPlayer: (Int) -> Unit,
     bestPlayerRanking: List<BestPlayerRanking>?,
-    nextPage: String?,
+    nextPage: Int?,
     onEditName: (String) -> Unit,
     onGetMoreRankings: () -> Unit,
     nickname: String,
@@ -111,7 +114,7 @@ fun RankingList(
                     if (it.length <= NICKNAME_CHAR_LIMIT)
                         onEditName(it)
                 },
-                label = { Text("Nickname") },
+                label = { Text(stringResource(id = R.string.nickname)) },
                 modifier = Modifier
                     .padding(8.dp),
                 singleLine = true,
@@ -131,8 +134,6 @@ fun RankingList(
                 )
             }
         }
-
-
         LazyColumn(
             state = listState,
             userScrollEnabled = true,
@@ -142,12 +143,12 @@ fun RankingList(
         ) {
             if (bestPlayerRanking != null) {
                 this.items(bestPlayerRanking) {
-                    RankingRow(player = it)
+                    RankingRow(onGetPlayer = onGetPlayer, onState= onState, player = it)
                 }
             }
             item {
                 Button(onClick = { onGetMoreRankings() }, enabled = nextPage != null) {
-                    Text(text = "Load More", fontSize = RANKING_TEXT_SIZE.sp)
+                    Text(text = stringResource(id = R.string.load_more), fontSize = RANKING_TEXT_SIZE.sp)
                 }
             }
         }
@@ -156,7 +157,10 @@ fun RankingList(
 
 
 @Composable
-fun RankingRow(player: BestPlayerRanking) {
+fun RankingRow(
+                onGetPlayer: (Int) -> Unit,
+                onState: (RankingScreenState) -> Unit,
+                player: BestPlayerRanking) {
     Card(
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
@@ -168,10 +172,11 @@ fun RankingRow(player: BestPlayerRanking) {
         ),
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onGetPlayer(player.id) }
     ) {
 
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(4.dp)
         ) {
 
             Text(
@@ -182,7 +187,7 @@ fun RankingRow(player: BestPlayerRanking) {
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, end = 8.dp),
+                    .padding(top = 4.dp, end = 4.dp),
             ) //Rank
 
             Text(
@@ -193,7 +198,7 @@ fun RankingRow(player: BestPlayerRanking) {
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, end = 8.dp),
+                    .padding(top = 4.dp, end = 4.dp),
             ) //Rank
 
             Text(
@@ -204,7 +209,7 @@ fun RankingRow(player: BestPlayerRanking) {
                 maxLines = 1,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, end = 8.dp),
+                    .padding(top = 4.dp, end = 4.dp),
             ) //Rank
 
         }
@@ -216,10 +221,17 @@ fun RankingRow(player: BestPlayerRanking) {
 //@Preview(showBackground = true, showSystemUi = true)
 //@Composable
 //fun RankingStateScreenPreview() {
-//RankingStateScreen(
-//        onBack = {},
+//    val listState = rememberLazyListState()
+//    val coroutineScope = rememberCoroutineScope()
+//    val f : (LazyListState, CoroutineScope) -> Unit
+//    LeaderBoardScreen(
+//        modifier = Modifier.padding(vertical = 16.dp),
+//        onState = {},
+//        onGetPlayer = {},
 //        onGetMoreRankings = {},
 //        onEditName = {},
+//        nickname= "awd",
+//        searchNickname =   ,
 //        bestPlayerRanking = listOf(
 //           BestPlayerRanking(1, "Player1", 100, 1),
 //            BestPlayerRanking(2, "Player2", 90, 9),

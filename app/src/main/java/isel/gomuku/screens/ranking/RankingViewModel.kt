@@ -1,25 +1,28 @@
 package isel.gomuku.screens.ranking
 
+import android.provider.ContactsContract.CommonDataKinds.Nickname
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
+import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.services.http.statistics.StatsServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
+import isel.gomuku.services.http.statistics.model.LeaderBoard
 import isel.gomuku.services.http.statistics.model.PlayerStats
 import isel.gomuku.services.http.statistics.model.RankingModel
 import isel.gomuku.services.http.statistics.model.Rankings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class RankingViewModel(private val service: StatsServiceHttp):BaseViewModel() {
-    var rankings: RankingModel? by mutableStateOf(null)
+class RankingViewModel(private val service: StatsServiceHttp, ):BaseViewModel() {
+    var leaderBoard: LeaderBoard? by mutableStateOf(null)
         private set
     var globalStatistics: GlobalStatistics? by mutableStateOf(null)
         private set
 
-    var currentState : RankingMenuState by mutableStateOf(RankingMenuState.MENU)
+    var currentState : RankingScreenState by mutableStateOf(RankingScreenState.MENU)
 
     var nickname by  mutableStateOf("")
 
@@ -28,63 +31,70 @@ class RankingViewModel(private val service: StatsServiceHttp):BaseViewModel() {
     fun editName (name: String) {
         nickname = name
     }
+    //função que nao recebe nada como parametro
+
+    fun test (getUser: () -> LoggedUser?, redirect: () -> Unit  ) {
+        val user = getUser() ?: redirect()
+
+    }
 
     fun getPlayerStats (id:Int) {
         safeCall {
             playerStats = service.getPlayerStats(id)
+            currentState = RankingScreenState.PLAYER_STATS
         }
     }
     fun search (listState: LazyListState, coroutineScope: CoroutineScope) {
         safeCall {
             coroutineScope.launch {
-                val index = rankings?.rankings?.bestPlayers?.indexOfFirst { it.playerName == nickname }
+                val index = leaderBoard?.players?.indexOfFirst { it.playerName == nickname }
                 if (index != null && index != -1) {
                     listState.animateScrollToItem(index)
-                } else if (index != -1) {
-
+                } else  {
+                    val currLeaderBoard  = leaderBoard
+                    if ( currLeaderBoard?.nextPage != null ) {
+                        val res = service.getRankings(currLeaderBoard.nextPage , nickname )
+                        leaderBoard = getMorePlayers (currLeaderBoard, res )
+                    }
                 }
             }
         }
     }
 
-    fun changeStatsToShow (state: RankingMenuState) {
+    fun changeStatsToShow (state: RankingScreenState) {
         currentState = state
     }
     fun getRankings () {
         safeCall {
-            val currRankings = rankings
+            val currRankings = leaderBoard
             if (currRankings == null) {
-                rankings = service.getRankings("0")
+                leaderBoard = service.getRankings(0, null)
             }
+            currentState = RankingScreenState.LEADER_BOARD
         }
     }
+
     fun getMoreRankings () {
         safeCall {
-            val currRankings = rankings
-            if ( currRankings?.nextPage != null) {
-                val page = currRankings.nextPage.takeLastWhile { it.isDigit() }
-                val res = service.getRankings(page)
-                rankings = getMoreRankings(currRankings, res)
+            val currLeaderBoard  = leaderBoard
+            if ( currLeaderBoard?.nextPage != null ) {
+                val res = service.getRankings(currLeaderBoard.nextPage , null )
+                leaderBoard = getMorePlayers (currLeaderBoard, res )
             }
         }
     }
-    private fun getMoreRankings (currRankings: RankingModel, newRankings: RankingModel): RankingModel {
-        val ranks = Rankings (
-            bestPlayers = currRankings.rankings.bestPlayers + newRankings.rankings.bestPlayers,
-            victories = currRankings.rankings.victories + newRankings.rankings.victories,
-            mostGames = currRankings.rankings.mostGames + newRankings.rankings.mostGames,
-            mostTime = currRankings.rankings.mostTime + newRankings.rankings.mostTime,
-            playerDefeats = currRankings.rankings.playerDefeats + newRankings.rankings.playerDefeats,
-        )
-        return  RankingModel(
-            rankings = ranks,
-            prevPage = newRankings.prevPage,
-            nextPage = newRankings.nextPage
+
+    private fun getMorePlayers (currLeaderBoard: LeaderBoard, newLeaderBoard: LeaderBoard ):LeaderBoard {
+        return LeaderBoard (
+            players = currLeaderBoard.players + newLeaderBoard.players,
+            nextPage = newLeaderBoard.nextPage
         )
     }
+
     fun getGlobalStats () {
         safeCall {
             globalStatistics = service.getGlobalStats()
+            currentState = RankingScreenState.GLOBAL_STATS
         }
     }
 }

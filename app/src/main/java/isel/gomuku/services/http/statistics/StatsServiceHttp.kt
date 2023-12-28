@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
 import isel.gomuku.services.StatsService
 import isel.gomuku.services.http.HttpRequest
+import isel.gomuku.services.http.statistics.model.LeaderBoard
 import isel.gomuku.services.http.statistics.model.PlayerStats
 import isel.gomuku.services.http.statistics.model.RankingModel
 import isel.gomuku.services.http.statistics.model.Rankings
@@ -32,12 +33,24 @@ class StatsServiceHttp(client: OkHttpClient, private val gson: Gson, private val
 
     private val httpRequests = HttpRequest (client)
 
-    override suspend fun getRankings(nextPage : String): RankingModel {
-        val newUrl = rankingsUrl().addPathSegment(nextPage)
+//    override suspend fun getRankings(nextPage : String): RankingModel {
+//        val newUrl = rankingsUrl()
+//            .addPathSegment(nextPage)
+//        val request = httpRequests.get(newUrl, hashMapOf("accept" to "application/json"))
+//        return httpRequests.doRequest(request) {
+//            val dto = gson.fromJson(it.body?.string(), RankingModel::class.java)
+//            return@doRequest dto
+//        }
+//    }
+
+    override suspend fun getRankings(page: Int, nickname: String?): LeaderBoard {
+        val newUrl = rankingsUrl()
+            .addPathSegment("android")
+            .addPathSegment("$page")
+            .addQueryParameter("nickname", nickname)
         val request = httpRequests.get(newUrl, hashMapOf("accept" to "application/json"))
         return httpRequests.doRequest(request) {
-            val dto = gson.fromJson(it.body?.string(), RankingModel::class.java)
-            return@doRequest dto
+            return@doRequest gson.fromJson(it.body?.string(), LeaderBoard::class.java)
         }
     }
 
