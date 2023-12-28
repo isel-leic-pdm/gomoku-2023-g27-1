@@ -1,3 +1,3 @@
-package isel.gomuku.services.http.statistics.model
+package com.isel.gomokuApi.domain.model.statistcs
 
-class DefeatsRanking (val playerName: String, val defeats: Int)
+class DefeatsRanking (val id: Int, val playerName: String, val defeats: Int, val rank: Int)

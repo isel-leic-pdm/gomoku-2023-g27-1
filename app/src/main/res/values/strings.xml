@@ -32,4 +32,21 @@
     <string name="Winner">You have won this game</string>
     <string name="Loser">You have lost this game</string>
     <string name="Tie">You have tied with your opponent</string>
+    <string name="global_statistics">Global statistics</string>
+    <string name="stats_games">Total Games Played</string>
+    <string name="stats_victories">Total Victories</string>
+    <string name="stats_time">Total Time Played</string>
+    <string name="nickname">Nickname</string>
+    <string name="load_more">Load More</string>
+    <string name="player_nickname">Nickname</string>
+    <string name="player_points">Points</string>
+    <string name="player_victories">Victories</string>
+    <string name="player_defeats">Defeats</string>
+    <string name="player_draws">Draws</string>
+    <string name="player_games">Games Played</string>
+    <string name="player_time">Time Played</string>
+    <string name="ranking_leader_board">Leader Board</string>
+
+
+
 </resources>

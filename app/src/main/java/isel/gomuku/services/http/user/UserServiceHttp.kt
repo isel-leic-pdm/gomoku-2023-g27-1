@@ -53,7 +53,7 @@ class UserServiceHttp(
             throw Exception(if (prob.detail != null)prob.title +":" + prob.detail else prob.title)
         }
     }
-    private suspend fun authenticateUser(login: GomokuRequestBody,path:HttpUrl.Builder): LoggedUser {
+    private suspend fun authenticateUser(login: GomokuRequestBody,path:HttpUrl.Builder): LoggedUser{
         val body = gson.toJson(login).toRequestBody("application/json".toMediaType())
         val request = requestBuilder.post(
             path,
