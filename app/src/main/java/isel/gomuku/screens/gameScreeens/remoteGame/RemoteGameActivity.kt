@@ -22,6 +22,7 @@ import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.GameOptions
 import isel.gomuku.screens.gameScreeens.components.DrawBoard
+import isel.gomuku.screens.users.UsersActivity
 import isel.gomuku.screens.utils.viewModelInitWithSavedState
 import isel.gomuku.ui.theme.GomukuTheme
 import kotlinx.coroutines.delay
@@ -63,7 +64,8 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
         viewModel.startGame(
             gameOptions.gridSize!!,
             gameOptions.variant!!,
-            gameOptions.openingRule!!
+            gameOptions.openingRule!!,
+            { UsersActivity.navigate(this) }
         )
 
         safeSetContent {
@@ -79,8 +81,8 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
                         LaunchedEffect(viewModel.poll) {
                             try {
                                 while (viewModel.poll) {
-                                    delay(500)
-                                    viewModel.fetchState()
+                                    delay(1000)
+                                    viewModel.fetchState({ UsersActivity.navigate(this@RemoteGameActivity) })
                                 }
                             }catch (e: Exception){
                                 Log.d("Test", e.toString())

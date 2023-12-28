@@ -15,18 +15,20 @@ import kotlinx.android.parcel.Parcelize
 import android.os.Parcelable
 import android.util.Log
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import isel.gomuku.R
+import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.services.UserService
 import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.services.http.game.GameServiceHttp
+import isel.gomuku.services.http.game.httpModel.AwaitingOpponent
 import isel.gomuku.services.http.game.httpModel.GoPiece
-import isel.gomuku.services.local.gameLogic.BoardRun
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 //@Parcelize
 //data class ParcelizedPosition private constructor(val lin: Int, val col: Int):Parcelable
@@ -46,7 +48,7 @@ class RemoteGameViewModel(
 
     var moves by mutableStateOf<MutableMap<Position, Player?>>(Board.startBoard(15))
 
-    var player: Player? by mutableStateOf(null)
+    private var player: Player? by mutableStateOf(null)
 
     private var lobbyId: Int? by mutableStateOf(null)
 
@@ -56,6 +58,8 @@ class RemoteGameViewModel(
 
     private var winner: Boolean? by mutableStateOf(null)
 
+    private var user : LoggedUser? = null
+
 
     init {
         val data = saveHandle.get<Game?>(saveArgument)
@@ -64,6 +68,7 @@ class RemoteGameViewModel(
             player = data.player
             lobbyId = data.lobbyId
         }
+
     }
 
 
@@ -71,31 +76,44 @@ class RemoteGameViewModel(
         gridSize: Int,
         variants: GameVariants,
         openingRules: OpeningRules,
+        redirect: () -> Unit
     ) {
         safeCall {
-            Log.d("Test", "User = ${userService.getUser()}")
-            if (lobbyId != null) {
-                setServiceLobby()
+            val lobby = lobbyId
+            if (lobby != null) {
+                setServiceLobby(lobby)
                 throw Exception("In the middle of a game, reconnecting")
             }
-            val token = userService.getUser()?.token!!
-            val info = gameService.startGame(gridSize, variants.name, openingRules.name, token)
-            lobbyId = info.id
-            setServiceLobby()
+            val token = userService.getUser()?.token
+            if (token == null){
+                redirect()
+                return@safeCall
+            }
+            when(val gameState = gameService.startGame(gridSize, variants.name, openingRules.name, token)){
+                is AwaitingOpponent -> {
+                    withContext(Dispatchers.Main){
+                        lobbyId = gameState.lobbyId
+                        setServiceLobby(gameState.lobbyId)
 
-            moves = Board.startBoard(gridSize)
+                        moves = Board.startBoard(gridSize)
 
-            poll = info.player != Player.BLACK
+                        poll = true
 
-            saveHandle[saveArgument] = Game(moves, info.id, info.player)
+                        saveHandle[saveArgument] = Game(moves, gameState.lobbyId, null)
+                    }
+
+                }
+
+                else -> {throw IllegalStateException("Unexpected GameState : $gameState")}
+            }
+
         }
 
     }
 
 
-    private fun setServiceLobby() {
-        if (lobbyId != null)
-            gameService.setLobbyId(lobbyId!!)
+    private fun setServiceLobby(lobbyId: Int) {
+            gameService.setLobbyId(lobbyId)
     }
 
     fun play(pos: Position) {
@@ -125,8 +143,18 @@ class RemoteGameViewModel(
         }
     }
 
-    suspend fun fetchState() {
-        val token = userService.getUser()?.token!!
+    suspend fun fetchState(redirect: () -> Unit) {
+        val user = user
+        val token = if (user != null) {
+            user.token
+        }else{
+            val tempUser = userService.getUser()
+            if (tempUser == null) {
+                redirect()
+                return
+            }
+            tempUser.token
+        }
 
         val info = gameService.getGameState(token) ?: return
         val newMoves = HashMap(moves)
@@ -180,5 +208,5 @@ fun createPlayList(gridSize: Int): List<Plays> {
 data class Game(
     val moves: MutableMap<Position, Player?>,
     val lobbyId: Int,
-    val player: Player
+    val player: Player?
 ) : Parcelable {}
