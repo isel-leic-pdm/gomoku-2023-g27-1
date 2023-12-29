@@ -15,6 +15,7 @@ import kotlinx.android.parcel.Parcelize
 import android.os.Parcelable
 import android.util.Log
 import isel.gomuku.repository.user.model.LoggedUser
+import isel.gomuku.screens.utils.RedirectException
 import isel.gomuku.services.UserService
 import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.services.http.game.GameServiceHttp
@@ -26,20 +27,12 @@ import isel.gomuku.services.http.game.httpModel.GameRunning
 import isel.gomuku.services.http.game.httpModel.GameStatus
 import isel.gomuku.services.http.game.httpModel.LobbyClosed
 import isel.gomuku.services.http.game.httpModel.PlayMade
+import isel.gomuku.services.http.game.httpModel.Polling
 import isel.gomuku.services.http.game.httpModel.UserInfo
 import isel.gomuku.services.http.game.httpModel.WaitingOpponentPieces
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-//@Parcelize
-//data class ParcelizedPosition private constructor(val lin: Int, val col: Int):Parcelable
-@Parcelize
-data class Plays(val pos: Position, val player: Player?) : Parcelable
-@Parcelize
-class RedirectException(override val message: String ="You must login once more" ) : Exception(), Parcelable {
-}
-
-data class Polling(val isPolling: Boolean, val reason : String? = null)
 @SuppressLint("MutableCollectionMutableState")
 class RemoteGameViewModel(
     private val saveHandle: SavedStateHandle,
@@ -254,28 +247,6 @@ class RemoteGameViewModel(
                 setGameState(info,user)
         }
 
-    }
-    fun canPlay(selectGame:() -> Unit,reLogin: (Exception) -> Unit) {
-        safeCall {
-        if (activeUser == null){
-
-                val tempUser = userService.getUser()
-                if (tempUser != null){
-                    activeUser = tempUser
-                }else reLogin(RedirectException())
-            }
-        }
-        if (lobbyId == null){
-            //TODO:See if its in running game and try to rejoin
-            selectGame()
-        }
-    }
-
-}
-
-fun createPlayList(gridSize: Int): List<Plays> {
-    return List(gridSize * gridSize) { index ->
-        return@List Plays(Position(index / gridSize, index % gridSize), null)
     }
 }
 
