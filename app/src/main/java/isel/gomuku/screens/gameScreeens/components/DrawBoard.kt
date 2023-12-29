@@ -31,44 +31,52 @@ private const val ROW_PADDING = 5
 private const val CELL_PADDING = 0.5
 private const val BORDER_WIDTH = 1
 private const val CIRCLE_ALIGN = 4
+
 @Composable
 fun DrawBoard(
     modifier: Modifier,
     boardSize: Int,
     makePlay: (Position) -> Unit,
-    moves: MutableMap<Position, Player?>
+    moves: MutableMap<Position, Player?>?,
+    cellSize : Int
 ) {
-    val cellSize = (LocalConfiguration.current.screenWidthDp / boardSize) -1
     val backGroundColor = Color(red = 246, green = 206, blue = 5)
-    Column(modifier = modifier,horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(modifier = Modifier.background(backGroundColor).border(BORDER_WIDTH.dp, Color.Black)) {
-            Row(modifier = Modifier.padding(ROW_PADDING.dp)) {
-                repeat(boardSize) { column ->
-                    Column {
-                        repeat(boardSize) { row ->
-                            val pos = Position.invoke(row, column)
-                            Box(modifier = Modifier
-                                .size(cellSize.dp)
-                                .padding(CELL_PADDING.dp)
-                                .border(BORDER_WIDTH.dp, color = Color.Gray)
-                                .wrapContentSize(Alignment.Center)
-                                .clickable { makePlay(pos) }
-                            ) {
-                                val color = when (moves[pos]) {
-                                    Player.BLACK -> Color.Black
-                                    Player.WHITE -> Color.White
-                                    else -> backGroundColor
+    if (moves != null) {
+        Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                modifier = Modifier
+                    .background(backGroundColor)
+                    .border(BORDER_WIDTH.dp, Color.Black)
+            ) {
+                Row(modifier = Modifier.padding(ROW_PADDING.dp)) {
+                    repeat(boardSize) { row ->
+                        Column {
+                            repeat(boardSize) { column ->
+                                val pos = Position.invoke(row, column)
+                                Box(modifier = Modifier
+                                    .size(cellSize.dp)
+                                    .padding(CELL_PADDING.dp)
+                                    .border(BORDER_WIDTH.dp, color = Color.Gray)
+                                    .wrapContentSize(Alignment.Center)
+                                    .clickable { makePlay(pos) }
+                                ) {
+                                    val color = when (moves[pos]) {
+                                        Player.BLACK -> Color.Black
+                                        Player.WHITE -> Color.White
+                                        else -> backGroundColor
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .size((cellSize - CIRCLE_ALIGN).dp)
+                                            .clip(CircleShape)
+                                            .background(color)
+                                    )
                                 }
-                                Box(
-                                    modifier = Modifier
-                                        .size((cellSize - CIRCLE_ALIGN).dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                )
                             }
                         }
                     }
                 }
+
             }
 
         }
@@ -82,11 +90,15 @@ fun DrawBoard(
 fun Preview() {
     GomukuTheme {
         val grid = 15
-        val size = (LocalConfiguration.current.screenWidthDp / grid) -1
+        val size = (LocalConfiguration.current.screenWidthDp / grid) - 1
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             val backGroundColor = Color(red = 246, green = 206, blue = 5)
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(modifier = Modifier.background(backGroundColor).border(BORDER_WIDTH.dp, Color.Black)) {
+                Box(
+                    modifier = Modifier
+                        .background(backGroundColor)
+                        .border(BORDER_WIDTH.dp, Color.Black)
+                ) {
                     Row(modifier = Modifier.padding(ROW_PADDING.dp)) {
                         repeat(grid) { column ->
                             Column() {
@@ -96,12 +108,12 @@ fun Preview() {
                                         .padding(0.5.dp)
                                         .border(BORDER_WIDTH.dp, color = Color.Gray)
                                         .wrapContentSize(Alignment.Center)
-                                        .clickable {  }
+                                        .clickable { }
                                     ) {
                                         val color = Color.Black
                                         Box(
                                             modifier = Modifier
-                                                .size((size-4).dp)
+                                                .size((size - 4).dp)
                                                 .clip(CircleShape)
                                                 .background(color)
                                         )

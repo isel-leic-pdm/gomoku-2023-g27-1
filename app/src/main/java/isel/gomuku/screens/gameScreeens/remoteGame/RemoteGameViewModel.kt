@@ -14,19 +14,20 @@ import isel.gomuku.screens.gameScreeens.gatherInfo.OpeningRules
 import kotlinx.android.parcel.Parcelize
 import android.os.Parcelable
 import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import isel.gomuku.R
 import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.services.UserService
 import isel.gomuku.services.local.gameLogic.Position
 import isel.gomuku.services.http.game.GameServiceHttp
+import isel.gomuku.services.http.game.RejoinGame
 import isel.gomuku.services.http.game.httpModel.AwaitingOpponent
-import isel.gomuku.services.http.game.httpModel.GoPiece
+import isel.gomuku.services.http.game.httpModel.GameDetails
+import isel.gomuku.services.http.game.httpModel.GameEnded
+import isel.gomuku.services.http.game.httpModel.GameRunning
+import isel.gomuku.services.http.game.httpModel.GameStatus
+import isel.gomuku.services.http.game.httpModel.LobbyClosed
+import isel.gomuku.services.http.game.httpModel.PlayMade
+import isel.gomuku.services.http.game.httpModel.UserInfo
+import isel.gomuku.services.http.game.httpModel.WaitingOpponentPieces
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -38,6 +39,7 @@ data class Plays(val pos: Position, val player: Player?) : Parcelable
 class RedirectException(override val message: String ="You must login once more" ) : Exception(), Parcelable {
 }
 
+data class Polling(val isPolling: Boolean, val reason : String? = null)
 @SuppressLint("MutableCollectionMutableState")
 class RemoteGameViewModel(
     private val saveHandle: SavedStateHandle,
@@ -49,19 +51,25 @@ class RemoteGameViewModel(
         val saveArgument = ""
     }
 
-    var moves by mutableStateOf<MutableMap<Position, Player?>>(Board.startBoard(15))
+    var moves by mutableStateOf<MutableMap<Position, Player?>?>(null)
 
-    private var player: Player? by mutableStateOf(null)
+    var player: Player? by mutableStateOf(null)
 
     private var lobbyId: Int? by mutableStateOf(null)
 
-    var poll by mutableStateOf(false)
+    var poll by mutableStateOf(Polling(false))
 
     var isGameOver: Boolean by mutableStateOf(false)
 
-    private var winner: Boolean? by mutableStateOf(null)
+    var winner: Boolean? by mutableStateOf(null)
 
     private var activeUser : LoggedUser? = null
+
+    private var gameDetails : GameDetails? = null
+
+    private var lastPlayedPosition : Position? = null
+
+    var opponent: UserInfo? = null
 
 
     init {
@@ -76,7 +84,102 @@ class RemoteGameViewModel(
         }
 
     }
+    private fun getUser(redirect: (Exception) -> Unit): LoggedUser {
+        try {
+            Log.d("Test","User stat is :$activeUser")
+            if (activeUser == null) throw RedirectException()
 
+        } catch (ex: RedirectException) {
+            Log.d("Test", "Exception thrown")
+            redirect(ex)
+
+        }
+        return activeUser ?: throw IllegalStateException("User must re login")
+    }
+
+    private suspend fun setGameState(gameState: GameStatus,user: LoggedUser,leaveScreen: (() -> Unit)? = null){
+        when(gameState){
+            is GameRunning -> {
+                withContext(Dispatchers.IO){
+                    if (lobbyId == null){
+                        lobbyId = gameState.lobbyId
+                        setServiceLobby(gameState.lobbyId)
+                    }
+                    if (player == null){
+                        player = gameState.playerPiece
+                    }
+                    if (opponent == null){
+
+                        opponent = gameState.opponent
+                    }
+                    if (moves == null){
+                        moves = Board.startBoard(gameState.gridSize)
+                        gameState.moves.forEach {
+                            moves!![it.position] = it.goPiece
+                        }
+                    }
+
+                    if (poll.isPolling == gameState.isPlayerTurn){
+                        poll =
+                            Polling(!gameState.isPlayerTurn,
+                            if (gameState.isPlayerTurn == false)"Waiting for opponent play" else null)
+                        if (gameState.isPlayerTurn){
+                            gameState.moves.forEach {
+                                moves!![it.position] = it.goPiece
+                            }
+                        }
+                    }
+                }
+            }
+            is GameEnded -> {
+                withContext(Dispatchers.IO){
+                    poll = Polling(false)
+                    saveHandle[saveArgument] = null
+                    moves = Board.startBoard(gameDetails!!.gridSize)
+                    gameState.moves.forEach {
+                        moves!![it.position] = it.goPiece
+                    }
+                    isGameOver = true
+                    if (gameState.winner != null) {
+                        winner = gameState.winner == user.id
+                    }
+                }
+            }
+            is AwaitingOpponent -> {
+                withContext(Dispatchers.IO){
+                    Log.d("Test","Board state is $moves")
+                    if (moves == null){
+                        moves = Board.startBoard(gameState.gridSize)
+                        saveHandle[saveArgument] = Game(moves!!, gameState.lobbyId, null)
+                    }
+
+
+                    if (lobbyId == null){
+                        lobbyId = gameState.lobbyId
+                        setServiceLobby(gameState.lobbyId)
+                    }
+                    if (poll.isPolling == false) poll = Polling(true,"Waiting for adversary")
+                }
+
+            }
+            is PlayMade -> {
+                withContext(Dispatchers.IO){
+                    moves?.put(lastPlayedPosition!!,player)
+                    if (poll.isPolling == false) poll = Polling(true,"Waiting for opponent play")
+                }
+            }
+            is LobbyClosed -> {
+                if (leaveScreen != null){
+                    leaveScreen()
+                }
+            }
+            is WaitingOpponentPieces -> {
+                if (poll.isPolling == false) poll = Polling(true,"Waiting for opponent play")
+            }
+
+            else -> {throw IllegalStateException("Unexpected game state")}
+        }
+    }
 
     fun startGame(
         gridSize: Int,
@@ -84,126 +187,74 @@ class RemoteGameViewModel(
         openingRules: OpeningRules,
         redirect: (Exception) -> Unit
     ) {
+        if (gameDetails == null){
         safeCall {
-            val lobby = lobbyId
-            if (lobby != null) {
-                setServiceLobby(lobby)
-                throw Exception("In the middle of a game, reconnecting")
-            }
             try {
-                val user : LoggedUser = activeUser ?: throw RedirectException()
-                when(val gameState = gameService.startGame(gridSize, variants.name, openingRules.name, user.token)){
-                    is AwaitingOpponent -> {
-                        withContext(Dispatchers.Main){
-                            lobbyId = gameState.lobbyId
-                            setServiceLobby(gameState.lobbyId)
-
-                            moves = Board.startBoard(gridSize)
-
-                            poll = true
-
-                            saveHandle[saveArgument] = Game(moves, gameState.lobbyId, null)
-                        }
-
+                val user = getUser(redirect)
+                val gameState =
+                    gameService.startGame(gridSize, variants.name, openingRules.name, user.token)
+                gameDetails = GameDetails(getServiceLobby()!!,gridSize,openingRules.name,variants.name)
+                setGameState(gameState,user)
+            } catch (ex: RejoinGame) {
+                val user = getUser(redirect)
+                val game = gameService.getGameDetails(user.token)
+                if (gameDetails == null) {
+                    gameDetails = game
+                }
+                Log.d("Test","Setting ID ${game.lobbyId}")
+                setServiceLobby(game.lobbyId)
+                if (lobbyId == null) {
+                    withContext(Dispatchers.IO){
+                        lobbyId = game.lobbyId
                     }
-
-                    else -> {throw IllegalStateException("Unexpected GameState : $gameState")}
                 }
+                val gameState = gameService.getGameState(user.token)
+                setGameState(gameState,user)
             }catch (ex: RedirectException){
-                Log.d("Test","Exception thrown")
-                withContext(Dispatchers.Main){
-                    redirect(ex)
-                }
+                userService.logout()
+                redirect(ex)
             }
-
 
         }
-
+        }
     }
+
+
 
 
     private fun setServiceLobby(lobbyId: Int) {
             gameService.setLobbyId(lobbyId)
     }
+    private fun getServiceLobby() = gameService.getLobbyId()
 
-    fun play(pos: Position) {
+    fun play(pos: Position,redirect: (Exception) -> Unit) {
         safeCall {
             if (isGameOver) throw Exception("Game is already over")
-            if(poll == true) throw Exception("Not your turn")
-            val token = userService.getUser()?.token!!
-            val info = gameService.play(pos.lin, pos.col, token)
-            val movesCopy = HashMap(moves)
-            movesCopy[pos] = player
-            moves = movesCopy
-            saveHandle[saveArgument] = Game(moves, lobbyId!!, player!!)
-            if (info != null) {
-                if (info.winner != null)
-                    throw Exception("You have won this game")
-                else throw Exception("This game ended in a draw")
-            }
-            poll = true
+            if(poll.isPolling == true) throw Exception("Not your turn")
+            val user = getUser(redirect)
+            val gameState = gameService.play(pos.lin, pos.col, user.token)
+            lastPlayedPosition = Position(pos.lin,pos.col)
+            setGameState(gameState,user)
         }
     }
 
-    fun quit() {
+    fun quit(redirect: (Exception) -> Unit, endActivity: () -> Unit) {
         safeCall {
-            val token = userService.getUser()?.token!!
-            gameService.quitGame(token)
+            val user = getUser(redirect)
+            val gameState = gameService.quitGame(user.token)
             saveHandle[saveArgument] = null
+            setGameState(gameState,user,endActivity)
         }
     }
 
     suspend fun fetchState(redirect: (Exception) -> Unit) {
         safeCall {
-            try {
-                val user: LoggedUser = activeUser ?: throw RedirectException()
+                val user: LoggedUser = getUser(redirect)
                 val info = gameService.getGameState(user.token)
-                val newMoves = HashMap(moves)
-                if (moves.size < info.moves.size)
-                    for (move in info.moves)
-                        if (moves[move.position] == null) {
-                            newMoves[move.position] =
-                                if (move.goPiece == GoPiece.BLACK) Player.BLACK else Player.WHITE
-                            if (!info.inOpponentOpening) poll = false
-                        }
-
-                moves = newMoves
-
-                if (info.hasGameEnded) {
-                    poll = false
-                    saveHandle[saveArgument] = null
-                    val id = userService.getUser()?.id!!
-                    isGameOver = true
-                    if (info.winner != null)
-                        winner = info.winner == id
-                }
-
-                saveHandle[saveArgument] = Game(moves, lobbyId!!, player!!)
-            }catch (ex: RedirectException){
-                Log.d("Test","Exception thrown")
-                withContext(Dispatchers.Main){
-                    redirect(ex)
-                }
-            }
+                setGameState(info,user)
         }
 
     }
-
-
-    @Composable
-    fun EndingScreen(modifier: Modifier) {
-
-        Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-            val text: String = when(winner){
-                null -> stringResource(R.string.Tie)
-                true -> stringResource(R.string.Winner)
-                false -> stringResource(R.string.Loser)
-            }
-            Text(text = text, modifier = modifier)
-
-        }
-    }
-
     fun canPlay(selectGame:() -> Unit,reLogin: (Exception) -> Unit) {
         safeCall {
         if (activeUser == null){

@@ -27,7 +27,7 @@ class GomokuApplication : Application(), DependencyContainer {
         name = UserPreferencesDataStoreName
     )
     private val userRepo : UserRepository by lazy {
-        UserMem() /*Or*/ /*UserDataStore(dataStore)*/
+        /*UserMem()*/ /*Or*/ UserDataStore(dataStore)
     }
     private val requestBuilder = HttpRequest(client)
 

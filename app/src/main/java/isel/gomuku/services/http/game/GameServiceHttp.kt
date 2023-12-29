@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import isel.gomuku.repository.user.model.LoggedUser
+import isel.gomuku.screens.gameScreeens.remoteGame.RedirectException
 import isel.gomuku.services.GameService
 import isel.gomuku.services.http.HttpRequest
 import isel.gomuku.services.http.Problem
@@ -11,10 +12,14 @@ import isel.gomuku.services.http.RemoteSourceException
 import isel.gomuku.services.http.game.httpModel.AwaitingOpponent
 import isel.gomuku.services.http.game.httpModel.GameDetails
 import isel.gomuku.services.http.game.httpModel.GameEnded
+import isel.gomuku.services.http.game.httpModel.GameOpened
 import isel.gomuku.services.http.game.httpModel.GameRunning
 import isel.gomuku.services.http.game.httpModel.GameStatus
+import isel.gomuku.services.http.game.httpModel.LobbyClosed
 import isel.gomuku.services.http.game.httpModel.Move
 import isel.gomuku.services.http.game.httpModel.PlayMade
+import isel.gomuku.services.http.game.httpModel.UserInfo
+import isel.gomuku.services.http.game.httpModel.WaitingOpponentPieces
 import isel.gomuku.services.http.requestBody.GameOptionsBody
 import isel.gomuku.services.http.requestBody.PlayBody
 import isel.gomuku.services.local.gameLogic.Player
@@ -67,8 +72,13 @@ class GameServiceHttp(
         gameUrl()
             .addPathSegment("active-match")
     }
+    private fun getAuth(auth: String):Map<String, String>{
+        return mapOf("Authorization" to "Bearer $auth")
+    }
 
     private suspend fun remoteRequest(request: Request, action:((Response) -> Unit)? = null){
+        Log.d("Test","id was: $lobbyId")
+        Log.d("Test","making request to : ${request.url}")
         try {
             requestBuilder.doRequest(request){
                 if (action != null) {
@@ -80,10 +90,11 @@ class GameServiceHttp(
         }catch (remote: RemoteSourceException){
             val prob = gson.fromJson(remote.body?.string(), Problem::class.java)
             if (remote.status == 401){
-                TODO("Decide what do do when unauthorized")
+                throw RedirectException()
             }
             if (prob.type != "basic" && prob.title == "Already in a game"){
-                TODO("Fetch active game id and give options")
+                Log.d("Test",prob.toString())
+                throw RejoinGame()
             }
             throw Exception(if (prob.detail != null)prob.title +":" + prob.detail else prob.title)
         }
@@ -92,21 +103,35 @@ class GameServiceHttp(
     fun setLobbyId(lobby: Int) {
         lobbyId = lobby
     }
+    fun getLobbyId(): Int? = lobbyId
 
-    override suspend fun play(line: Int, column: Int, auth: String): GameStateReturn? {
+    override suspend fun play(line: Int, column: Int, auth: String): GameStatus {
         val play = PlayBody(line,column)
         val body = gson.toJson(play).toRequestBody("application/json".toMediaType())
         val request = requestBuilder.post(
             playUrl(),
             body,
-            mapOf("Authorization" to "Bearer $auth")
+            getAuth(auth)
         )
-        var gameState : GameStateReturn? = null
+        var gameState : GameStatus? = null
+        Log.d("Test","Starting game")
         remoteRequest(request){
             val dto = gson.fromJson(it.body?.string(),ApiGameDetails::class.java)
+            gameState = when{
+                dto.playMade != null -> dto.playMade
+                dto.gameEnded != null -> {
+                    dto.gameEnded.opponent = dto.opponent
+                    dto.gameEnded
+                }
+                dto.lobbyClosed != null-> dto.lobbyClosed
+                dto.awaitingOpponent != null -> dto.awaitingOpponent
+                else ->  throw IllegalStateException("Unexpected server response")
+            }
             Log.d("Test",dto.toString())
         }
-        return gameState
+
+        requireNotNull(gameState)
+        return gameState as GameStatus
 
     }
 
@@ -128,62 +153,109 @@ class GameServiceHttp(
         Log.d("Test","Starting game")
         remoteRequest(request){
             val dto = gson.fromJson(it.body?.string(),ApiGameDetails::class.java)
-            if (dto.awaitingOpponent != null){
-                gameState = dto.awaitingOpponent
-            }else{
-                throw IllegalStateException("Unexpected server response")
+            gameState = when{
+                dto.awaitingOpponent != null -> {
+                    lobbyId = dto.awaitingOpponent.lobbyId
+                    dto.awaitingOpponent
+                }
+                dto.waitingOpponentPieces != null -> {
+                    lobbyId = dto.waitingOpponentPieces.lobbyId
+                    dto.waitingOpponentPieces.opponent = dto.opponent
+                    dto.waitingOpponentPieces
+                }
+                else -> throw IllegalStateException("Unexpected server response")
             }
-            Log.d("Test",dto.toString())
         }
+
         requireNotNull(gameState)
         return gameState as GameStatus
 
     }
 
-    override suspend fun quitGame(auth: String) {
-        TODO()
-        /*val request = httpRequests.post(
-            quitUrl(), requestBody(emptyList()),
-            hashMapOf("accept" to "application/json", "Authorization" to auth)
+    override suspend fun quitGame(auth: String): GameStatus {
+        val request = requestBuilder.post(
+            quitUrl(),
+            headers = getAuth(auth)
         )
-        httpRequests.doRequest(request) {
-            //Recebe um gameStatusOutputModel
-            //LobbyClosedOutput,    GameEndedOutput
-        }*/
+        var gameState : GameStatus? = null
+        Log.d("Test","Starting game")
+        remoteRequest(request){
+            val dto = gson.fromJson(it.body?.string(),ApiGameDetails::class.java)
+            gameState = when{
+                dto.gameEnded != null -> {
+                    dto.gameEnded.opponent = dto.opponent
+                    dto.gameEnded
+                }
+                dto.lobbyClosed != null -> dto.lobbyClosed
+                else -> throw IllegalStateException("Unexpected server response")
+            }
+        }
+        requireNotNull(gameState)
+        return gameState as GameStatus
     }
 
-    override suspend fun getGameState(auth: String): GameStateReturn {
-        TODO()
-        /*val request = httpRequests.get(
+    override suspend fun getGameState(auth: String): GameStatus {
+        val request = requestBuilder.get(
             gameState(),
-            hashMapOf("accept" to "application/json", "Authorization" to auth)
+            getAuth(auth)
         )
-        return httpRequests.doRequest(request) {
-            try {
-                val dto = gson.fromJson(it.body?.string(), GameRunningOutput::class.java)
-                return@doRequest GameStateReturn(
-                    dto.gameOpened.moves,
-                    false,
-                    null,
-                    false
-                )
-            } catch (_: JsonSyntaxException) {
+        var gameState : GameStatus? = null
+        Log.d("Test","Starting game")
+        remoteRequest(request){
+            val dto = gson.fromJson(it.body?.string(),ApiGameDetails::class.java)
+            gameState = when{
+                dto.awaitingOpponent != null -> dto.awaitingOpponent
+                dto.gameEnded != null -> {
+                    dto.gameEnded.opponent = dto.opponent
+                    dto.gameEnded
+                }
+                dto.gameRunning != null -> {
+                     dto.gameRunning.opponent = dto.opponent
+                    dto.gameRunning
+
+                }
+                dto.playMade != null -> dto.playMade
+                dto.lobbyClosed != null -> dto.lobbyClosed
+                else -> throw IllegalStateException("Unexpected server response")
             }
+        }
+        requireNotNull(gameState)
+        return gameState as GameStatus
+    }
 
-            return@doRequest null
-
-        }*/
+    override suspend fun getGameDetails(auth: String): GameDetails {
+        val request = requestBuilder.get(
+            activeGame(),getAuth(auth)
+        )
+        var gameDetails :GameDetails? = null
+        remoteRequest(request){
+            val dto = gson.fromJson(it.body?.string(),ApiGameDetails::class.java)
+            if (dto.game != null){
+                gameDetails = dto.game
+            }else{
+                throw IllegalStateException("Unexpected server response")
+            }
+        }
+        return gameDetails!!
     }
 
 
 }
 
+class RejoinGame : Exception() {
+
+}
+
 data class ApiGameDetails(
-    val gameDetails : GameDetails,
+    val game : GameDetails,
     val awaitingOpponent: AwaitingOpponent,
     val gameRunning: GameRunning,
     val playMade: PlayMade,
     val gameEnded: GameEnded,
+    val lobbyClosed : LobbyClosed,
+    val gameOpened : GameOpened,
+    val waitingOpponentPieces : WaitingOpponentPieces,
+    val opponent:UserInfo
 )
 
 class GameStateReturn(

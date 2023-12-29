@@ -48,16 +48,16 @@ fun SearchMatch(
                 }
                 Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                     Button(
-                        onClick = { changeGameType(true) },
-                        enabled = !buildGameOptions.isGameLocal
-                    ) {
-                        Text(text = stringResource(id = R.string.local_game_title))
-                    }
-                    Button(
                         onClick = { changeGameType(false) },
                         enabled = buildGameOptions.isGameLocal
                     ) {
                         Text(text = stringResource(id = R.string.remote_game_title))
+                    }
+                    Button(
+                        onClick = { changeGameType(true) },
+                        enabled = !buildGameOptions.isGameLocal
+                    ) {
+                        Text(text = stringResource(id = R.string.local_game_title))
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {

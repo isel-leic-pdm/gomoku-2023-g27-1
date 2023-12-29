@@ -1,5 +1,6 @@
 package isel.gomuku.services.http.game.httpModel
 
+import isel.gomuku.services.local.gameLogic.Player
 import isel.gomuku.services.local.gameLogic.Position
 
-class Move (val position: Position, val goPiece: GoPiece)
+class Move (val position: Position, val goPiece: Player)
