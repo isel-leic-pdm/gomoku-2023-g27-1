@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import isel.gomuku.screens.component.LoadingWithText
 import isel.gomuku.screens.gameScreeens.components.DrawBoard
-import isel.gomuku.screens.gameScreeens.remoteGame.Polling
+import isel.gomuku.services.http.game.httpModel.Polling
 import isel.gomuku.services.http.game.httpModel.UserInfo
 import isel.gomuku.services.local.gameLogic.Player
 import isel.gomuku.services.local.gameLogic.Position

@@ -22,10 +22,10 @@ import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.GameOptions
-import isel.gomuku.screens.gameScreeens.remoteGame.RedirectException
 import isel.gomuku.screens.gameScreeens.remoteGame.RemoteGameActivity
 import isel.gomuku.screens.users.component.DrawUserAuth
 import isel.gomuku.screens.users.component.DrawUserDetails
+import isel.gomuku.screens.utils.RedirectException
 import isel.gomuku.ui.theme.GomukuTheme
 import java.lang.Exception
 

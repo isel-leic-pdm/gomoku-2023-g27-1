@@ -51,12 +51,6 @@ fun MainMenu(
                 fontSize = MENU_BUTTON_TEXT_SIZE.sp
             )
         }
-        Button(onClick = { /*TODO*/ }, modifier = modifier) {
-            Text(
-                text = stringResource(id = R.string.main_menu_talk),
-                fontSize = MENU_BUTTON_TEXT_SIZE.sp
-            )
-        }
         Button(onClick = rankingHandle, modifier = modifier) {
             Text(
                 text = stringResource(id = R.string.main_menu_ranking),

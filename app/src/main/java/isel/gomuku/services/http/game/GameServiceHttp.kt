@@ -3,8 +3,7 @@ package isel.gomuku.services.http.game
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import isel.gomuku.repository.user.model.LoggedUser
-import isel.gomuku.screens.gameScreeens.remoteGame.RedirectException
+import isel.gomuku.screens.utils.RedirectException
 import isel.gomuku.services.GameService
 import isel.gomuku.services.http.HttpRequest
 import isel.gomuku.services.http.Problem
