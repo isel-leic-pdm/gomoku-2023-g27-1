@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
@@ -52,10 +53,12 @@ class LocalGameActivity : BaseComponentActivity<LocalGameViewModel>() {
                                     onBackHandler = { finish() })
                             )
                         }) { pad ->
+                            val cellSize = (LocalConfiguration.current.screenWidthDp / viewModel.GRID_SIZE) - 1
                             DrawBoard(modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
                                 boardSize = viewModel.GRID_SIZE,
                                 makePlay = { viewModel.play(it) },
-                                moves = viewModel.getMoves()
+                                moves = viewModel.getMoves(),
+                                cellSize
                             )
                         }
                 }

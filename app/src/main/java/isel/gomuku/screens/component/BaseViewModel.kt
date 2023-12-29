@@ -6,7 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -18,18 +23,39 @@ abstract class BaseViewModel : ViewModel() {
 
     protected fun safeCall(function: suspend () -> Unit) {
 
-        //TODO:Check concurrency
-        viewModelScope.launch {//Could it be possible to use IO dispatcher?
-            isLoading = true
-            try {
-                function()
-            } catch (e: Exception) {
-                Log.d("Test","error",e)
 
-                error = e.message.toString()//TODO:Proper error presentation
+
+        viewModelScope.launch() {
+            while (isLoading){
+
+            }
+            if (!isLoading) {
+                isLoading = true
+                val async = launch(Dispatchers.IO) {
+
+                    try {
+                        Log.d(
+                            "Test",
+                            "async start ${Thread.currentThread().name + Thread.currentThread().id}"
+                        )
+                        function()
+                    } catch (e: Exception) {
+                        Log.d("Test", "error", e)
+                        withContext(Dispatchers.Main) {
+
+                            error = e.message.toString()//TODO:Proper error presentation
+                        }
+                    }
+                }
+                async.start()
             }
             isLoading = false
         }
+        }
+
+
 
     }
-}
+
+
+

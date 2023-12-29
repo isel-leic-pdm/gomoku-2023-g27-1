@@ -37,20 +37,18 @@ private const val CIRCLE_ALIGN = 4
 const val bottomRightCorner = "extremity"
 const val ignore = "ignore"
 
+
 @Composable
 fun DrawBoard(
     modifier: Modifier,
     boardSize: Int,
     makePlay: (Position) -> Unit,
-    moves: MutableMap<Position, Player?>,
-    player: Player? = null
+    moves: MutableMap<Position, Player?>?,
+    cellSize : Int
 ) {
-    val cellSize = (LocalConfiguration.current.screenWidthDp / boardSize) - 1
     val backGroundColor = Color(red = 246, green = 206, blue = 5)
+    if (moves != null) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        //Might be necessary for remote game
-        if (player != null)
-            Text(text = "You are playing as: $player")
         Box(
             modifier = Modifier
                 .background(backGroundColor)
@@ -58,9 +56,9 @@ fun DrawBoard(
         ) {
             Row(modifier = Modifier.padding(ROW_PADDING.dp)) {
 
-                repeat(boardSize) { column ->
+                repeat(boardSize) { row ->
                     Column {
-                        repeat(boardSize) { row ->
+                        repeat(boardSize) { column ->
                             val pos = Position.invoke(row, column)
                             Box(modifier = Modifier
                                 .size(cellSize.dp)
@@ -81,15 +79,18 @@ fun DrawBoard(
                                         .clip(CircleShape)
                                         .background(color)
                                 )
+                                }
                             }
                         }
                     }
                 }
+
             }
 
         }
     }
 }
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true)
