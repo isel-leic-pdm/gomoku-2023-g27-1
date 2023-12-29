@@ -45,7 +45,7 @@ fun DrawRemoteGame(
             moves = moves,
             cellSize
         )
-        
+
         Row() {
             Box(modifier = Modifier.fillMaxWidth()){
                 val color = when (player) {
@@ -54,8 +54,11 @@ fun DrawRemoteGame(
                     else -> null
                 }
                 if (color != null) {
-                Column(modifier= Modifier.align(Alignment.CenterStart).background(Color.LightGray)) {
-                        Text(text = "You're playing as")
+                Column(modifier= Modifier
+                    .align(Alignment.CenterStart)
+                    .background(Color.LightGray),
+                       horizontalAlignment = Alignment.CenterHorizontally ) {
+                        Text(text = "Your Game Piece")
                         Box(
                             modifier = Modifier
                                 .size(cellSize.dp)
@@ -64,12 +67,16 @@ fun DrawRemoteGame(
                         )
                     }
             }
-                Column(modifier= Modifier.align(Alignment.CenterEnd)) {
-                    if (opponent != null)
-                        Text(text = "You're playing against ${opponent.nickname}")
+                Column(modifier= Modifier.align(Alignment.CenterEnd).background(Color.LightGray),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (opponent != null) {
+                        Text(text = "Opponent Name")
+                        Text(text = opponent.nickname)
+                    }
+
                 }
             }
-            
+
         }
 
         Box(modifier = Modifier.fillMaxSize()){
