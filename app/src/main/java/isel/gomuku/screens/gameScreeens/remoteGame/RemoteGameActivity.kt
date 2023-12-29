@@ -9,19 +9,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
 import isel.gomuku.screens.gameScreeens.GameOptions
-import isel.gomuku.screens.gameScreeens.components.DrawBoard
+import isel.gomuku.screens.gameScreeens.components.EndingScreen
+import isel.gomuku.screens.gameScreeens.remoteGame.component.DrawRemoteGame
+import isel.gomuku.screens.users.UsersActivity
 import isel.gomuku.screens.utils.viewModelInitWithSavedState
 import isel.gomuku.ui.theme.GomukuTheme
 import kotlinx.coroutines.delay
@@ -48,6 +48,11 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
         }
     }
 
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        Log.d("Test", "Resumed2.0")
+        super.onActivityReenter(resultCode, data)
+    }
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,13 +65,15 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
         require(gameOptions != null) { "How is it null?" }
 
 
-        viewModel.startGame(
-            gameOptions.gridSize!!,
-            gameOptions.variant!!,
-            gameOptions.openingRule!!
-        )
+
 
         safeSetContent {
+            viewModel.startGame(
+                gameOptions.gridSize!!,
+                gameOptions.variant!!,
+                gameOptions.openingRule!!,
+                { UsersActivity.navigate(this, it) }
+            )
             GomukuTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
@@ -77,28 +84,43 @@ class RemoteGameActivity : BaseComponentActivity<RemoteGameViewModel>() {
                         }))
                     }) { pad ->
                         LaunchedEffect(viewModel.poll) {
-                            try {
-                                while (viewModel.poll) {
-                                    delay(500)
-                                    viewModel.fetchState()
+                            while (viewModel.poll.isPolling) {
+                                delay(2000)
+                                viewModel.fetchState {
+                                    UsersActivity.navigate(
+                                        this@RemoteGameActivity,
+                                        it
+                                    )
                                 }
-                            }catch (e: Exception){
-                                Log.d("Test", e.toString())
                             }
-                        }
-                        if (!viewModel.isGameOver){
-                            DrawBoard(
-                                modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
-                                boardSize = gameOptions.gridSize,
-                                makePlay = viewModel::play,
-                                moves = viewModel.moves
-                            )
-                            Button(onClick = viewModel::quit) {
-                                Text("Give up")
-                            }
-                        }
-                        else viewModel.EndingScreen(Modifier.padding(vertical = pad.calculateTopPadding()))
 
+                        }
+                        DrawRemoteGame(
+                            modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
+                            gridSize = gameOptions.gridSize,
+                            makePlay = {
+                                if (!viewModel.isGameOver) {
+                                    viewModel.play(it, { UsersActivity.navigate(this, it) })
+                                }
+                            },
+                            moves = viewModel.moves,
+                            quit = {
+                                if (!viewModel.isGameOver) {
+                                    viewModel.quit({
+                                        UsersActivity.navigate(
+                                            this,
+                                            it
+                                        )
+                                    }) { this.finish() }
+                                }
+                            },
+                            viewModel.poll,
+                            viewModel.player,
+                            viewModel.opponent
+                        )
+                        if (viewModel.isGameOver) {
+                            EndingScreen(viewModel.winner)
+                        }
                     }
                 }
             }

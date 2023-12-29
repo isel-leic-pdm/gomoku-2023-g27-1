@@ -6,7 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -20,24 +23,39 @@ abstract class BaseViewModel : ViewModel() {
 
     protected fun safeCall(function: suspend () -> Unit) {
 
-        //TODO:Check concurrency
-        isLoading = true
+
+
         viewModelScope.launch() {
-            val async = launch(Dispatchers.IO) {
-                try {
-                    Log.d("Test", "async start ${Thread.currentThread().name + Thread.currentThread().id}")
-                    function()
-                } catch (e: Exception) {
-                    Log.d("Test", "error", e)
-                    withContext(Dispatchers.Main){
-                        error = e.message.toString()//TODO:Proper error presentation
+            while (isLoading){
+
+            }
+            if (!isLoading) {
+                isLoading = true
+                val async = launch(Dispatchers.IO) {
+
+                    try {
+                        Log.d(
+                            "Test",
+                            "async start ${Thread.currentThread().name + Thread.currentThread().id}"
+                        )
+                        function()
+                    } catch (e: Exception) {
+                        Log.d("Test", "error", e)
+                        withContext(Dispatchers.Main) {
+
+                            error = e.message.toString()//TODO:Proper error presentation
+                        }
                     }
                 }
+                async.start()
             }
-            async.join()
             isLoading = false
         }
+        }
+
+
 
     }
-}
+
+
 

@@ -45,7 +45,7 @@ class ExampleUnitTest {
 
     @Test
     fun remote_request(){
-       /* val gson = Gson()
+        /*val gson = Gson()
 
         runBlocking {
             val request = HttpRequest(OkHttpClient())
