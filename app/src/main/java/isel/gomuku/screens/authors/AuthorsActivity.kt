@@ -43,7 +43,7 @@ class AuthorsScreenActivity : ComponentActivity() {
     }
 
     //make content and subject hardcoded?
-    fun sendEmailIntent(email: String, subject: String, content: String) {
+    private fun sendEmailIntent(email: String, subject: String, content: String) {
         try {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")

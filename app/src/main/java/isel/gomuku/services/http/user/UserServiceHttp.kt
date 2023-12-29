@@ -13,6 +13,7 @@ import isel.gomuku.services.http.requestBody.LoginBody
 import isel.gomuku.services.http.requestBody.RegisterBody
 import isel.gomuku.services.http.requestBody.GomokuRequestBody
 import isel.gomuku.services.http.user.model.UserAuthorization
+import isel.gomuku.services.http.user.model.UserProfile
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -35,7 +36,7 @@ class UserServiceHttp(
     private val loginURI = { userURI().addPathSegment("login") }
     private val logoutURI = { userURI().addPathSegment("logout") }
     private val registerURI = { userURI().addPathSegment("register")}
-
+    private val profileURI = { userURI().addPathSegment("profile")}
     private suspend fun remoteRequest(request: Request,action:((Response) -> Unit)? = null){
         try {
             requestBuilder.doRequest(request){
@@ -92,6 +93,21 @@ class UserServiceHttp(
         )
         userRepository.deleteUser()
         remoteRequest(request)
+    }
+
+    override suspend fun userProfile(): UserProfile {
+        val token = userRepository.getUser()?.token
+            ?: throw IllegalStateException("User as not logged in yet")
+        val request = requestBuilder.get(
+            profileURI(),
+            headers = mapOf("Authorization" to "Bearer $token")
+        )
+        var userProfile: UserProfile? = null
+        remoteRequest(request) {
+            val dto = gson.fromJson(it.body?.string(), UserProfile::class.java)
+            userProfile = dto
+        }
+        return userProfile!!
     }
 
     companion object {

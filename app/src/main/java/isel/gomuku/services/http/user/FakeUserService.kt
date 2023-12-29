@@ -3,6 +3,7 @@ package isel.gomuku.services.http.user
 import isel.gomuku.repository.user.UserRepository
 import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.services.UserService
+import isel.gomuku.services.http.user.model.UserProfile
 import kotlinx.coroutines.delay
 
 class FakeUserService(private val userRepository: UserRepository) : UserService {
@@ -24,6 +25,10 @@ class FakeUserService(private val userRepository: UserRepository) : UserService 
         val user = LoggedUser(0,userName, "token")
         userRepository.setUser(user)
         return user
+    }
+
+    override suspend fun userProfile(): UserProfile {
+        TODO("Not yet implemented")
     }
 
     override suspend fun logout() {

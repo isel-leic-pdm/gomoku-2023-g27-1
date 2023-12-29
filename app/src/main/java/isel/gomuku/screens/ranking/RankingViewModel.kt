@@ -10,6 +10,7 @@ import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
 import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.services.http.statistics.StatsServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
+import isel.gomuku.screens.utils.RedirectException
 import isel.gomuku.services.http.statistics.model.LeaderBoard
 import isel.gomuku.services.http.statistics.model.PlayerStats
 import isel.gomuku.services.http.statistics.model.RankingModel
@@ -31,18 +32,30 @@ class RankingViewModel(private val service: StatsServiceHttp, ):BaseViewModel() 
 
     var playerStats: PlayerStats? by mutableStateOf(null)
 
+
+    private var activeUser : LoggedUser? = null
+
+
     fun editName (name: String) {
         nickname = name
     }
     //função que nao recebe nada como parametro
+    private fun getUser(redirect: (Exception) -> Unit): LoggedUser {
+        try {
+            Log.d("Test","User stat is :$activeUser")
+            if (activeUser == null) throw RedirectException()
 
-    fun searchMyRank (getUser: () -> LoggedUser?, redirect: () -> Unit  ) {
-        val user = getUser()
-        if (user == null) {
-            redirect()
-        } else {
-            val name = user.name
+        } catch (ex: RedirectException) {
+            Log.d("Test", "Exception thrown")
+            redirect(ex)
+
         }
+        return activeUser ?: throw IllegalStateException("User must re login")
+    }
+
+    fun searchMyRank (listState: LazyListState, coroutineScope: CoroutineScope, redirect: (Exception) -> Unit ) {
+        val user = getUser(redirect)
+        search(listState, coroutineScope, name = user.name)
     }
     fun getPlayerStats (id:Int) {
         safeCall {
@@ -52,6 +65,7 @@ class RankingViewModel(private val service: StatsServiceHttp, ):BaseViewModel() 
     }
     fun search (listState: LazyListState, coroutineScope: CoroutineScope, name: String = nickname) {
         safeCall {
+
                 val index = leaderBoard?.players?.indexOfFirst { it.playerName == name }
                 if (index != null && index != -1) {
                     coroutineScope.launch {

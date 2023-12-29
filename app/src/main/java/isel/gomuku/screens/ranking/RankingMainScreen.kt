@@ -37,6 +37,7 @@ fun RankingScreen(
     globalStatistics: GlobalStatistics?,
     currentState: RankingScreenState,
     nickname : String,
+    searchMyRank: (LazyListState, CoroutineScope) -> Unit,
     searchNickname: (LazyListState, CoroutineScope) -> Unit,
 ) {
 
@@ -58,6 +59,7 @@ fun RankingScreen(
                 nextPage = leaderBoard?.nextPage,
                 bestPlayerRanking = leaderBoard?.players,
                 nickname = nickname,
+                searchMyRank = searchMyRank,
                 searchNickname = searchNickname
         )
 

@@ -54,6 +54,7 @@ fun LeaderBoardScreen(
     nextPage: Int? = null,
     bestPlayerRanking: List<BestPlayerRanking>?,
     nickname: String,
+    searchMyRank : (LazyListState, CoroutineScope) -> Unit,
     searchNickname: (LazyListState, CoroutineScope) -> Unit,
 
     ) {
@@ -85,6 +86,7 @@ fun LeaderBoardScreen(
             nextPage = nextPage, onEditName = onEditName,
             onGetMoreRankings = onGetMoreRankings,
             nickname = nickname,
+            searchMyRank = searchMyRank,
             searchNickname = searchNickname
         )
     }
@@ -101,6 +103,7 @@ fun RankingList(
     onEditName: (String) -> Unit,
     onGetMoreRankings: () -> Unit,
     nickname: String,
+    searchMyRank: (LazyListState, CoroutineScope) -> Unit,
     searchNickname: (LazyListState, CoroutineScope) -> Unit,
 ) {
     val listState = rememberLazyListState()
@@ -141,6 +144,11 @@ fun RankingList(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            item {
+                Button(onClick = { searchMyRank(listState, coroutineScope) }) {
+                    Text(text = stringResource(id = R.string.search_my_ranking), fontSize = RANKING_TEXT_SIZE.sp)
+                }
+            }
             if (bestPlayerRanking != null) {
                 this.items(bestPlayerRanking) {
                     RankingRow(onGetPlayer = onGetPlayer, onState= onState, player = it)

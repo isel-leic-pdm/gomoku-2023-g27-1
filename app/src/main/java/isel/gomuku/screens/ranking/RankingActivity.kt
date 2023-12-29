@@ -16,6 +16,7 @@ import isel.gomuku.GomokuApplication
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
+import isel.gomuku.screens.users.UsersActivity
 import isel.gomuku.screens.utils.viewModelInit
 import isel.gomuku.ui.theme.GomukuTheme
 
@@ -69,6 +70,9 @@ class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
                             globalStatistics = viewModel.globalStatistics,
                             currentState = viewModel.currentState,
                             nickname = viewModel.nickname,
+                            searchMyRank = {   ls, cs ->
+                                viewModel.searchMyRank(ls, cs, redirect = { UsersActivity.navigate(this, it) } )
+                                           },
                             searchNickname = viewModel::search
                         )
                     }
