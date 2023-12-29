@@ -60,8 +60,6 @@ class HttpRequest (private val client: OkHttpClient){
                         it.resumeWithException(RemoteSourceException(response.body,response.code))
                     }else{
                         try {
-
-                            Log.d("Test","Still ran")
                             it.resume(callback(response))
                         } catch (e: Exception) {
                             it.resumeWithException(e)

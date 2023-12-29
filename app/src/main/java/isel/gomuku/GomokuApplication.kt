@@ -37,7 +37,7 @@ class GomokuApplication : Application(), DependencyContainer {
         GameServiceHttp(client, gson, REMOTE_GAME_API_BASE_URL)
     }
     override val statsService by lazy {
-        StatsServiceHttp(client, gson, REMOTE_GAME_API_BASE_URL)
+        StatsServiceHttp(HttpRequest(client), gson, REMOTE_GAME_API_BASE_URL)
     }
 
     companion object {
