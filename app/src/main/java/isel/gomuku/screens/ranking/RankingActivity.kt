@@ -2,7 +2,6 @@ package isel.gomuku.screens.ranking
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,20 +11,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import isel.gomuku.GomokuApplication
 import isel.gomuku.screens.component.BaseComponentActivity
 import isel.gomuku.screens.component.NavigationHandlers
 import isel.gomuku.screens.component.TopBar
+import isel.gomuku.screens.ranking.component.RankingScreen
 import isel.gomuku.screens.users.UsersActivity
 import isel.gomuku.screens.utils.viewModelInit
 import isel.gomuku.ui.theme.GomukuTheme
 
 
-
-class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
-    private val app by lazy { application as GomokuApplication }
+class RankingActivity() : BaseComponentActivity<RankingViewModel>() {
     override val viewModel: RankingViewModel by viewModels {
-        viewModelInit { RankingViewModel(app.statsService) }
+        viewModelInit {
+            RankingViewModel(
+                dependencyContainer.statsService,
+                dependencyContainer.userService
+            )
+        }
     }
 
     companion object {
@@ -51,9 +53,10 @@ class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
                                         RankingScreenState.MENU -> finish()
                                         RankingScreenState.PLAYER_STATS ->
                                             viewModel.currentState = RankingScreenState.LEADER_BOARD
+
                                         else -> viewModel.currentState = RankingScreenState.MENU
                                     }
-                                                },
+                                },
                             )
                         )
                     }) { pad ->
@@ -70,9 +73,12 @@ class RankingActivity (): BaseComponentActivity<RankingViewModel> () {
                             globalStatistics = viewModel.globalStatistics,
                             currentState = viewModel.currentState,
                             nickname = viewModel.nickname,
-                            searchMyRank = {   ls, cs ->
-                                viewModel.searchMyRank(ls, cs, redirect = { UsersActivity.navigate(this, it) } )
-                                           },
+                            searchMyRank = { ls, cs ->
+                                viewModel.searchMyRank(
+                                    ls,
+                                    cs,
+                                    redirect = { UsersActivity.navigate(this, it) })
+                            },
                             searchNickname = viewModel::search
                         )
                     }

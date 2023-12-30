@@ -11,6 +11,7 @@ import isel.gomuku.repository.user.model.LoggedUser
 import isel.gomuku.services.http.statistics.StatsServiceHttp
 import isel.gomuku.screens.component.BaseViewModel
 import isel.gomuku.screens.utils.RedirectException
+import isel.gomuku.services.UserService
 import isel.gomuku.services.http.statistics.model.LeaderBoard
 import isel.gomuku.services.http.statistics.model.PlayerStats
 import isel.gomuku.services.http.statistics.model.RankingModel
@@ -20,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RankingViewModel(private val service: StatsServiceHttp, ):BaseViewModel() {
+class RankingViewModel(private val service: StatsServiceHttp, userService: UserService):BaseViewModel() {
     var leaderBoard: LeaderBoard? by mutableStateOf(null)
         private set
     var globalStatistics: GlobalStatistics? by mutableStateOf(null)
@@ -34,7 +35,11 @@ class RankingViewModel(private val service: StatsServiceHttp, ):BaseViewModel() 
 
 
     private var activeUser : LoggedUser? = null
-
+    init {
+        safeCall {
+            activeUser = userService.getUser()
+        }
+    }
 
     fun editName (name: String) {
         nickname = name

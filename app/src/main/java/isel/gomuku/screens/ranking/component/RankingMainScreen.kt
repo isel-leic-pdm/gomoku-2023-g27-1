@@ -1,4 +1,4 @@
-package isel.gomuku.screens.ranking
+package isel.gomuku.screens.ranking.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,11 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.isel.gomokuApi.domain.model.statistcs.GlobalStatistics
 import isel.gomuku.R
+import isel.gomuku.screens.ranking.RankingScreenState
 import isel.gomuku.services.http.statistics.model.LeaderBoard
 import isel.gomuku.services.http.statistics.model.PlayerStats
 import isel.gomuku.utils.RANKING_TEXT_SIZE
 
-import isel.gomuku.services.http.statistics.model.RankingModel
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)

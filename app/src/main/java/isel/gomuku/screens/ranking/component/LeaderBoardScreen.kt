@@ -1,4 +1,4 @@
-package isel.gomuku.screens.ranking
+package isel.gomuku.screens.ranking.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -33,11 +33,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.isel.gomokuApi.domain.model.statistcs.BestPlayerRanking
 import isel.gomuku.R
+import isel.gomuku.screens.ranking.RankingScreenState
 import isel.gomuku.utils.RANKING_TEXT_SIZE
 import kotlinx.coroutines.CoroutineScope
 
@@ -166,9 +166,9 @@ fun RankingList(
 
 @Composable
 fun RankingRow(
-                onGetPlayer: (Int) -> Unit,
-                onState: (RankingScreenState) -> Unit,
-                player: BestPlayerRanking) {
+    onGetPlayer: (Int) -> Unit,
+    onState: (RankingScreenState) -> Unit,
+    player: BestPlayerRanking) {
     Card(
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(

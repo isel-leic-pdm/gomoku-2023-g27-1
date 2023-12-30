@@ -1,4 +1,4 @@
-package isel.gomuku.screens.ranking
+package isel.gomuku.screens.ranking.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
