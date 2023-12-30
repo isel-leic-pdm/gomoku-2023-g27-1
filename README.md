@@ -4,4 +4,4 @@
 - 48268 Marçorio Fortes
 - 49454 Eduarto Tavares
 
-Video de demonstração: [Assista ao vídeo](https://youtu.be/to0-CoD_3ww)
+Video de demonstração: [Assista ao vídeo](https://clipchamp.com/watch/TXsjyMzzEbM)
