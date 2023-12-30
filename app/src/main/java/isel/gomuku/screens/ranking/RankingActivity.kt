@@ -62,7 +62,6 @@ class RankingActivity() : BaseComponentActivity<RankingViewModel>() {
                     }) { pad ->
                         RankingScreen(
                             modifier = Modifier.padding(vertical = pad.calculateTopPadding()),
-                            onState = viewModel::changeStatsToShow,
                             onGetPlayer = viewModel::getPlayerStats,
                             onGetGlobalStatistics = { viewModel.getGlobalStats() },
                             onGetRankings = { viewModel.getRankings() },

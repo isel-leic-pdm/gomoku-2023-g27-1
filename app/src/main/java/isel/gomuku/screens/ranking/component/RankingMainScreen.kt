@@ -26,7 +26,6 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun RankingScreen(
     modifier: Modifier,
-    onState: (RankingScreenState) -> Unit,
     onGetPlayer: (Int) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
@@ -45,14 +44,12 @@ fun RankingScreen(
         RankingScreenState.MENU ->
                 RankingMenuScreen(
                     modifier = modifier,
-                    onState = onState,
                     onGetGlobalStatistics = onGetGlobalStatistics,
                     onGetRankings = onGetRankings,
                 )
         RankingScreenState.LEADER_BOARD ->
             LeaderBoardScreen (
                 modifier = modifier,
-                onState = onState,
                 onGetPlayer = onGetPlayer,
                 onGetMoreRankings = onGetMoreRankings,
                 onEditName = onEditName,
@@ -78,7 +75,6 @@ fun RankingScreen(
 @Composable
 fun RankingMenuScreen(
     modifier: Modifier,
-    onState: (RankingScreenState) -> Unit,
     onGetGlobalStatistics: () -> Unit,
     onGetRankings: () -> Unit,
 ) {

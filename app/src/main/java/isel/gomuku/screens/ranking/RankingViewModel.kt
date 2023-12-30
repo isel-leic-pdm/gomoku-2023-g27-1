@@ -1,6 +1,5 @@
 package isel.gomuku.screens.ranking
 
-import android.provider.ContactsContract.CommonDataKinds.Nickname
 import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
@@ -14,8 +13,6 @@ import isel.gomuku.screens.utils.RedirectException
 import isel.gomuku.services.UserService
 import isel.gomuku.services.http.statistics.model.LeaderBoard
 import isel.gomuku.services.http.statistics.model.PlayerStats
-import isel.gomuku.services.http.statistics.model.RankingModel
-import isel.gomuku.services.http.statistics.model.Rankings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,7 +67,6 @@ class RankingViewModel(private val service: StatsServiceHttp, userService: UserS
     }
     fun search (listState: LazyListState, coroutineScope: CoroutineScope, name: String = nickname) {
         safeCall {
-
                 val index = leaderBoard?.players?.indexOfFirst { it.playerName == name }
                 if (index != null && index != -1) {
                     coroutineScope.launch {
@@ -94,15 +90,13 @@ class RankingViewModel(private val service: StatsServiceHttp, userService: UserS
         }
     }
 
-    fun changeStatsToShow (state: RankingScreenState) {
-        currentState = state
-    }
     fun getRankings () {
         safeCall {
-            val currRankings = leaderBoard
+            val currLeaderBoard = leaderBoard
+            val newLeaderBoard = service.getRankings(0, null)
             withContext(Dispatchers.Main) {
-                if (currRankings == null) {
-                    leaderBoard = service.getRankings(0, null)
+                if (currLeaderBoard == null) {
+                    leaderBoard =  newLeaderBoard
                 }
                 currentState = RankingScreenState.LEADER_BOARD
             }
